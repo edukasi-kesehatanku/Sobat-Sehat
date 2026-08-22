@@ -128,7 +128,7 @@
                 <img src="logo-kampus.png" alt="Logo Poltekkes Kemenkes Kaltim" class="sidebar-logo" onerror="this.style.display='none';"> </div> <div class="sidebar-title">Menu</div>
             <nav class="sidebar-nav" id="sidebarNav"> <div class="nav-indicator" id="navIndicator"></div> <button class="nav-item active" data-target="dashboard">Dashboard</button>
                 <button class="nav-item" data-target="game">Game</button> <button class="nav-item" data-target="materi">Materi Edukasi</button>
-                <button class="nav-item" data-target="video">Video Edukasi</button> <button class="nav-item" data-target="kalkulator">Kalkulator Sehat</button>
+                <button class="nav-item" data-target="kalkulator">Kalkulator Sehat</button>
                 <button class="nav-item" data-target="tips">Tips Sehat</button> <button class="nav-item" data-target="tentang">Tentang Website</button>
                 <button class="nav-item" data-target="referensi">Referensi</button> </nav> </aside>
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -147,9 +147,6 @@
                     <div class="dash-feature-grid">
                         <button class="tips-card dash-feature-card" data-target="materi"> <span class="tips-card-icon">📖</span> <span class="tips-card-title">Belajar</span>
                             <span class="tips-card-desc">Kenali gula dan berbagai hal penting tentang konsumsi gula melalui materi edukasi.</span> <span class="tips-card-cta">JELAJAHI MATERI →</span>
-                        </button>
-                        <button class="tips-card dash-feature-card" data-target="video"> <span class="tips-card-icon">🎥</span> <span class="tips-card-title">Tonton</span>
-                            <span class="tips-card-desc">Pelajari informasi tentang gula melalui video edukasi yang singkat dan mudah dipahami.</span> <span class="tips-card-cta">TONTON VIDEO →</span>
                         </button>
                         <button class="tips-card dash-feature-card" data-target="kalkulator"> <span class="tips-card-icon">🧮</span> <span class="tips-card-title">Hitung</span>
                             <span class="tips-card-desc">Gunakan kalkulator untuk mengetahui perkiraan batas konsumsi gula harian berdasarkan data yang kamu masukkan.</span>
@@ -306,8 +303,6 @@
                         <button class="tips-card related-card" data-target="tips"> <span class="tips-card-icon">🌱</span> <span class="tips-card-title">Tips Sehat</span>
                             <span class="tips-card-desc">Pelajari kebiasaan sederhana yang dapat diterapkan dalam kehidupan sehari-hari.</span> <span class="tips-card-cta">LIHAT TIPS →</span>
                         </button>
-                        <button class="tips-card related-card" data-target="video"> <span class="tips-card-icon">🎥</span> <span class="tips-card-title">Video Edukasi</span>
-                            <span class="tips-card-desc">Pelajari materi kesehatan melalui video edukasi.</span> <span class="tips-card-cta">LIHAT VIDEO →</span> </button>
                     </div> </div>
                 <div class="detail-block"> <div class="closing-card"> <h2 class="closing-title">📚 Belajar Hari Ini, Pilih Lebih Sadar Besok</h2>
                         <p class="closing-subtext">Memahami informasi tentang gula adalah langkah pertama. Setelah memahami, kamu dapat mulai menerapkannya dalam pilihan sehari-hari.</p>
@@ -518,8 +513,6 @@
                         <p class="closing-subtext">Teman, media sosial, rutinitas harian, dan tingkat aktivitas semuanya dapat memengaruhi kebiasaan makan dan minummu. Ini bukan tentang menyalahkan kebiasaan yang sudah ada, tetapi tentang mengenali polanya supaya kamu bisa membuat pilihan yang lebih sadar.</p>
                         <div class="poin-list closing-poin-list"> <p class="poin-item">👥 Sadari pengaruh lingkungan sosial.</p> <p class="poin-item">📱 Bijak menyikapi tren dan FOMO.</p>
                             <p class="poin-item">⏰ Kenali jam-jam rawanmu sendiri.</p> <p class="poin-item">📊 Perhatikan total konsumsi, bukan cuma satu produk.</p> </div> </div> </div>
-                <div class="detail-block"> <div class="cta-kontekstual"> <p class="cta-kontekstual-text">Ingin melihat penjelasannya dalam bentuk video?</p>
-                        <button id="btnCtaVideoDariMateri" class="btn-lanjut">🎬 TONTON VIDEO →</button> </div> </div>
                 <div class="detail-block"> <div class="cta-kontekstual">
                         <p class="cta-kontekstual-text">Sudah tahu kebiasaan yang perlu diperhatikan? Yuk, lihat langkah sederhana yang bisa kamu terapkan sehari-hari.</p>
                         <button id="btnCtaTipsDariMateri" class="btn-lanjut">💡 LIHAT TIPS SEHAT →</button> </div> </div>
@@ -883,25 +876,6 @@
                     <button type="button" id="btnMateriEnergiNext" class="btn-outline eb-linear-btn">Materi 6 →</button> </div>
                 <p class="sumber-info">Sumber informasi: World Health Organization (WHO) & Kementerian Kesehatan Republik Indonesia.</p>
             </section>
-            <section id="video" class="content-section">
-                <nav class="breadcrumb" aria-label="Breadcrumb"> <button type="button" class="breadcrumb-link" data-breadcrumb-target="dashboard">Dashboard</button>
-                    <span class="breadcrumb-sep">/</span> <span class="breadcrumb-current">Video Edukasi</span> </nav>
-                <div class="detail-block" style="margin-bottom:8px;"> <button id="btnKembaliDashboardVideo" class="btn-kembali">← Kembali ke Dashboard</button> </div>
-                <div class="tips-hero"> <div class="tips-hero-text"> <h1 class="tips-hero-title">🎥 Video Edukasi</h1>
-                        <p class="tips-hero-desc">Belajar tentang gula dan kebiasaan sehari-hari melalui video singkat yang mudah dipahami.</p> </div> <div class="tips-hero-illustration">🎬</div>
-                </div>
-                <div class="video-empty-state"> <span class="video-empty-icon" aria-hidden="true">🎬</span>
-                    <h2 class="video-empty-title">Segera Hadir</h2>
-                    <p class="video-empty-desc">Video edukasi sedang dalam proses pembuatan. Nantikan kehadirannya di halaman ini, ya!</p>
-                </div>
-                <div class="detail-block"> <div class="cta-kontekstual"> <p class="cta-kontekstual-text">Sambil menunggu video edukasi, yuk perdalam pemahamanmu melalui materi edukasi.</p>
-                        <button id="btnCtaMateriDariVideo" class="btn-lanjut">📚 BACA MATERI EDUKASI →</button> </div> </div>
-            </section>
-            <div id="videoModal" class="video-modal hidden" role="dialog" aria-modal="true" aria-labelledby="videoModalTitle"> <div class="video-modal-backdrop"></div>
-                <div class="video-modal-box" tabindex="-1"> <button id="btnTutupVideo" class="video-modal-close" aria-label="Tutup Video">✕ Tutup Video</button>
-                    <span id="videoModalNomor" class="video-modal-nomor">Video 1</span> <h3 id="videoModalTitle" class="video-modal-title">Judul Video</h3>
-                    <div id="videoModalPlayer" class="video-modal-player"> <span class="video-modal-player-icon">🎬</span> <p class="video-modal-player-text">Video akan segera hadir di sini.</p>
-                    </div> <p id="videoModalDesc" class="video-modal-desc">Deskripsi video.</p> </div> </div>
             <section id="kalkulator" class="content-section">
                 <nav class="breadcrumb" aria-label="Breadcrumb"> <button type="button" class="breadcrumb-link" data-breadcrumb-target="dashboard">Dashboard</button>
                     <span class="breadcrumb-sep">/</span> <span class="breadcrumb-current">Kalkulator Sehat</span> </nav>
@@ -1641,7 +1615,7 @@
                 <h1>Tentang Website</h1> <p class="content-subtitle">Kenali lebih jauh media edukasi ini dan siapa yang mengembangkannya.</p>
                 <div class="about-card"> <h2 class="about-card-title">📖 Tentang Media</h2> <p class="about-media-text">
                         Website ini dikembangkan sebagai media edukasi mengenai konsumsi gula dan pencegahan diabetes melitus pada remaja, khususnya siswa SMP. Melalui materi edukasi, kalkulator
-                        kebutuhan gula harian, tips praktis, dan video pembelajaran, website ini bertujuan membantu siswa mengenali kandungan gula dalam makanan dan minuman sehari-hari serta
+                        kebutuhan gula harian, dan tips praktis, website ini bertujuan membantu siswa mengenali kandungan gula dalam makanan dan minuman sehari-hari serta
                         membentuk kebiasaan konsumsi yang lebih sehat sebagai langkah pencegahan dini diabetes melitus. </p> </div>
                 <div class="about-card"> <h2 class="about-card-title">👤 Tentang Pengembang</h2>
                     <div class="about-profile"> <div class="about-avatar">

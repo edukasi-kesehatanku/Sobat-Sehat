@@ -876,9 +876,6 @@ document.querySelectorAll('.breadcrumb-link[data-breadcrumb-target]').forEach(li
 document.querySelectorAll('.breadcrumb-link[data-breadcrumb-tips]').forEach(link => {
     link.addEventListener('click', () => bukaTipsUtama());
 });
-on('btnCtaVideoDariMateri', 'click', () => {
-    bukaMenuUtama('video');
-});
 on('btnCtaTipsDariMateri', 'click', () => bukaTipsUtama());
 on('btnCtaMateriDariTips', 'click', () => bukaMenuUtama('materiKebiasaanRemaja'));
 on('btnKembaliAtasMateriKesehatan', 'click', () => bukaMenuUtama('materi'));
@@ -1032,74 +1029,17 @@ setupPanelChip('smJenisGulaChips', 'smJenisGulaPlaceholder', 'smJenisGulaContent
 ]);
 on('btnLanjutMateriKesehatanDariSumber', 'click', () => bukaMateri('gula-dan-kesehatan'));
 on('btnMateriSumberNext', 'click', () => bukaMateri('gula-dan-kesehatan'));
-on('btnKembaliDashboardVideo', 'click', () => bukaMenuUtama('dashboard'));
 on('btnKembaliDashboardGame', 'click', () => bukaMenuUtama('dashboard'));
 on('btnKembaliDashboardMateri', 'click', () => bukaMenuUtama('dashboard'));
 on('btnKembaliDashboardKalkulator', 'click', () => bukaMenuUtama('dashboard'));
 on('btnKembaliDashboardTips', 'click', () => bukaMenuUtama('dashboard'));
 on('btnKembaliDashboardTentang', 'click', () => bukaMenuUtama('dashboard'));
 on('btnKembaliDashboardReferensi', 'click', () => bukaMenuUtama('dashboard'));
-const videoModal = document.getElementById('videoModal');
-const videoModalBox = document.querySelector('.video-modal-box');
-const videoModalNomor = document.getElementById('videoModalNomor');
-const videoModalTitle = document.getElementById('videoModalTitle');
-const videoModalDesc = document.getElementById('videoModalDesc');
-const videoModalPlayer = document.getElementById('videoModalPlayer');
-let videoModalPemicu = null; // elemen yang tadi diklik untuk membuka modal, supaya fokus bisa dikembalikan
-function bukaVideoModal(card) {
-    videoModalPemicu = card;
-    videoModalNomor.textContent = card.dataset.videoNomor;
-    videoModalTitle.textContent = card.dataset.videoTitle;
-    videoModalDesc.textContent = card.dataset.videoDesc;
-    const videoUrl = card.dataset.videoUrl;
-    if (videoUrl) {
-        videoModalPlayer.innerHTML = `<iframe src="${videoUrl}" title="${card.dataset.videoTitle}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
-    } else {
-        videoModalPlayer.innerHTML = `<span class="video-modal-player-icon">🎬</span><p class="video-modal-player-text">Video akan segera hadir di sini.</p>`;
-    }
-    videoModal.classList.remove('hidden');
-    videoModalBox.focus(); // fokus keyboard pindah ke dalam modal saat dibuka
-}
-function tutupVideoModal() {
-    videoModal.classList.add('hidden');
-    videoModalPlayer.innerHTML = `<span class="video-modal-player-icon">🎬</span><p class="video-modal-player-text">Video akan segera hadir di sini.</p>`; // hentikan pemutaran video saat modal ditutup
-    if (videoModalPemicu) {
-        videoModalPemicu.focus(); // fokus kembali ke kartu video yang tadi diklik
-        videoModalPemicu = null;
-    }
-}
-document.querySelectorAll('.video-card').forEach(card => {
-    card.addEventListener('click', () => bukaVideoModal(card));
-});
-on('btnTutupVideo', 'click', () => tutupVideoModal());
-document.querySelector('.video-modal-backdrop')?.addEventListener('click', () => tutupVideoModal());
-document.addEventListener('keydown', (e) => {
-    if (!videoModal || videoModal.classList.contains('hidden')) return;
-    if (e.key === 'Escape') {
-        tutupVideoModal();
-        return;
-    }
-    if (e.key === 'Tab') {
-        const elemenBisaFokus = videoModal.querySelectorAll('button, [href], input, [tabindex]:not([tabindex="-1"])');
-        if (elemenBisaFokus.length === 0) return;
-        const pertama = elemenBisaFokus[0];
-        const terakhir = elemenBisaFokus[elemenBisaFokus.length - 1];
-        if (e.shiftKey && document.activeElement === pertama) {
-            e.preventDefault();
-            terakhir.focus();
-        } else if (!e.shiftKey && document.activeElement === terakhir) {
-            e.preventDefault();
-            pertama.focus();
-        }
-    }
-});
-on('btnCtaMateriDariVideo', 'click', () => bukaMenuUtama('materi'));
 const revealTargets = document.querySelectorAll([
     '.detail-block',
     '.dash-feature-card',
     '.reason-card',
     '.hasil-card-besar',
-    '.video-card',
     '.sm-category-card',
     '.sm-compare-col',
     '.closing-card'

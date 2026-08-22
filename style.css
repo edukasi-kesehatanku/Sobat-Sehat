@@ -44,8 +44,8 @@ to { opacity: 1; transform: scale(1); }
 .reveal-group > *:nth-child(4) { transition-delay: 0.26s; }
 .reveal-group > *:nth-child(5) { transition-delay: 0.33s; }
 .reveal-group > *:nth-child(6) { transition-delay: 0.4s; }
-button, .nav-item, .tips-card, .reason-card, .hasil-card-besar, .video-card, .sm-category-card, .sm-compare-col, .sm-map-node, .closing-card, .checklist-card, input[type="text"], input[type="number"] { transition: background-color var(--ease-base), color var(--ease-base), border-color var(--ease-base), box-shadow var(--ease-base), transform var(--ease-fast); }
-.tips-card:hover, .video-card:hover, .reason-card:hover, .hasil-card-besar:hover, .sm-category-card:hover, .sm-compare-col:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+button, .nav-item, .tips-card, .reason-card, .hasil-card-besar, .sm-category-card, .sm-compare-col, .sm-map-node, .closing-card, .checklist-card, input[type="text"], input[type="number"] { transition: background-color var(--ease-base), color var(--ease-base), border-color var(--ease-base), box-shadow var(--ease-base), transform var(--ease-fast); }
+.tips-card:hover, .reason-card:hover, .hasil-card-besar:hover, .sm-category-card:hover, .sm-compare-col:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
 button:active:not(:disabled):not(.btn-toggle-password) { transform: scale(0.96); }
 button:focus-visible, input:focus-visible, a:focus-visible, .nav-item:focus-visible { outline: 2px solid var(--color-info); outline-offset: 2px; }
 .content-section { display: none; opacity: 0; transform: translateY(20px) scale(0.97); transition: opacity 0.16s ease, transform 0.16s ease; }
@@ -61,7 +61,7 @@ button:focus-visible, input:focus-visible, a:focus-visible, .nav-item:focus-visi
 .auth-page { flex-direction: column; height: 100vh; }
 .auth-scene { position: absolute; inset: 0; flex: none; width: 100%; max-width: 100%; height: 100%; min-height: 0; z-index: 0; overflow: hidden; border-radius: 0; box-shadow: none; }
 .auth-scene svg { width: 100%; height: 100%; object-fit: cover; }
-.auth-scene::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(234, 244, 251, 0) 8%, var(--color-bg) 52%); }
+.auth-scene::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(234, 244, 251, 0) 45%, var(--color-bg) 96%); }
 .auth-panel { position: relative; z-index: 1; flex: 1 1 auto; min-height: 100%; justify-content: center; align-items: center; padding: 28px 20px 40px; background-color: transparent; }
 .auth-card { background-color: transparent; backdrop-filter: none; border-radius: 0; padding: 0 8px; box-shadow: none; }
 }
@@ -587,39 +587,7 @@ to { opacity: 1; transform: translateY(0); }
 }
 .btn-kembali { background: none; border: none; color: #5a6b7d; font-size: 0.85rem; font-weight: 600; padding: 6px 10px; border-radius: 8px; cursor: pointer; transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out; }
 .btn-kembali:hover { color: #2c3e50; background-color: #f0f4f8; }
-.video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 20px 0 8px 0; }
-.video-empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 10px; background: linear-gradient(135deg, #eafaf1 0%, #eaf4fb 100%); border-radius: 18px; padding: 48px 24px; margin: 20px 0 8px 0; }
-.video-empty-icon { font-size: 3rem; }
-.video-empty-title { color: #2c3e50; font-size: 1.3rem; font-weight: 800; letter-spacing: 0.03em; margin: 4px 0 0 0; }
-.video-empty-desc { color: #5a6b7d; font-size: 0.9rem; line-height: 1.5; margin: 0; max-width: 420px; }
-.video-card { display: block; width: 100%; text-align: left; font: inherit; color: inherit; border: none; padding: 0; cursor: pointer; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 10px rgba(44, 62, 80, 0.08); transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
-.video-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(44, 62, 80, 0.14); }
-.video-thumb { position: relative; background: linear-gradient(135deg, #eafaf1 0%, #eaf4fb 100%); height: 140px; display: flex; align-items: center; justify-content: center; }
-.video-thumb-number { position: absolute; top: 10px; left: 12px; color: #2c3e50; font-weight: 800; font-size: 0.8rem; background-color: rgba(255, 255, 255, 0.8); border-radius: 6px; padding: 2px 8px; }
-.video-play-btn { display: flex; align-items: center; justify-content: center; width: 56px; height: 56px; border-radius: 50%; background-color: #ffffff; color: #e67e22; font-size: 1.3rem; box-shadow: 0 4px 12px rgba(44, 62, 80, 0.18); transition: transform 0.2s ease-in-out; }
-.video-card:hover .video-play-btn { transform: scale(1.08); }
-.video-card-body { display: flex; flex-direction: column; gap: 4px; padding: 16px 18px 18px 18px; }
-.video-card-label { color: #e67e22; font-weight: 800; font-size: 0.72rem; letter-spacing: 0.04em; }
-.video-card-title { color: #2c3e50; font-weight: 700; font-size: 0.98rem; line-height: 1.35; }
-.video-card-desc { color: #5a6b7d; font-size: 0.82rem; line-height: 1.5; }
-.video-card-meta { color: #a3b0bc; font-size: 0.75rem; margin-top: 4px; }
-.video-modal { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-.video-modal.hidden { display: none; }
-.video-modal-backdrop { position: absolute; inset: 0; background-color: rgba(44, 62, 80, 0.55); }
-.video-modal-box { position: relative; background-color: #ffffff; border-radius: 18px; padding: 24px; max-width: 520px; width: 100%; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25); animation: fadeIn 0.25s ease-in-out; }
-.video-modal-box:focus { outline: none; }
-.video-modal-close { background: none; border: none; color: #5a6b7d; font-size: 0.85rem; font-weight: 600; cursor: pointer; padding: 4px 8px; margin-bottom: 10px; border-radius: 8px; }
-.video-modal-close:hover { color: #2c3e50; background-color: #f0f4f8; }
-.video-modal-nomor { display: block; color: #e67e22; font-weight: 800; font-size: 0.75rem; letter-spacing: 0.04em; margin-bottom: 4px; }
-.video-modal-title { color: #2c3e50; font-size: 1.1rem; margin: 0 0 14px 0; }
-.video-modal-player { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(135deg, #eafaf1 0%, #eaf4fb 100%); border-radius: 14px; aspect-ratio: 16 / 9; margin-bottom: 14px; overflow: hidden; position: relative; }
-.video-modal-player iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; border-radius: 14px; }
-.video-modal-player-icon { font-size: 2.2rem; }
-.video-modal-player-text { color: #5a6b7d; font-size: 0.85rem; margin: 0; }
-.video-modal-desc { color: #5a6b7d; font-size: 0.88rem; line-height: 1.55; margin: 0; }
-@media (max-width: 768px) {
-.video-grid { grid-template-columns: 1fr; }
-}
+
 .gk-hero { padding-bottom: 6px; }
 .gk-section { margin: 34px 0; }
 .gk-section-title { color: #2c3e50; font-size: 1.05rem; font-weight: 700; margin-bottom: 10px; text-align: center; }
@@ -1226,37 +1194,37 @@ to { opacity: 0; transform: translate(-50%, -10px); }
 .game-subtitle { display: none; }
 }
 /* ===== Refresh tampilan mobile — halaman Game =====
-   Gaya lama di layar kecil (kartu skor pill berbayang tebal, papan
-   dengan gradient pastel + ikon dekorasi, tombol "ledge" 3D) kerasa
-   dated di HP. Blok ini menimpa (bukan mengganti) style di atas KHUSUS
-   untuk layar ≤640px — tampilan desktop/tablet tidak disentuh sama
-   sekali. Prinsipnya: rata (flat), satu aksen warna per elemen,
-   shadow tipis, dan kurangi ornamen yang cuma jadi noise di layar kecil. */
+   Versi sebelumnya sengaja diratakan (flat) karena gaya lama kerasa
+   dated. Ternyata hasilnya malah kerasa kurang "hidup" dibanding dadu
+   3D-nya. Blok ini menimpa (bukan mengganti) style di atas KHUSUS untuk
+   layar ≤640px — tampilan desktop/tablet tidak disentuh. Prinsipnya:
+   pertahankan gradient & shadow lembut ala dadu di semua elemen game,
+   tapi ukuran/ketebalan shadow dikecilkan supaya tetap ringan di layar
+   kecil (bukan shadow tebal 3D ala versi paling awal). */
 @media (max-width: 640px) {
-.game-title { background: none; -webkit-text-fill-color: currentColor; color: var(--color-primary); }
 .dadu-scene { --dadu-size: clamp(36px, 7vw, 48px); margin: 2px auto 10px; }
-.btn-aturan-main { background-color: #eef2f6; border: none; box-shadow: none; }
-.btn-aturan-main:hover { background-color: #e3e9ef; }
-.game-skor-bar { background-color: var(--color-surface); border-radius: 16px; box-shadow: var(--shadow-sm); padding: 2px 0; }
-.game-skor-item, .game-skor-item:nth-child(1), .game-skor-item:nth-child(2), .game-skor-item:nth-child(3) { background: none; border: none; border-radius: 0; box-shadow: none; animation: none; }
-.game-skor-item:not(:last-child) { border-right: 1px solid #eef2f6; }
-.game-skor-item:hover { transform: none; }
-.game-skor-nilai { color: var(--color-primary); }
-.papan-container { background: var(--color-bg); box-shadow: none; }
-.papan-container::before, .papan-container::after { display: none; }
-.papan-tile, .papan-tile.tile-mulai, .papan-tile.tile-checkpoint, .papan-tile.tile-kuis, .papan-tile.tile-jebakan, .papan-tile.tile-bonus { box-shadow: none; border-width: 1.5px; }
+.btn-aturan-main { box-shadow: var(--shadow-sm); }
+.game-skor-bar { gap: 8px; }
+.game-skor-item { padding: 8px 12px; border-radius: 14px; box-shadow: var(--shadow-sm); }
+.papan-container { padding: 14px; box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.8), 0 4px 16px rgba(31, 51, 71, 0.1); }
+.papan-container::before, .papan-container::after { font-size: 0.8rem; }
+.papan-tile { box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 2px 0 rgba(31, 51, 71, 0.1); }
+.papan-tile.tile-mulai { box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 2px 0 rgba(30, 132, 73, 0.3); }
+.papan-tile.tile-checkpoint { box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 2px 0 rgba(211, 84, 0, 0.3); }
+.papan-tile.tile-kuis { box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 2px 0 rgba(41, 98, 148, 0.26); }
+.papan-tile.tile-jebakan { box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 2px 0 rgba(178, 55, 42, 0.26); }
+.papan-tile.tile-bonus { box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 2px 0 rgba(30, 132, 73, 0.26); }
 .papan-tile:hover { transform: none; }
 .papan-tile:active { transform: scale(0.94); }
-.papan-tile.aktif { box-shadow: 0 0 0 3px rgba(58, 122, 179, 0.28); animation: none; }
-.papan-tengah { background: var(--color-surface); border: none; box-shadow: var(--shadow-sm); }
-.btn-kocok-dadu { background: var(--color-accent); border-bottom: none; box-shadow: none; }
-.btn-kocok-dadu:hover:not(:disabled) { transform: none; box-shadow: none; }
-.btn-kocok-dadu:active:not(:disabled) { background-color: var(--color-accent-dark); transform: scale(0.97); }
-.pet-card, .absen-card { box-shadow: var(--shadow-sm); border-width: 1px; }
-.pet-card::before, .pet-card::after { display: none; }
-.btn-absen { border-bottom: none; background: var(--color-success); }
-.btn-absen:hover:not(:disabled) { transform: none; box-shadow: none; }
-.btn-absen:active:not(:disabled) { transform: scale(0.97); }
+.papan-tile.aktif { box-shadow: 0 0 0 3px rgba(58, 122, 179, 0.32), 0 3px 10px rgba(58, 122, 179, 0.28); }
+.papan-tengah { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 4px 14px rgba(31, 51, 71, 0.1); }
+.btn-kocok-dadu { border-bottom-width: 3px; box-shadow: 0 3px 10px rgba(224, 158, 42, 0.35); }
+.btn-kocok-dadu:hover:not(:disabled) { transform: none; }
+.btn-kocok-dadu:active:not(:disabled) { transform: translateY(1px) scale(0.98); border-bottom-width: 1px; }
+.pet-card, .absen-card { box-shadow: var(--shadow-md); }
+.btn-absen { border-bottom: 3px solid #1e8449; box-shadow: 0 3px 10px rgba(39, 174, 96, 0.3); }
+.btn-absen:hover:not(:disabled) { transform: none; }
+.btn-absen:active:not(:disabled) { transform: translateY(1px) scale(0.97); border-bottom-width: 1px; }
 }
 /* ===== Refresh tampilan mobile — global + halaman lain =====
    Lanjutan dari refresh halaman Game: rapikan elemen yang muncul di
