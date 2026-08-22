@@ -24,6 +24,28 @@ const btnMenuToggle = document.getElementById('btnMenuToggle');
 const KUNCI_AKUN_TERSIMPAN = 'sobatSehatAkunTersimpan';
 const MAKS_AKUN_TERSIMPAN = 6;
 let emailAktif = null; // email akun yang sedang login — dipakai untuk data per akun seperti Pet
+// ===== Sesi login aktif — supaya refresh halaman (F5) tidak minta login ulang =====
+// Beda dengan KUNCI_AKUN_TERSIMPAN (daftar akun yang PERNAH login di device ini,
+// dipakai buat dropdown email), key ini nyimpen SIAPA yang lagi login SEKARANG.
+const KUNCI_SESI_AKTIF = 'sobatSehatSesiAktifEmail';
+function simpanSesiAktif(email, nama) {
+    try {
+        localStorage.setItem(KUNCI_SESI_AKTIF, JSON.stringify({ email, nama }));
+    } catch {}
+}
+function hapusSesiAktif() {
+    try {
+        localStorage.removeItem(KUNCI_SESI_AKTIF);
+    } catch {}
+}
+function ambilSesiAktif() {
+    try {
+        const data = JSON.parse(localStorage.getItem(KUNCI_SESI_AKTIF));
+        return (data && data.email) ? data : null;
+    } catch {
+        return null;
+    }
+}
 function ambilAkunTersimpan() {
     try {
         const data = JSON.parse(localStorage.getItem(KUNCI_AKUN_TERSIMPAN));
@@ -187,10 +209,15 @@ function selesaikanLogin(email, nama) {
     dashboardWelcome.textContent = `Selamat datang, ${nama}! Berikut ringkasan halaman kamu.`;
     sembunyikanErrorLogin();
     if (googleLoginError) googleLoginError.classList.add('hidden');
+    landingPage.classList.add('hidden');
     loginPage.classList.add('hidden');
     dashboardPage.classList.remove('hidden');
     pindahkanIndikatorNav(document.querySelector('.nav-item.active'), false);
     catatLoginPengunjung(email, nama);
+    // Simpan sesi aktif supaya kalau halaman di-refresh (F5), pemain TIDAK
+    // dilempar balik ke halaman login — begitu script jalan lagi, sesi ini
+    // dibaca ulang dan langsung masuk ke dashboard secara otomatis.
+    simpanSesiAktif(email, nama);
     // Tarik dulu progres game dari cloud (Firestore) sebelum me-refresh
     // tampilan game, supaya progres yang disimpan dari device lain (mis.
     // laptop) ikut muncul di device ini, bukan mulai dari 0 lagi.
@@ -365,6 +392,7 @@ document.addEventListener('touchend', (e) => {
 function jalankanLogout() {
     akhiriSesiPengunjung();
     emailAktif = null;
+    hapusSesiAktif();
     dashboardPage.classList.add('hidden');
     landingPage.classList.remove('hidden');
     formData.reset();
@@ -2087,10 +2115,26 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
     // karena browser mobile sering langsung membekukan/mematikan tab begitu app
     // lain dibuka atau layar dikunci, tanpa sempat memicu beforeunload.
     document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'hidden') segerakanSinkronProgresGame();
+        if (document.visibilityState === 'hidden') {
+            segerakanSinkronProgresGame();
+        } else if (document.visibilityState === 'visible') {
+            // Sebaliknya, begitu tab ini dibuka/difokuskan LAGI (misal user tadi
+            // sempat main di device lain lalu balik ke tab ini), tarik ulang
+            // progres terbaru dari Firestore — supaya angka yang tampil tidak
+            // "beku" dari sesi login sebelumnya. Tanpa ini, progres cuma ditarik
+            // sekali waktu login, jadi kelihatan beda antar device sampai user
+            // logout/login ulang secara manual.
+            tarikUlangProgresSaatTabAktif();
+        }
     });
     window.addEventListener('pagehide', segerakanSinkronProgresGame);
     window.addEventListener('beforeunload', segerakanSinkronProgresGame);
+    function tarikUlangProgresSaatTabAktif() {
+        if (!emailAktif || typeof db === 'undefined') return;
+        muatProgresDariFirestore(emailAktif).then(() => {
+            if (typeof window.refreshGameAkun === 'function') window.refreshGameAkun();
+        });
+    }
     function muatProgresDariFirestore(email) {
         if (!email || typeof db === 'undefined') return Promise.resolve();
         return db.collection('progresGame').doc(email).get().then((snap) => {
@@ -2356,4 +2400,39 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         btnResetGame.addEventListener('click', resetGame);
     }
     btnKocok.addEventListener('click', kocokDadu);
+})();
+// ===== Cegah tombol Back (HP/browser) langsung "keluar" dari web =====
+// Web ini SPA — semua halaman (landing, login, dashboard, game, dst) cuma
+// ganti-ganti div lewat JS, bukan pindah URL sungguhan. Jadi tombol Back
+// default-nya langsung keluar dari web (balik ke halaman sebelum web ini
+// dibuka) alih-alih "mundur" di dalam web — dan begitu dibuka lagi, sesi
+// kelihatan hilang/harus login ulang.
+// Solusinya: tiap kali web ini dibuka, selalu dorong satu "state penjaga"
+// ke history. Begitu tombol Back ditekan (memicu popstate), state penjaga
+// itu langsung didorong lagi (supaya browser TIDAK jadi benar-benar pindah),
+// lalu tampilkan konfirmasi yang sama seperti tombol Logout — supaya tidak
+// ada yang keluar/ke-logout tanpa sengaja, tapi tetap bisa keluar kalau
+// memang itu yang diinginkan.
+history.pushState({ sobatSehatGuard: true }, '');
+window.addEventListener('popstate', () => {
+    history.pushState({ sobatSehatGuard: true }, '');
+    if (panelKonfirmasiLogoutOverlay) {
+        bukaPanelOverlay(panelKonfirmasiLogoutOverlay);
+    } else {
+        // fallback kalau markup overlay belum ada
+        if (confirm('Keluar dari Sobat Sehat? Kamu akan logout dari akun ini.')) {
+            jalankanLogout();
+            history.go(-2);
+        }
+    }
+});
+
+// Ditaruh di baris paling akhir supaya window.muatProgresDariFirestore dan
+// window.refreshGameAkun (didefinisikan di IIFE game di atas) sudah pasti
+// siap dipakai saat selesaikanLogin() dipanggil di sini.
+(function pulihkanSesiTersimpan() {
+    const sesi = ambilSesiAktif();
+    if (sesi && sesi.email) {
+        selesaikanLogin(sesi.email, sesi.nama || turunkanNamaDariEmail(sesi.email));
+    }
 })();
