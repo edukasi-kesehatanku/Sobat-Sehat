@@ -1,4 +1,6 @@
-<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Document</title> <link rel="stylesheet" href="style.css">
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Document</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"> <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head> <body>
     <svg width="0" height="0" style="position:absolute" aria-hidden="true"> <defs> <symbol id="sceneIllustration" viewBox="0 0 700 1000"> <defs>
                     <linearGradient id="skyGrad" x1="0" y1="0" x2="0.15" y2="1"> <stop offset="0%" stop-color="#dcedfb"/> <stop offset="55%" stop-color="#eaf5fc"/> <stop offset="100%" stop-color="#fdf1e6"/> </linearGradient>
@@ -85,11 +87,22 @@
                     <rect x="75" y="860" width="30" height="48" rx="11" fill="url(#shirtPink)"/> <rect x="77" y="862" width="8" height="30" rx="4" fill="#ffffff" opacity="0.18"/>
                     <rect x="77" y="906" width="11" height="34" rx="4" fill="#2c3e50"/> <rect x="92" y="906" width="11" height="34" rx="4" fill="#2c3e50"/>
                     <rect x="82" y="938" width="10" height="6" rx="2" fill="#1a252f"/> <rect x="96" y="938" width="10" height="6" rx="2" fill="#1a252f"/> </g> </symbol> </defs> </svg>
-    <div id="landingPage" class="page auth-page"> <div class="auth-scene" aria-hidden="true"> <svg viewBox="0 0 700 1000" preserveAspectRatio="xMidYMax slice"> <use href="#sceneIllustration"></use>
+    <div id="landingPage" class="page auth-page"> <div class="auth-scene" aria-hidden="true"> <svg id="authSceneSvg" viewBox="0 0 700 1000" preserveAspectRatio="xMidYMax slice"> <use href="#sceneIllustration"></use>
             </svg> </div> <div class="auth-panel"> <div class="auth-card"> <h1 class="welcome-text">Selamat Datang Sobat Sehat 👋</h1> <button id="btnMulai" class="btn-mulai">Mulai</button> </div>
         </div> </div>
     <div id="loginPage" class="page auth-page hidden"> <div class="auth-scene" aria-hidden="true"> <svg viewBox="0 0 700 1000" preserveAspectRatio="xMidYMax slice">
                 <use href="#sceneIllustration"></use> </svg> </div> <div class="auth-panel"> <form id="formData" class="data-form"> <h2 class="form-title">Login</h2>
+                <button type="button" id="btnGoogleLogin" class="btn-google-login">
+                    <svg viewBox="0 0 48 48" width="20" height="20" aria-hidden="true">
+                        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.9-2.26 5.36-4.78 7.02l7.73 6c4.51-4.18 7.09-10.36 7.09-17.49z"/>
+                        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                    </svg>
+                    <span>Masuk dengan Google</span>
+                </button>
+                <p id="googleLoginError" class="form-error hidden"><span>Login dengan Google gagal atau dibatalkan. Coba lagi, atau masuk pakai email &amp; sandi di bawah.</span></p>
+                <div class="auth-divider"><span>atau pakai email &amp; sandi</span></div>
                 <div class="form-group"> <label for="email">Email</label> <input type="email" id="email" name="email" placeholder="nama@email.com" list="daftarAkunEmail" autocomplete="email" required>
                     <datalist id="daftarAkunEmail"></datalist> <p class="form-hint" id="emailHint">Sudah pernah login di perangkat ini? Ketuk kolom ini untuk memilih akunmu.</p> </div>
                 <div class="form-group"> <label for="password">Sandi</label> <div class="password-field-wrap">
@@ -176,8 +189,8 @@
                             <div class="pet-progress-track"> <div class="pet-progress-fill" id="petProgressFill" style="width:0%"></div> </div>
                             <p class="pet-progress-text" id="petProgressText">0 / 100 Poin menuju Phoenix Mungil</p> </div>
                         <div class="absen-card"> <button type="button" class="pet-info-btn" id="btnAbsenInfo" aria-label="Info cara kerja Streak Absen">?</button> <span class="absen-icon">📅</span> <h3 class="absen-title">Absen Harian</h3>
-                            <button type="button" class="btn-absen" id="btnAbsenHarian">Absen Sekarang</button> <p class="absen-desc" id="absenDesc">Belum absen hari ini</p> <div class="absen-streak">
-                                <span class="absen-streak-label">Streak Absen</span> <span class="absen-streak-nilai" id="absenStreakNilai"><span id="absenStreak">0</span> hari</span> </div> </div> </aside> </div>
+                            <button type="button" class="btn-absen" id="btnAbsenHarian">Absen Sekarang</button> <p class="absen-desc" id="absenDesc">Belum absen hari ini</p> <div class="absen-streak"> <div class="absen-streak-top-row"> <span class="absen-streak-label">Streak Absen</span> <span class="absen-streak-rekor" id="absenStreakRekor" title="Rekor Streak Absen terpanjang di akun ini">🏆 <span id="absenStreakRekorNilai">0</span></span> </div>
+                                <span class="absen-streak-nilai" id="absenStreakNilai"><span id="absenStreak">0</span> hari</span> </div> </div> </aside> </div>
                 <div class="panel-event-overlay hidden" id="panelAbsenInfoOverlay"> <div class="panel-event panel-aturan panel-pet-info"> <div class="panel-event-icon">🔥</div>
                         <h3 class="panel-event-judul">Cara Kerja Streak Absen</h3>
                         <p class="panel-event-teks">Absen tiap hari tanpa putus bikin Streak Absen-mu naik terus (+10 Poin Sehat tiap absen). Kalau sampai kelewatan satu hari, streak-nya balik ke 1. Makin panjang streak-mu, ikon api 🔥 di kartu ini bakal berubah warna dan makin besar sesuai capaian berikut:</p>
@@ -1689,7 +1702,25 @@
                 <p class="site-footer-title">Media Edukasi Pencegahan Diabetes untuk Remaja</p> <p class="site-footer-dev"> Dikembangkan oleh: Dimas AfifMurtadho<br> Sarjana Terapan Keperawatan<br>
                     Politeknik Kesehatan Kementerian Kesehatan Kalimantan Timur </p> <p class="site-footer-copyright">&copy; 2026</p> </footer>
         </div> </div>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="firebase-config.js"></script>
-    <script src="javascript.js"></script> </body>
+    <script src="javascript.js"></script>
+    <script>
+        (function () {
+            var svg = document.getElementById('authSceneSvg');
+            if (!svg) return;
+            var mq = window.matchMedia('(max-width: 1024px)');
+            function applyAspect(e) {
+                if (e.matches) {
+                    svg.setAttribute('preserveAspectRatio', 'xMidYMin slice');
+                } else {
+                    svg.setAttribute('preserveAspectRatio', 'xMidYMax slice');
+                }
+            }
+            applyAspect(mq);
+            if (mq.addEventListener) mq.addEventListener('change', applyAspect);
+            else mq.addListener(applyAspect);
+        })();
+    </script>
+    </body>
 </html>

@@ -1,6 +1,6 @@
 * { box-sizing: border-box; }
 html, body { height: 100%; overflow-x: hidden; }
-body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: #f0f4f8; min-height: 100vh; }
+body { margin: 0; font-family: 'Poppins', 'Segoe UI', system-ui, -apple-system, sans-serif; background-color: #f0f4f8; min-height: 100vh; }
 .hidden { display: none !important; }
 :root { --color-primary: #2c3e50; --color-primary-dark: #1a252f; --color-accent: #e67e22; --color-accent-dark: #d35400; --color-success: #27ae60; --color-info: #3498db; --color-danger: #e74c3c; --color-danger-dark: #c0392b; --color-text-muted: #5a6b7d; --color-bg: #f0f4f8; --color-surface: #ffffff; --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-pill: 999px; --shadow-sm: 0 2px 8px rgba(44, 62, 80, 0.07); --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08); --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.18); --ease-fast: 0.15s ease; --ease-base: 0.25s ease; --ease-slow: 0.4s ease-in-out; }
 html { scroll-behavior: smooth; }
@@ -58,15 +58,19 @@ button:focus-visible, input:focus-visible, a:focus-visible, .nav-item:focus-visi
 .auth-panel { flex: 1 1 50%; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px 24px; background-color: var(--color-bg); }
 .auth-card { width: 100%; max-width: 420px; }
 @media (max-width: 1024px) {
-.auth-page { flex-direction: column; }
-.auth-scene { position: absolute; inset: 0; flex: none; max-width: 100%; width: 100%; height: 100%; z-index: 0; }
-.auth-scene::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(234, 244, 251, 0) 35%, var(--color-bg) 92%); }
-.auth-panel { position: relative; z-index: 1; flex: 1 1 auto; min-height: 100vh; justify-content: flex-end; padding: 24px 20px 40px; background-color: transparent; }
-.auth-card { background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(6px); border-radius: var(--radius-lg); padding: 28px 22px; box-shadow: var(--shadow-md); }
+.auth-page { flex-direction: column; height: 100vh; }
+.auth-scene { position: relative; flex: none; width: 100%; height: min(40vh, 320px); min-height: 220px; z-index: 0; overflow: hidden; border-radius: 0 0 28px 28px; box-shadow: var(--shadow-md); }
+.auth-scene svg { width: 100%; height: 100%; }
+.auth-scene::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(234, 244, 251, 0) 60%, var(--color-bg) 100%); }
+.auth-panel { position: relative; z-index: 1; flex: 1 1 auto; min-height: 0; justify-content: center; align-items: center; padding: 28px 20px 40px; background-color: var(--color-bg); }
+.auth-card { background-color: transparent; backdrop-filter: none; border-radius: 0; padding: 0 8px; box-shadow: none; }
 }
 .welcome-text { font-size: 2.8rem; color: #2c3e50; margin-bottom: 20px; }
 .btn-mulai { padding: 12px 32px; background-color: #2c3e50; color: #ffffff; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; transition: background-color 0.2s ease-in-out; }
 .btn-mulai:hover { background-color: #1a252f; }
+@media (max-width: 1024px) {
+.welcome-text { font-size: 2.1rem; line-height: 1.25; margin-bottom: 24px; }
+}
 .data-form { background: #ffffff; padding: 36px 32px; border-radius: 16px; box-shadow: 0 10px 30px rgba(44, 62, 80, 0.12); width: 100%; max-width: 400px; }
 .form-title { text-align: center; color: #2c3e50; font-size: 1.6rem; margin-top: 0; margin-bottom: 26px; }
 .form-group { margin-bottom: 20px; text-align: left; }
@@ -96,6 +100,13 @@ button:focus-visible, input:focus-visible, a:focus-visible, .nav-item:focus-visi
 .data-form button[type="submit"] { width: 100%; padding: 13px; margin-top: 4px; background-color: #2c3e50; color: #ffffff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 10px rgba(44, 62, 80, 0.25); transition: background-color 0.2s ease-in-out, transform 0.15s ease; }
 .data-form button[type="submit"]:hover { background-color: #1a252f; transform: translateY(-1px); }
 .data-form button[type="submit"]:active { transform: translateY(0); }
+.btn-google-login { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 12px; margin-bottom: 18px; background-color: #ffffff; color: #2c3e50; border: 1px solid #ccd6e0; border-radius: 8px; font-size: 0.98rem; font-weight: 600; font-family: inherit; cursor: pointer; box-shadow: 0 2px 6px rgba(44, 62, 80, 0.08); transition: background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease; }
+.btn-google-login:hover { background-color: #f5f8fa; box-shadow: 0 4px 10px rgba(44, 62, 80, 0.14); transform: translateY(-1px); }
+.btn-google-login:active { transform: translateY(0); }
+.btn-google-login:disabled { opacity: 0.6; cursor: default; transform: none; }
+.btn-google-login svg { flex-shrink: 0; }
+.auth-divider { display: flex; align-items: center; gap: 10px; margin: 4px 0 22px; color: #8a97a3; font-size: 0.82rem; }
+.auth-divider::before, .auth-divider::after { content: ""; flex: 1; height: 1px; background-color: #e0e6eb; }
 @keyframes fadeIn {
 from { opacity: 0; transform: translateY(-20px); }
 to { opacity: 1; transform: translateY(0); }
@@ -547,7 +558,7 @@ to { opacity: 1; transform: translateY(0); }
 .tahap-arrow { justify-content: center; transform: rotate(90deg); }
 }
 @media (max-width: 768px) {
-.dashboard { flex-direction: column; position: relative; overflow-x: hidden; }
+.dashboard { flex-direction: column; position: relative; }
 .sidebar { position: fixed; top: 0; left: 0; width: min(78%, 300px); height: 100vh; max-height: 100vh; padding: 20px 0; z-index: 1000; transform: translateX(-100%); transition: transform 0.3s ease-in-out; box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25); }
 .sidebar.sidebar-open { transform: translateX(0); }
 .sidebar-nav { flex-direction: column; overflow-x: visible; gap: 0; padding: 0; }
@@ -982,8 +993,10 @@ button.sm-chip.sm-chip-active { background-color: #3498db; border-color: #3498db
 .btn-absen:active:not(:disabled) { transform: translateY(1px) scale(0.98); border-bottom-width: 1px; }
 .btn-absen:disabled { opacity: 0.55; cursor: not-allowed; transform: none; border-bottom-color: transparent; }
 .absen-streak { margin-top: 10px; padding-top: 8px; border-top: 1.5px dashed #bfe6cf; }
-.absen-streak-label { display: block; font-size: 0.62rem; color: var(--color-text-muted); margin-bottom: 2px; }
-.absen-streak-nilai { font-size: 0.95rem; font-weight: 800; color: var(--color-accent-dark); }
+.absen-streak-top-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-wrap: wrap; margin-bottom: 2px; }
+.absen-streak-label { font-size: 0.62rem; color: var(--color-text-muted); }
+.absen-streak-rekor { display: inline-flex; align-items: center; gap: 2px; font-size: 0.6rem; font-weight: 800; line-height: 1; color: #b9770e; background: rgba(255, 255, 255, 0.8); border: 1px solid #f2d9a8; border-radius: 999px; padding: 3px 6px; white-space: nowrap; flex-shrink: 0; }
+.absen-streak-nilai { display: block; font-size: 0.95rem; font-weight: 800; color: var(--color-accent-dark); }
 /* ===== Api streak — tiap tier pakai ikon api SVG dua-lapis (badan api +
    inti terang) yang di-render tajam (vector, bukan mask blur), lengkap
    dengan aura glow di belakangnya. Progres: abu → oranye → oranye tua →
@@ -1013,6 +1026,12 @@ button.sm-chip.sm-chip-active { background-color: #3498db; border-color: #3498db
 .game-layout { flex-direction: column; align-items: center; }
 .game-absen-panel { width: 100%; max-width: 260px; position: static; margin-bottom: 0; flex-direction: row; }
 .pet-card, .game-absen-panel .absen-card { flex: 1; min-width: 0; }
+/* Di lebar ini (561–900px), .absen-card jadi cuma separuh dari 260px (~120px)
+   karena berdampingan sama .pet-card — dikecilin dikit biar label + badge
+   rekor tetap muat sebaris tanpa wrap di kartu sesempit itu. */
+.absen-streak-top-row { gap: 4px; }
+.absen-streak-label { font-size: 0.58rem; }
+.absen-streak-rekor { font-size: 0.56rem; padding: 2px 5px; }
 }
 @media (max-width: 560px) {
 .game-absen-panel { flex-direction: column; }
@@ -1077,10 +1096,26 @@ to { opacity: 1; transform: translateY(0) scale(1); }
 0%, 100% { box-shadow: 0 0 0 4px rgba(58, 122, 179, 0.32), 0 4px 12px rgba(58, 122, 179, 0.3); transform: scale(1); }
 50% { box-shadow: 0 0 0 7px rgba(58, 122, 179, 0.18), 0 4px 12px rgba(58, 122, 179, 0.3); transform: scale(1.04); }
 }
-.papan-token { position: absolute; bottom: 2px; right: 2px; font-size: 1.7rem; filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.35)); transition: opacity 0.15s ease; animation: tokenBounce 0.9s ease-in-out infinite; }
+.papan-token { position: absolute; bottom: 2px; right: 2px; font-size: 1.7rem; filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.35)); transition: opacity 0.15s ease; animation: tokenBounce 0.9s ease-in-out infinite; transform-origin: 50% 100%; }
 @keyframes tokenBounce {
 0%, 100% { transform: translateY(0) scale(1); }
 50% { transform: translateY(-5px) scale(1.06); }
+}
+/* ===== Animasi lompat pion papan =====
+   Lintasan lompat (arc + squash/rotate) dihitung & dijalankan di JS pakai
+   Web Animations API (lihat pindahkanTokenKeTile di javascript.js), karena
+   jarak antar kotak di papan ini nggak seragam (bisa beda baris & kolom),
+   jadi harus dihitung dinamis biar pion beneran "menyeberang", bukan cuma
+   mantul di tempat lalu teleport. Class di bawah cuma buat jeda animasi idle
+   (tokenBounce) selama lompatan berlangsung, biar 2 animasi transform nggak
+   rebutan dan hasilnya nggak "nyentak" pas mendarat. */
+.papan-token.lagi-melompat { animation-play-state: paused; }
+.papan-token.melayang { z-index: 6; will-change: transform; }
+/* Efek cincin kecil di kotak saat pion mendarat, biar mendaratnya "kerasa" */
+.papan-tile.baru-mendarat::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; animation: papanTileMendarat 0.5s ease-out; }
+@keyframes papanTileMendarat {
+0% { box-shadow: inset 0 0 0 0 rgba(58, 122, 179, 0.55); }
+100% { box-shadow: inset 0 0 0 14px rgba(58, 122, 179, 0); }
 }
 .papan-tengah { grid-column: 2 / 6; grid-row: 2 / 6; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 12px; background: linear-gradient(135deg, #fff4e0, #ffe4ef 50%, #e4f1ff); border: 2px solid rgba(255, 255, 255, 0.8); border-radius: 22px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 6px 18px rgba(31, 51, 71, 0.1); }
 .dadu-scene { --dadu-size: clamp(50px, 9vw, 66px); --dadu-half: calc(var(--dadu-size) / 2); width: var(--dadu-size); height: var(--dadu-size); margin: 4px auto 18px; perspective: 400px; filter: drop-shadow(0 6px 8px rgba(31, 51, 71, 0.35)); animation: daduSceneIdle 2.2s ease-in-out infinite; }
@@ -1190,6 +1225,99 @@ to { opacity: 0; transform: translate(-50%, -10px); }
 @media (max-width: 380px), (max-height: 700px) {
 .game-subtitle { display: none; }
 }
+/* ===== Refresh tampilan mobile — halaman Game =====
+   Gaya lama di layar kecil (kartu skor pill berbayang tebal, papan
+   dengan gradient pastel + ikon dekorasi, tombol "ledge" 3D) kerasa
+   dated di HP. Blok ini menimpa (bukan mengganti) style di atas KHUSUS
+   untuk layar ≤640px — tampilan desktop/tablet tidak disentuh sama
+   sekali. Prinsipnya: rata (flat), satu aksen warna per elemen,
+   shadow tipis, dan kurangi ornamen yang cuma jadi noise di layar kecil. */
+@media (max-width: 640px) {
+.game-title { background: none; -webkit-text-fill-color: currentColor; color: var(--color-primary); }
+.dadu-scene { --dadu-size: clamp(36px, 7vw, 48px); margin: 2px auto 10px; }
+.btn-aturan-main { background-color: #eef2f6; border: none; box-shadow: none; }
+.btn-aturan-main:hover { background-color: #e3e9ef; }
+.game-skor-bar { background-color: var(--color-surface); border-radius: 16px; box-shadow: var(--shadow-sm); padding: 2px 0; }
+.game-skor-item, .game-skor-item:nth-child(1), .game-skor-item:nth-child(2), .game-skor-item:nth-child(3) { background: none; border: none; border-radius: 0; box-shadow: none; animation: none; }
+.game-skor-item:not(:last-child) { border-right: 1px solid #eef2f6; }
+.game-skor-item:hover { transform: none; }
+.game-skor-nilai { color: var(--color-primary); }
+.papan-container { background: var(--color-bg); box-shadow: none; }
+.papan-container::before, .papan-container::after { display: none; }
+.papan-tile, .papan-tile.tile-mulai, .papan-tile.tile-checkpoint, .papan-tile.tile-kuis, .papan-tile.tile-jebakan, .papan-tile.tile-bonus { box-shadow: none; border-width: 1.5px; }
+.papan-tile:hover { transform: none; }
+.papan-tile:active { transform: scale(0.94); }
+.papan-tile.aktif { box-shadow: 0 0 0 3px rgba(58, 122, 179, 0.28); animation: none; }
+.papan-tengah { background: var(--color-surface); border: none; box-shadow: var(--shadow-sm); }
+.btn-kocok-dadu { background: var(--color-accent); border-bottom: none; box-shadow: none; }
+.btn-kocok-dadu:hover:not(:disabled) { transform: none; box-shadow: none; }
+.btn-kocok-dadu:active:not(:disabled) { background-color: var(--color-accent-dark); transform: scale(0.97); }
+.pet-card, .absen-card { box-shadow: var(--shadow-sm); border-width: 1px; }
+.pet-card::before, .pet-card::after { display: none; }
+.btn-absen { border-bottom: none; background: var(--color-success); }
+.btn-absen:hover:not(:disabled) { transform: none; box-shadow: none; }
+.btn-absen:active:not(:disabled) { transform: scale(0.97); }
+}
+/* ===== Refresh tampilan mobile — global + halaman lain =====
+   Lanjutan dari refresh halaman Game: rapikan elemen yang muncul di
+   SEMUA halaman (topbar/badge Pet) dan hero card di Dashboard, Materi,
+   Tips, dan halaman detail — supaya konsisten satu "bahasa desain"
+   dengan Game. Cuma berlaku ≤640px, desktop/tablet tidak berubah. */
+@media (max-width: 640px) {
+.topbar-pet { background-color: var(--color-surface); border: 1px solid #eef2f6; box-shadow: none; }
+.topbar-pet:hover { border-color: #dbe6ee; transform: none; box-shadow: none; }
+.topbar-pet #topbarPetEmoji { box-shadow: none; }
+.topbar-pet #topbarPetEmoji::before { display: none; }
+.dash-hero, .materi-hero, .tips-hero, .detail-hero { padding: 20px 18px; border-radius: 16px; }
+.dash-hero-title { font-size: 1.4rem; }
+.materi-hero-title { font-size: 1.35rem; }
+.tips-hero-title { font-size: 1.3rem; }
+.detail-hero-title { font-size: 1.25rem; }
+.dash-hero-subtitle, .materi-hero-desc, .tips-hero-desc, .detail-hero-desc { font-size: 0.85rem; }
+.dash-hero-icons, .materi-hero-icons { font-size: 1.5rem; gap: 8px; }
+.detail-hero-illustration { font-size: 1.6rem; gap: 10px; }
+.tips-hero-illustration { font-size: 2.6rem; }
+.tips-card, .materi-card, .mini-card, .reason-card, .situasi-card, .tip-mini-card, .mitos-card { box-shadow: 0 1px 4px rgba(44, 62, 80, 0.06); }
+.tips-card:hover, .materi-card:hover, .mini-card:hover, .reason-card:hover { transform: none; box-shadow: 0 1px 4px rgba(44, 62, 80, 0.06); }
+.tips-card:active, .materi-card:active, .mini-card:active, .reason-card:active, .mitos-card:active { transform: scale(0.98); }
+}
+/* ===== Refresh tampilan mobile — halaman Awal & Login =====
+   Halaman ini sebenarnya sudah cukup flat dari awal (kartu form putih +
+   ilustrasi), jadi cuma dirapikan: ukuran judul disesuaikan buat layar
+   sempit, shadow kartu dikurangin dikit, dan hover desktop (translateY)
+   diganti efek tekan biar nggak "nyangkut" pas disentuh di HP. */
+@media (max-width: 480px) {
+.welcome-text { font-size: 1.7rem; margin-bottom: 18px; }
+.data-form { padding: 26px 20px; box-shadow: 0 4px 18px rgba(44, 62, 80, 0.1); }
+.form-title { font-size: 1.35rem; margin-bottom: 20px; }
+.btn-mulai:hover { transform: none; }
+.btn-mulai:active { transform: scale(0.97); }
+.data-form button[type="submit"]:hover { transform: none; }
+.data-form button[type="submit"]:active { transform: scale(0.97); }
+.btn-toggle-password { width: 38px; height: 38px; }
+}
+/* ===== Refresh tampilan mobile — halaman Kalkulator =====
+   Struktur halaman ini dari awal sudah flat (form + kartu putih polos,
+   nggak ada gaya "ledge" candy kayak Game), jadi penyesuaiannya lebih
+   ringan: rapatkan spacing dikit buat layar sempit, dan ganti hover
+   desktop (translateY/warna) di tombol interaktif jadi efek tekan biar
+   nggak nyangkut pas disentuh. */
+@media (max-width: 480px) {
+.kalkulator-title { font-size: 1.3rem; }
+.kalkulator-desc { font-size: 0.82rem; }
+.gender-choice { gap: 10px; }
+.btn-gender { padding: 12px 8px; }
+.btn-gender:hover { background-color: #ffffff; color: var(--color-primary); }
+.btn-gender.selected:hover { background-color: var(--color-accent); color: #ffffff; }
+.btn-gender:active { transform: scale(0.97); }
+.activity-card:hover { border-color: #dfe6ec; }
+.activity-card:active { border-color: var(--color-primary); }
+.btn-hitung:active, .btn-lanjut:active, .btn-ulang:active, .btn-outline:active { transform: scale(0.97); }
+.hasil-grid { gap: 10px; }
+.hasil-card-besar { padding: 18px 14px; }
+.hasil-angka { font-size: 1.9rem; }
+.link-btn:active { opacity: 0.7; }
+}
 Untuk pengguna yang mengaktifkan pengaturan "kurangi animasi" di perangkatnya (biasanya karena migrain, vertigo, atau gangguan vestibular lainnya), semua animasi & transisi dibuat nyaris instan agar tidak memicu ketidaknyamanan. */ @media (prefers-reduced-motion: reduce) {
 *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
 }
@@ -1204,4 +1332,23 @@ Untuk pengguna yang mengaktifkan pengaturan "kurangi animasi" di perangkatnya (b
 @media (max-width: 640px) {
 .dm-table { font-size: 0.76rem; }
 .dm-table th, .dm-table td { padding: 10px 10px; }
+}
+/* ===== Refresh tampilan mobile — sisa Materi/Tips detail + Tentang/Referensi =====
+   Bagian-bagian ini dari awal sudah flat (card putih + border tipis
+   berwarna, bukan gaya ledge candy), jadi cuma dirapatkan spacing-nya
+   buat layar sempit dan hover desktop di tombol kuis/opsi diganti efek
+   tekan biar konsisten sama halaman lain. */
+@media (max-width: 480px) {
+.about-card { padding: 18px 16px; }
+.about-avatar { width: 72px; height: 72px; }
+.about-avatar-initials { font-size: 1.4rem; }
+.compare-card { padding: 16px 12px; }
+.sugar-card { padding: 14px; }
+.label-simulasi { padding: 14px 16px; max-width: 100%; }
+.gula-visual { padding: 14px 14px 12px; }
+.game-opsi-btn:hover:not(:disabled) { border-color: #dbe6ee; background-color: #ffffff; transform: none; }
+.game-opsi-btn:active:not(:disabled) { border-color: var(--color-info); background-color: #f4faff; }
+.mitos-card:hover { transform: none; box-shadow: 0 1px 4px rgba(44, 62, 80, 0.06); }
+.challenge-card, .closing-card { padding: 18px 16px; }
+.ref-list { padding-left: 18px; font-size: 0.88rem; }
 }

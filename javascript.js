@@ -12,6 +12,8 @@ const daftarAkunEmail = document.getElementById('daftarAkunEmail');
 const emailHint = document.getElementById('emailHint');
 const loginError = document.getElementById('loginError');
 const btnLupaSandi = document.getElementById('btnLupaSandi');
+const btnGoogleLogin = document.getElementById('btnGoogleLogin');
+const googleLoginError = document.getElementById('googleLoginError');
 const topbarUser = document.getElementById('topbarUser');
 const dashboardWelcome = document.getElementById('dashboardWelcome');
 const btnLogout = document.getElementById('btnLogout');
@@ -85,7 +87,10 @@ function perbaruiHintEmail() {
         return;
     }
     const akunCocok = ambilAkunTersimpan().find(akun => akun.email === email);
-    if (akunCocok) {
+    if (akunCocok && akunCocok.viaGoogle) {
+        emailHint.textContent = 'Akun ini biasa login pakai Google. Ketuk tombol "Masuk dengan Google" di atas ya.';
+        passwordInput.value = '';
+    } else if (akunCocok) {
         emailHint.textContent = '';
         passwordInput.value = akunCocok.password;
     } else {
@@ -172,6 +177,30 @@ btnMulai.addEventListener('click', () => {
     landingPage.classList.add('hidden');
     loginPage.classList.remove('hidden');
 });
+// Dipanggil setelah login berhasil (baik lewat form email+sandi maupun
+// lewat tombol "Masuk dengan Google") — supaya kedua jalur login berujung
+// ke proses yang sama persis: buka dashboard, catat pengunjung, tarik
+// progres dari Firestore, dst.
+function selesaikanLogin(email, nama) {
+    emailAktif = email;
+    topbarUser.textContent = `Halo, ${nama}`;
+    dashboardWelcome.textContent = `Selamat datang, ${nama}! Berikut ringkasan halaman kamu.`;
+    sembunyikanErrorLogin();
+    if (googleLoginError) googleLoginError.classList.add('hidden');
+    loginPage.classList.add('hidden');
+    dashboardPage.classList.remove('hidden');
+    pindahkanIndikatorNav(document.querySelector('.nav-item.active'), false);
+    catatLoginPengunjung(email, nama);
+    // Tarik dulu progres game dari cloud (Firestore) sebelum me-refresh
+    // tampilan game, supaya progres yang disimpan dari device lain (mis.
+    // laptop) ikut muncul di device ini, bukan mulai dari 0 lagi.
+    const muatProgres = (typeof window.muatProgresDariFirestore === 'function')
+        ? window.muatProgresDariFirestore(email)
+        : Promise.resolve();
+    muatProgres.then(() => {
+        if (typeof window.refreshGameAkun === 'function') window.refreshGameAkun();
+    });
+}
 formData.addEventListener('submit', function (e) {
     e.preventDefault();
     const email = emailInput.value.trim().toLowerCase();
@@ -186,16 +215,94 @@ formData.addEventListener('submit', function (e) {
         simpanAkun({ email, password });
     }
     const nama = turunkanNamaDariEmail(email);
-    emailAktif = email;
-    topbarUser.textContent = `Halo, ${nama}`;
-    dashboardWelcome.textContent = `Selamat datang, ${nama}! Berikut ringkasan halaman kamu.`;
-    sembunyikanErrorLogin();
-    loginPage.classList.add('hidden');
-    dashboardPage.classList.remove('hidden');
-    pindahkanIndikatorNav(document.querySelector('.nav-item.active'), false);
-    catatLoginPengunjung(email, nama);
-    if (typeof window.refreshGameAkun === 'function') window.refreshGameAkun();
+    selesaikanLogin(email, nama);
 });
+// ===== Masuk dengan Google (satu ketukan, tanpa isi ulang email/sandi) =====
+// Memakai Firebase Authentication (Google provider). Akun Google yang
+// sudah tersimpan/login di browser/HP anak akan ditawarkan otomatis oleh
+// jendela pilihan akun Google, jadi mereka tinggal ketuk nama akunnya.
+function tampilkanErrorGoogle(err) {
+    if (!googleLoginError) return;
+    const kode = (err && err.code) ? err.code : 'unknown';
+    const teksSpan = googleLoginError.querySelector('span');
+    const pesanPerKode = {
+        'auth/operation-not-allowed': 'Login Google belum diaktifkan di pengaturan Firebase (Authentication → Sign-in method → Google). Aktifkan dulu, ya.',
+        'auth/unauthorized-domain': 'Alamat website ini belum didaftarkan di Firebase (Authentication → Settings → Authorized domains). Tambahkan dulu domainnya.',
+        'auth/popup-blocked': 'Jendela pilih akun Google diblokir oleh browser. Sedang mencoba cara lain otomatis...',
+        'auth/operation-not-supported-in-this-environment': 'Browser/aplikasi ini tidak mendukung jendela pop-up Google. Sedang mencoba cara lain otomatis...'
+    };
+    const pesan = pesanPerKode[kode] || `Login dengan Google gagal atau dibatalkan (kode: ${kode}). Coba lagi, atau masuk pakai email & sandi di bawah.`;
+    if (teksSpan) teksSpan.textContent = pesan; else googleLoginError.textContent = pesan;
+    googleLoginError.classList.remove('hidden');
+}
+function prosesUserGoogle(user) {
+    const email = (user.email || '').trim().toLowerCase();
+    if (!email) {
+        tampilkanErrorGoogle({ code: 'auth/no-email' });
+        return;
+    }
+    const nama = user.displayName || turunkanNamaDariEmail(email);
+    // password diisi null (bukan dipakai) — akun ini login lewat Google,
+    // ditandai supaya kolom sandi tidak ikut ditawarkan/diisi otomatis.
+    simpanAkun({ email, password: null, viaGoogle: true });
+    selesaikanLogin(email, nama);
+}
+// Kalau tadi sempat dialihkan ke halaman login Google penuh (signInWithRedirect,
+// dipakai sebagai cadangan saat jendela pop-up diblokir), tangkap hasilnya di
+// sini begitu halaman ini dimuat ulang setelah anak memilih akunnya.
+if (typeof firebase !== 'undefined' && firebase.auth) {
+    firebase.auth().getRedirectResult()
+        .then((result) => {
+            if (result && result.user) prosesUserGoogle(result.user);
+        })
+        .catch((err) => {
+            if (err && err.code) console.error('Login Google (redirect) gagal:', err);
+        });
+}
+if (btnGoogleLogin) {
+    btnGoogleLogin.addEventListener('click', () => {
+        if (typeof firebase === 'undefined' || !firebase.auth) {
+            tampilkanErrorGoogle({ code: 'auth/sdk-belum-siap' });
+            return;
+        }
+        if (googleLoginError) googleLoginError.classList.add('hidden');
+        btnGoogleLogin.disabled = true;
+        const provider = new firebase.auth.GoogleAuthProvider();
+        // "select_account" memaksa Google selalu menampilkan jendela pilih akun
+        // (bukan langsung login diam-diam ke akun terakhir) — supaya kalau HP
+        // dipakai bergantian oleh beberapa anak, mereka tetap bisa memilih.
+        provider.setCustomParameters({ prompt: 'select_account' });
+        firebase.auth().signInWithPopup(provider)
+            .then((result) => {
+                prosesUserGoogle(result.user);
+            })
+            .catch((err) => {
+                // Jendela ditutup pemakai (popup-closed-by-user) itu wajar, tidak
+                // perlu dianggap "error" yang menakut-nakuti anak SMP.
+                if (err && err.code === 'auth/popup-closed-by-user') return;
+                console.error('Login Google (popup) gagal:', err);
+                const kodePopupBermasalah = [
+                    'auth/popup-blocked',
+                    'auth/operation-not-supported-in-this-environment',
+                    'auth/cancelled-popup-request'
+                ];
+                if (err && kodePopupBermasalah.includes(err.code)) {
+                    // Popup gagal dibuka (umum di webview HP/aplikasi in-app) —
+                    // coba lagi dengan cara alihkan halaman penuh, bukan pop-up.
+                    tampilkanErrorGoogle(err);
+                    firebase.auth().signInWithRedirect(provider).catch((err2) => {
+                        console.error('Login Google (redirect) gagal:', err2);
+                        tampilkanErrorGoogle(err2);
+                    });
+                    return;
+                }
+                tampilkanErrorGoogle(err);
+            })
+            .finally(() => {
+                btnGoogleLogin.disabled = false;
+            });
+    });
+}
 navItems.forEach(item => {
     item.addEventListener('click', () => {
         aktifkanSection(item.dataset.target, { scroll: true });
@@ -1242,6 +1349,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
     }
     function simpanNamaPetDasar(namaBaru) {
         localStorage.setItem(kunciAkunAktif(KUNCI_NAMA_PET_BASE), namaBaru);
+        jadwalkanSinkronProgresGame();
     }
     // ===== Panel "Beri Nama Pet" — dipicu dari ikon ✏️ di kartu pet =====
     const panelNamaPetOverlay = document.getElementById('panelNamaPetOverlay');
@@ -1308,6 +1416,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         localStorage.setItem(kunciAkunAktif(KUNCI_POIN_SESI_BASE), String(poinSehat));
         localStorage.setItem(kunciAkunAktif(KUNCI_POSISI_SESI_BASE), String(posisiPemain));
         localStorage.setItem(kunciAkunAktif(KUNCI_LAP_SESI_BASE), String(jumlahLap));
+        jadwalkanSinkronProgresGame();
     }
     function muatStateSesi() {
         posisiPemain = Number(localStorage.getItem(kunciAkunAktif(KUNCI_POSISI_SESI_BASE))) || 0;
@@ -1622,6 +1731,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         const stageLama = cariInfoStagePet(rekorLama).stage;
         if (poinSehat > rekorLama) {
             localStorage.setItem(kunciAkunAktif(KUNCI_SKOR_TERTINGGI), String(poinSehat));
+            jadwalkanSinkronProgresGame();
         }
         const rekorBaru = ambilSkorTertinggi();
         elSkorTertinggi.textContent = rekorBaru;
@@ -1651,25 +1761,90 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             papanGrid.appendChild(el);
         });
     }
+    const DURASI_LOMPAT_TOKEN = 420; // ms — samain dengan interval antar-langkah di bawah biar animasi nggak kepotong
     function pindahkanTokenKeTile(index, instan) {
-        document.querySelectorAll('.papan-tile').forEach(t => t.classList.remove('aktif'));
+        document.querySelectorAll('.papan-tile').forEach(t => { t.classList.remove('aktif'); t.classList.remove('baru-mendarat'); });
         const tileTujuan = document.getElementById(`papanTile${index}`);
         if (!tileTujuan) return;
         tileTujuan.classList.add('aktif');
         let token = document.getElementById('papanToken');
-        if (!token) {
+        const tokenBaru = !token;
+        if (tokenBaru) {
             token = document.createElement('span');
             token.id = 'papanToken';
             token.className = 'papan-token';
             token.textContent = '🧑‍🎓';
         }
-        if (instan) {
+        // Hentikan animasi lompat sebelumnya kalau masih jalan (misal langkah
+        // dipanggil beruntun cepat), supaya nggak numpuk/patah-patah.
+        if (token.getAnimations) token.getAnimations().forEach(a => a.cancel());
+        // Hormati setting "kurangi animasi" perangkat (migrain/vertigo dll) —
+        // animasi CSS lain di web ini sudah otomatis dipercepat lewat
+        // prefers-reduced-motion, tapi animasi lompat ini jalan lewat Web
+        // Animations API di JS jadi harus dicek manual biar konsisten.
+        const kurangiGerak = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (instan || tokenBaru || kurangiGerak) {
+            token.classList.remove('lagi-melompat', 'melayang');
+            token.style.left = '';
+            token.style.top = '';
+            token.style.right = '';
+            token.style.bottom = '';
+            token.style.transform = '';
             token.style.opacity = '1';
             tileTujuan.appendChild(token);
         } else {
-            token.style.opacity = '0';
-            tileTujuan.appendChild(token);
-            requestAnimationFrame(() => { token.style.opacity = '1'; });
+            // ===== Animasi lompat pion (arc lintas kotak) =====
+            // Tiap .papan-tile pakai overflow:hidden (biar sudut & background
+            // gradient-nya rapi kepotong sesuai border-radius). Kalau token
+            // dianimasikan NAIK di dalam tile, bagian arc yang keluar batas
+            // kotak bakal ke-crop/hilang — ini penyebab utama lompatannya
+            // kerasa patah-patah/kaku sebelumnya. Solusinya: selama "terbang",
+            // token dipindah sementara jadi anak langsung .papan-grid (nggak
+            // overflow:hidden), diposisikan pas di titik kotak asal, lalu
+            // dianimasikan (translate + arc + squash/rotate) ke titik kotak
+            // tujuan pakai Web Animations API. Abis mendarat, token
+            // dikembalikan jadi anak tile tujuan seperti biasa.
+            const rectAwal = token.getBoundingClientRect();
+            tileTujuan.appendChild(token); // sementara, cuma buat ukur posisi mendarat yang presisi
+            const rectAkhir = token.getBoundingClientRect();
+            const rectGrid = papanGrid.getBoundingClientRect();
+            const startLeft = rectAwal.left - rectGrid.left;
+            const startTop = rectAwal.top - rectGrid.top;
+            const dx = (rectAkhir.left - rectGrid.left) - startLeft;
+            const dy = (rectAkhir.top - rectGrid.top) - startTop;
+            token.classList.add('lagi-melompat', 'melayang');
+            token.style.left = `${startLeft}px`;
+            token.style.top = `${startTop}px`;
+            token.style.right = 'auto';
+            token.style.bottom = 'auto';
+            token.style.opacity = '1';
+            papanGrid.appendChild(token); // keluar dari tile selama terbang
+            const arahMiring = dx >= 0 ? 1 : -1;
+            const tinggiLompat = -Math.max(30, Math.hypot(dx, dy) * 0.4 + 24); // makin jauh, makin tinggi lompatannya
+            tileTujuan.classList.add('baru-mendarat');
+            const animasi = token.animate([
+                { transform: 'translate(0, 0) scale(1, 1) rotate(0deg)', offset: 0 },
+                { transform: `translate(${dx * 0.05}px, ${dy * 0.05 + 5}px) scale(1.2, 0.78) rotate(${-6 * arahMiring}deg)`, offset: 0.14 },
+                { transform: `translate(${dx * 0.5}px, ${dy * 0.5 + tinggiLompat}px) scale(0.86, 1.16) rotate(${8 * arahMiring}deg)`, offset: 0.56 },
+                { transform: `translate(${dx * 0.92}px, ${dy * 0.92 - 4}px) scale(1.16, 0.82) rotate(${-3 * arahMiring}deg)`, offset: 0.86 },
+                { transform: `translate(${dx}px, ${dy}px) scale(1, 1) rotate(0deg)`, offset: 1 }
+            ], {
+                duration: DURASI_LOMPAT_TOKEN,
+                easing: 'cubic-bezier(0.3, 0.05, 0.25, 1)',
+                fill: 'forwards'
+            });
+            animasi.onfinish = () => {
+                // cancel (bukan cuma biarin "forwards") biar animasi idle
+                // tokenBounce di CSS bisa lanjut lagi dengan mulus setelah mendarat
+                animasi.cancel();
+                token.classList.remove('lagi-melompat', 'melayang');
+                token.style.left = '';
+                token.style.top = '';
+                token.style.right = '';
+                token.style.bottom = '';
+                tileTujuan.appendChild(token); // kembali jadi anak tile tujuan seperti biasa
+                tileTujuan.classList.remove('baru-mendarat');
+            };
         }
         simpanStateSesi();
     }
@@ -1713,7 +1888,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             tampilkanToast('🎉 Keliling papan! +10 Poin Sehat');
         }
         pindahkanTokenKeTile(posisiPemain, false);
-        window.setTimeout(() => langkahkanPemain(sisaLangkah - 1), 260);
+        window.setTimeout(() => langkahkanPemain(sisaLangkah - 1), DURASI_LOMPAT_TOKEN + 30);
     }
     function pindahTanpaEvent(delta, selesai) {
         const arah = delta > 0 ? 1 : -1;
@@ -1723,7 +1898,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             posisiPemain = (posisiPemain + arah + PAPAN_DATA.length) % PAPAN_DATA.length;
             pindahkanTokenKeTile(posisiPemain, false);
             sisa--;
-            window.setTimeout(langkah, 220);
+            window.setTimeout(langkah, DURASI_LOMPAT_TOKEN + 30);
         }
         langkah();
     }
@@ -1849,7 +2024,63 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
     }
     const KUNCI_ABSEN_TERAKHIR = 'sobatSehatAbsenTerakhir';
     const KUNCI_ABSEN_STREAK = 'sobatSehatAbsenStreak';
+    const KUNCI_ABSEN_STREAK_REKOR = 'sobatSehatAbsenStreakRekor';
+    // ===== Sinkronisasi progres game ke Firestore =====
+    // localStorage itu per-device/per-browser, jadi kalau cuma disimpan di situ,
+    // progres game (Poin Sehat, posisi papan, skor tertinggi, nama pet, streak
+    // absen) tidak ikut pindah waktu buka website dari device lain pakai akun
+    // yang sama. Di sini progres itu juga dititipkan ke Firestore (per email),
+    // lalu ditarik lagi & ditulis ke localStorage begitu akun login di device
+    // manapun — supaya progresnya konsisten di semua device.
+    let _timerSinkronProgresGame = null;
+    function kumpulkanProgresGameLokal() {
+        return {
+            namaPet: localStorage.getItem(kunciAkunAktif(KUNCI_NAMA_PET_BASE)),
+            poinSehat: Number(localStorage.getItem(kunciAkunAktif(KUNCI_POIN_SESI_BASE))) || 0,
+            posisiPemain: Number(localStorage.getItem(kunciAkunAktif(KUNCI_POSISI_SESI_BASE))) || 0,
+            jumlahLap: Number(localStorage.getItem(kunciAkunAktif(KUNCI_LAP_SESI_BASE))) || 0,
+            skorTertinggi: Number(localStorage.getItem(kunciAkunAktif(KUNCI_SKOR_TERTINGGI))) || 0,
+            absenTerakhir: localStorage.getItem(kunciAkunAktif(KUNCI_ABSEN_TERAKHIR)),
+            absenStreak: Number(localStorage.getItem(kunciAkunAktif(KUNCI_ABSEN_STREAK))) || 0,
+            absenStreakRekor: Number(localStorage.getItem(kunciAkunAktif(KUNCI_ABSEN_STREAK_REKOR))) || 0
+        };
+    }
+    function jadwalkanSinkronProgresGame() {
+        if (!emailAktif || typeof db === 'undefined') return;
+        clearTimeout(_timerSinkronProgresGame);
+        _timerSinkronProgresGame = setTimeout(() => {
+            const dataProgres = kumpulkanProgresGameLokal();
+            dataProgres.diperbaruiPada = firebase.firestore.FieldValue.serverTimestamp();
+            db.collection('progresGame').doc(emailAktif).set(dataProgres, { merge: true }).catch(() => {});
+        }, 800);
+    }
+    function muatProgresDariFirestore(email) {
+        if (!email || typeof db === 'undefined') return Promise.resolve();
+        return db.collection('progresGame').doc(email).get().then((snap) => {
+            if (!snap.exists) return;
+            const d = snap.data();
+            const kunciUntuk = (base) => `${base}_${email}`;
+            if (d.namaPet) localStorage.setItem(kunciUntuk(KUNCI_NAMA_PET_BASE), d.namaPet);
+            if (d.poinSehat !== undefined) localStorage.setItem(kunciUntuk(KUNCI_POIN_SESI_BASE), String(d.poinSehat));
+            if (d.posisiPemain !== undefined) localStorage.setItem(kunciUntuk(KUNCI_POSISI_SESI_BASE), String(d.posisiPemain));
+            if (d.jumlahLap !== undefined) localStorage.setItem(kunciUntuk(KUNCI_LAP_SESI_BASE), String(d.jumlahLap));
+            if (d.skorTertinggi !== undefined) localStorage.setItem(kunciUntuk(KUNCI_SKOR_TERTINGGI), String(d.skorTertinggi));
+            if (d.absenTerakhir) localStorage.setItem(kunciUntuk(KUNCI_ABSEN_TERAKHIR), d.absenTerakhir);
+            if (d.absenStreak !== undefined) localStorage.setItem(kunciUntuk(KUNCI_ABSEN_STREAK), String(d.absenStreak));
+            if (d.absenStreakRekor !== undefined) localStorage.setItem(kunciUntuk(KUNCI_ABSEN_STREAK_REKOR), String(d.absenStreakRekor));
+        }).catch(() => {});
+    }
+    window.muatProgresDariFirestore = muatProgresDariFirestore;
     const elAbsenStreakNilai = document.getElementById('absenStreakNilai');
+    const elAbsenStreakRekor = document.getElementById('absenStreakRekorNilai');
+    // Rekor dihitung dari nilai tersimpan vs streak saat ini (bukan cuma nilai
+    // tersimpan mentah), biar akun lama yang belum pernah punya field rekor
+    // tetap langsung dapat rekor yang benar tanpa perlu migrasi data.
+    function ambilRekorStreak() {
+        const rekorTersimpan = Number(localStorage.getItem(kunciAkunAktif(KUNCI_ABSEN_STREAK_REKOR))) || 0;
+        const streakSaatIni = Number(localStorage.getItem(kunciAkunAktif(KUNCI_ABSEN_STREAK))) || 0;
+        return Math.max(rekorTersimpan, streakSaatIni);
+    }
     // ===== Milestone api Streak Absen — makin panjang streak-nya, api 🔥
     // makin besar & warnanya makin "panas" (oranye → merah → ungu → biru). =====
     const STREAK_TIERS = [
@@ -1916,6 +2147,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         const streakSaatIni = Number(localStorage.getItem(kunciAkunAktif(KUNCI_ABSEN_STREAK))) || 0;
         elAbsenStreak.textContent = streakSaatIni;
         terapkanTierStreak(streakSaatIni);
+        if (elAbsenStreakRekor) elAbsenStreakRekor.textContent = ambilRekorStreak();
     }
     function absenHariIni() {
         const hariIni = new Date();
@@ -1928,12 +2160,22 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         const streakBaru = (terakhir === formatTanggal(kemarin)) ? streakSebelumnya + 1 : 1;
         localStorage.setItem(kunciAkunAktif(KUNCI_ABSEN_TERAKHIR), strHariIni);
         localStorage.setItem(kunciAkunAktif(KUNCI_ABSEN_STREAK), String(streakBaru));
+        // Rekor cuma naik, nggak pernah turun — meski streak-nya putus & balik
+        // ke 1, capaian terpanjang yang pernah diraih tetap kesimpen di sini.
+        const rekorSebelumnya = ambilRekorStreak();
+        const rekorPecah = streakBaru > rekorSebelumnya;
+        if (rekorPecah) {
+            localStorage.setItem(kunciAkunAktif(KUNCI_ABSEN_STREAK_REKOR), String(streakBaru));
+        }
+        jadwalkanSinkronProgresGame();
         poinSehat += 10;
         perbaruiTampilanSkor();
         perbaruiTampilanAbsen();
         const tierSebelumnya = cariTierStreak(streakSebelumnya);
         const tierBaru = cariTierStreak(streakBaru);
-        if (tierBaru.kelas !== tierSebelumnya.kelas) {
+        if (rekorPecah && streakBaru > 1) {
+            tampilkanToast(`🏆 Rekor baru! Streak ${streakBaru} hari — terpanjang yang pernah kamu capai`);
+        } else if (tierBaru.kelas !== tierSebelumnya.kelas) {
             tampilkanToast(`🔥 Streak naik ke ${streakBaru} hari — ${tierBaru.label}`);
         } else {
             tampilkanToast('🎉 Absen berhasil! +10 Poin Sehat');
@@ -2018,6 +2260,36 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
     elSkorTertinggi.textContent = ambilSkorTertinggi();
     perbaruiTampilanAbsen();
     perbaruiTampilanPet();
+    // ===== Auto-unlock tombol Absen pas tengah malam waktu setempat =====
+    // formatTanggal() sudah pakai tanggal LOKAL device (bukan hitung mundur
+    // 24 jam dari kapan tombol dipencet), jadi absen memang seharusnya
+    // kebuka lagi begitu tanggal kalender berganti — nggak peduli jam
+    // berapa terakhir kali user absen. Tapi kalau tab dibiarkan terbuka
+    // lewat tengah malam tanpa di-refresh, tampilan tombolnya nggak ikut
+    // ke-update sendiri. Ini yang bikin kerasa "kayak nunggu 24 jam".
+    // Jadwalkan pengecekan ulang PAS di tengah malam berikutnya, lalu
+    // ulangi tiap 24 jam setelah itu.
+    let _timerRefreshAbsenTengahMalam = null;
+    function jadwalkanRefreshAbsenTengahMalam() {
+        window.clearTimeout(_timerRefreshAbsenTengahMalam);
+        const sekarang = new Date();
+        const tengahMalamBerikutnya = new Date(sekarang.getFullYear(), sekarang.getMonth(), sekarang.getDate() + 1, 0, 0, 2, 0); // +2 detik jaga-jaga
+        const msSampaiTengahMalam = tengahMalamBerikutnya.getTime() - sekarang.getTime();
+        _timerRefreshAbsenTengahMalam = window.setTimeout(() => {
+            perbaruiTampilanAbsen();
+            jadwalkanRefreshAbsenTengahMalam(); // jadwalkan lagi buat tengah malam besoknya
+        }, msSampaiTengahMalam);
+    }
+    jadwalkanRefreshAbsenTengahMalam();
+    // Tab yang lama disembunyikan (misal HP dikunci semalaman) bikin browser
+    // nge-throttle/pause setTimeout, jadi begitu tab aktif lagi kita cek
+    // ulang manual juga — jaga-jaga kalau timer di atas telat kepicu.
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            perbaruiTampilanAbsen();
+            jadwalkanRefreshAbsenTengahMalam();
+        }
+    });
     // Dipanggil tiap ganti akun (login/logout) — HANYA memuat ulang data akun yang
     // aktif, TIDAK mereset Poin Sehat. Poin cuma boleh balik ke 0 lewat tombol Reset.
     window.refreshSkorDanAbsen = () => {
