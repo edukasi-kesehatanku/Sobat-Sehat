@@ -1609,6 +1609,22 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         { topik: 'Tips Sekolah', pertanyaan: 'Kalau temanmu memilih membeli minuman manis dan kamu tidak ikut membelinya, sikap apa yang tepat?', opsi: ['Tetap pada pilihanmu tanpa perlu menghakimi pilihan temanmu', 'Memaksa teman ikut memilih air putih', 'Ikut membeli meskipun sebenarnya tidak ingin'], benar: 0, penjelasan: 'Kamu boleh tetap pada pilihanmu sendiri, dan temanmu juga punya pilihannya masing-masing — tidak perlu saling menghakimi.' }
     ];
     let kuisBagIndeks = [];
+    // Mengacak urutan pilihan jawaban tiap soal ditampilkan, supaya posisi
+    // jawaban benar tidak selalu di pilihan pertama. Indeks "benar" ikut
+    // disesuaikan mengikuti urutan baru. Data asli QUESTION_BANK tidak
+    // diubah — soal yang sama bisa dapat urutan pilihan berbeda tiap muncul.
+    function acakUrutanOpsi(soal) {
+        const opsiDenganAsal = soal.opsi.map((teks, i) => ({ teks, asli: i }));
+        for (let i = opsiDenganAsal.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [opsiDenganAsal[i], opsiDenganAsal[j]] = [opsiDenganAsal[j], opsiDenganAsal[i]];
+        }
+        return {
+            ...soal,
+            opsi: opsiDenganAsal.map(o => o.teks),
+            benar: opsiDenganAsal.findIndex(o => o.asli === soal.benar)
+        };
+    }
     function ambilSoalAcak() {
         if (kuisBagIndeks.length === 0) {
             kuisBagIndeks = QUESTION_BANK.map((_, i) => i);
@@ -1617,7 +1633,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
                 [kuisBagIndeks[i], kuisBagIndeks[j]] = [kuisBagIndeks[j], kuisBagIndeks[i]];
             }
         }
-        return QUESTION_BANK[kuisBagIndeks.pop()];
+        return acakUrutanOpsi(QUESTION_BANK[kuisBagIndeks.pop()]);
     }
     const PAPAN_DATA = [
         { tipe: 'mulai', ikon: '🏁', label: 'Mulai' },
@@ -1706,6 +1722,58 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             }
         }
         return FAKTA_KOTAK_INFO[bagFaktaKotakIndeks.pop()];
+    }
+    // ===== Bank variasi kejadian untuk kotak "Bonus" dan "Jebakan".
+    // Sama seperti FAKTA_KOTAK_INFO, dipilih acak (sistem "bag") tiap kali
+    // pemain berhenti di kotak bonus/jebakan manapun — supaya kalimatnya
+    // nggak itu-itu aja walau berhenti berkali-kali di kotak yang sama.
+    // Jumlah langkah maju/mundur tetap ikut data kotaknya (tile.langkah),
+    // cuma kalimat & ikon ceritanya yang diacak. =====
+    const BONUS_KEJADIAN = [
+        { ikon: '💧', teks: 'Kamu memilih air putih dibanding minuman manis hari ini.' },
+        { ikon: '🚶', teks: 'Kamu jalan kaki ke sekolah hari ini.' },
+        { ikon: '🥗', teks: 'Kamu makan sayur dan buah waktu makan siang.' },
+        { ikon: '🏃', teks: 'Kamu olahraga ringan sepulang sekolah.' },
+        { ikon: '🍱', teks: 'Kamu sarapan bergizi sebelum berangkat sekolah.' },
+        { ikon: '😴', teks: 'Kamu tidur cukup semalam, jadi lebih fokus hari ini.' },
+        { ikon: '🦷', teks: 'Kamu rajin sikat gigi pagi dan malam.' },
+        { ikon: '🏷️', teks: 'Kamu cek label gizi dulu sebelum beli jajanan kemasan.' },
+        { ikon: '🍎', teks: 'Kamu bawa buah dari rumah sebagai camilan.' },
+        { ikon: '🚰', teks: 'Kamu isi ulang botol air putih beberapa kali hari ini.' }
+    ];
+    let bagBonusIndeks = [];
+    function ambilBonusAcak() {
+        if (bagBonusIndeks.length === 0) {
+            bagBonusIndeks = BONUS_KEJADIAN.map((_, i) => i);
+            for (let i = bagBonusIndeks.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [bagBonusIndeks[i], bagBonusIndeks[j]] = [bagBonusIndeks[j], bagBonusIndeks[i]];
+            }
+        }
+        return BONUS_KEJADIAN[bagBonusIndeks.pop()];
+    }
+    const JEBAKAN_KEJADIAN = [
+        { ikon: '🍩', teks: 'Kamu ngemil donat dan permen sepulang sekolah.' },
+        { ikon: '🌙', teks: 'Kamu begadang sambil ngemil manis.' },
+        { ikon: '🥯', teks: 'Kamu lupa sarapan dan akhirnya jajan sembarangan.' },
+        { ikon: '🥤', teks: 'Kamu beli minuman manis kemasan lagi hari ini.' },
+        { ikon: '🍬', teks: 'Kamu makan permen terus-terusan waktu belajar.' },
+        { ikon: '📱', teks: 'Kamu main HP sampai larut dan lupa waktu tidur.' },
+        { ikon: '🍟', teks: 'Kamu jajan gorengan dan minuman manis waktu istirahat.' },
+        { ikon: '🛋️', teks: 'Kamu males gerak seharian dan cuma rebahan.' },
+        { ikon: '🧋', teks: 'Kamu beli minuman boba ekstra manis sepulang sekolah.' },
+        { ikon: '🍪', teks: 'Kamu ngemil biskuit manis berkali-kali tanpa sadar.' }
+    ];
+    let bagJebakanIndeks = [];
+    function ambilJebakanAcak() {
+        if (bagJebakanIndeks.length === 0) {
+            bagJebakanIndeks = JEBAKAN_KEJADIAN.map((_, i) => i);
+            for (let i = bagJebakanIndeks.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [bagJebakanIndeks[i], bagJebakanIndeks[j]] = [bagJebakanIndeks[j], bagJebakanIndeks[i]];
+            }
+        }
+        return JEBAKAN_KEJADIAN[bagJebakanIndeks.pop()];
     }
     let posisiPemain = 0;
     let poinSehat = 0;
@@ -1948,8 +2016,11 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             tampilkanToast('📌 +5 Poin Sehat!');
             mulaiJedaLanjut(faktaAcak.teks, tutupEvent);
         } else if (tile.tipe === 'bonus' || tile.tipe === 'jebakan') {
+            const kejadianAcak = tile.tipe === 'bonus' ? ambilBonusAcak() : ambilJebakanAcak();
+            const arahLangkah = tile.langkah > 0 ? 'Maju' : 'Mundur';
             elEventJudul.textContent = tile.tipe === 'bonus' ? 'Bonus!' : 'Jebakan Gula!';
-            elEventTeks.textContent = tile.teks;
+            elEventIkon.textContent = kejadianAcak.ikon;
+            elEventTeks.textContent = `${kejadianAcak.teks} ${arahLangkah} ${Math.abs(tile.langkah)} langkah!`;
             btnLanjutEvent.classList.remove('hidden');
             btnLanjutEvent.onclick = () => {
                 tutupOverlaySaja();
@@ -2386,3 +2457,32 @@ window.addEventListener('popstate', () => {
         selesaikanLogin(sesi.email, sesi.nama || turunkanNamaDariEmail(sesi.email));
     }
 })();
+
+// ===== Upgrade emoji ke Twemoji (SVG) =====
+// Emoji unicode biasa (🎲, ❤️, dll) dirender pakai font emoji bawaan OS/
+// browser pengunjung, jadi tampilannya beda-beda tiap device (Windows lama,
+// merek HP tertentu, dsb). Blok ini otomatis mengganti semua emoji tersebut
+// jadi gambar SVG Twemoji, supaya tampilannya identik & tajam di semua device.
+// MutationObserver dipakai karena banyak bagian web ini (papan game, kuis,
+// modal, panel absen/pet) di-render belakangan lewat JS, bukan cuma dari HTML awal.
+(function upgradeEmojiKeTwemoji() {
+    if (typeof twemoji === 'undefined') return; // kalau CDN gagal dimuat, biarkan emoji biasa tampil
+    const opsiTwemoji = { folder: 'svg', ext: '.svg', className: 'emoji' };
+    function parseSemua(target) {
+        try {
+            twemoji.parse(target, opsiTwemoji);
+        } catch (e) {
+            // abaikan node yang tidak bisa diparse (mis. sudah berupa gambar)
+        }
+    }
+    parseSemua(document.body);
+    let jadwalParse = null;
+    const observer = new MutationObserver((mutations) => {
+        // debounce ringan supaya nggak parse berkali-kali saat banyak elemen
+        // berubah sekaligus (mis. render ulang papan game / daftar kuis)
+        clearTimeout(jadwalParse);
+        jadwalParse = setTimeout(() => parseSemua(document.body), 60);
+    });
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+})();
+

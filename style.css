@@ -3,6 +3,7 @@ html, body { height: 100%; overflow-x: hidden; }
 body { margin: 0; font-family: 'Poppins', 'Segoe UI', system-ui, -apple-system, sans-serif; background-color: #f0f4f8; min-height: 100vh; }
 .hidden { display: none !important; }
 :root { --color-primary: #2c3e50; --color-primary-dark: #1a252f; --color-accent: #e67e22; --color-accent-dark: #d35400; --color-success: #27ae60; --color-info: #3498db; --color-danger: #e74c3c; --color-danger-dark: #c0392b; --color-text-muted: #5a6b7d; --color-bg: #f0f4f8; --color-surface: #ffffff; --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-pill: 999px; --shadow-sm: 0 2px 8px rgba(44, 62, 80, 0.07); --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08); --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.18); --ease-fast: 0.15s ease; --ease-base: 0.25s ease; --ease-slow: 0.4s ease-in-out; }
+img.emoji { height: 1em; width: 1em; margin: 0 0.05em 0 0.1em; vertical-align: -0.15em; display: inline-block; }
 html { scroll-behavior: smooth; }
 .container { width: 100%; max-width: 1080px; margin: 0 auto; padding: 0 20px; }
 .card { background-color: var(--color-surface); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow-sm); transition: transform var(--ease-base), box-shadow var(--ease-base); }
