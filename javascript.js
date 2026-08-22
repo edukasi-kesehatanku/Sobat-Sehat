@@ -1158,24 +1158,45 @@ let intervalHeartbeatSesi = null;
 function catatLoginPengunjung(email, nama) {
     if (typeof db === 'undefined') return; // Firebase belum/gagal dimuat (mis. tidak ada internet)
     const refPengunjung = db.collection('pengunjung').doc(email);
-    refPengunjung.get()
-        .then(snap => {
-            const dataUpdate = {
+    // Disederhanakan dari yang sebelumnya: baca dulu (get) buat cek dokumen
+    // sudah ada atau belum -> baru tulis data pengunjung -> baru tulis sesi
+    // login, semua berurutan (1 baca + 2 tulis, saling nunggu satu sama lain).
+    //
+    // Sekarang: langsung coba UPDATE tanpa baca dulu. Kalau dokumennya sudah
+    // ada (kasus paling sering terjadi -- pengguna yang sudah pernah login
+    // sebelumnya), ini cukup 1 kali tulis, TANPA baca sama sekali. Update()
+    // otomatis gagal dengan kode 'not-found' kalau dokumennya belum ada
+    // (login pertama kali) -- baru di situ kita SET dokumen barunya sebagai
+    // fallback. Jadi buat mayoritas login sehari-hari, operasinya turun dari
+    // 1 baca + 1 tulis jadi cuma 1 tulis saja.
+    const updatePengunjung = refPengunjung.update({
+        nama,
+        loginTerakhir: firebase.firestore.FieldValue.serverTimestamp(),
+        jumlahLogin: firebase.firestore.FieldValue.increment(1)
+    }).catch(err => {
+        if (err.code === 'not-found') {
+            return refPengunjung.set({
                 email,
                 nama,
+                loginPertama: firebase.firestore.FieldValue.serverTimestamp(),
                 loginTerakhir: firebase.firestore.FieldValue.serverTimestamp(),
-                jumlahLogin: firebase.firestore.FieldValue.increment(1)
-            };
-            if (!snap.exists) {
-                dataUpdate.loginPertama = firebase.firestore.FieldValue.serverTimestamp();
-            }
-            return refPengunjung.set(dataUpdate, { merge: true });
-        })
-        .then(() => refPengunjung.collection('sesiLogin').add({
-            waktuMasuk: firebase.firestore.FieldValue.serverTimestamp(),
-            durasiDetik: 0
-        }))
-        .then(docRefSesi => {
+                jumlahLogin: 1
+            }, { merge: true });
+        }
+        throw err;
+    });
+    // Menambah dokumen sesi login TIDAK perlu menunggu dokumen "pengunjung"
+    // di atas selesai lebih dulu -- subcollection di Firestore tidak
+    // mensyaratkan dokumen induknya sudah ada -- jadi dijalankan BARENGAN
+    // (paralel) dengan updatePengunjung di atas, bukan berurutan. Ini
+    // mempercepat proses login & lebih tahan kalau salah satu request
+    // sempat lambat.
+    const tambahSesiLogin = refPengunjung.collection('sesiLogin').add({
+        waktuMasuk: firebase.firestore.FieldValue.serverTimestamp(),
+        durasiDetik: 0
+    });
+    Promise.all([updatePengunjung, tambahSesiLogin])
+        .then(([, docRefSesi]) => {
             sesiPengunjungRef = docRefSesi;
             waktuMulaiSesi = Date.now();
             mulaiHeartbeatSesi();
@@ -1184,7 +1205,12 @@ function catatLoginPengunjung(email, nama) {
 }
 function mulaiHeartbeatSesi() {
     hentikanHeartbeatSesi();
-    intervalHeartbeatSesi = window.setInterval(perbaruiDurasiSesi, 20000);
+    // Interval heartbeat diperlonggar dari 20 detik jadi 60 detik supaya
+    // penulisan ke Firestore lebih jarang (hemat kuota harian), terutama
+    // pas banyak siswa main bersamaan. Ini cuma menurunkan presisi
+    // pencatatan durasi sesi (jadi per menit, bukan per 20 detik) —
+    // tidak berpengaruh ke tampilan/kecepatan yang dirasakan pengguna.
+    intervalHeartbeatSesi = window.setInterval(perbaruiDurasiSesi, 60000);
 }
 function hentikanHeartbeatSesi() {
     if (intervalHeartbeatSesi) window.clearInterval(intervalHeartbeatSesi);
@@ -1204,6 +1230,20 @@ function akhiriSesiPengunjung() {
     sesiPengunjungRef = null;
     waktuMulaiSesi = null;
 }
+// Pause heartbeat saat tab tidak sedang dilihat (pindah tab lain / minimize
+// / kunci layar HP), lanjut lagi otomatis begitu tab dibuka/dilihat lagi.
+// Ini ngirit penulisan ke Firestore, soalnya banyak siswa yang tab web ini
+// tetap kebuka di background sambil mereka aktif di tab/app lain — heartbeat
+// yang tetap jalan di kondisi itu cuma buang-buang kuota harian tanpa guna.
+document.addEventListener('visibilitychange', () => {
+    if (!sesiPengunjungRef) return; // belum ada sesi login aktif, tidak perlu diapa-apakan
+    if (document.visibilityState === 'hidden') {
+        perbaruiDurasiSesi(); // simpan durasi terakhir dulu sebelum heartbeat dihentikan
+        hentikanHeartbeatSesi();
+    } else if (document.visibilityState === 'visible') {
+        mulaiHeartbeatSesi();
+    }
+});
 window.addEventListener('beforeunload', akhiriSesiPengunjung);
 window.addEventListener('pagehide', akhiriSesiPengunjung);
 (function () {
@@ -1213,6 +1253,11 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
     const ksError = document.getElementById('ksError');
     const ksSukses = document.getElementById('ksSukses');
     const btnKirimKs = document.getElementById('btnKirimKs');
+    // Jeda minimal antar pengiriman kritik/saran dari device yang sama, supaya
+    // form ini tidak bisa disalahgunakan buat spam kirim berkali-kali yang
+    // menghabiskan kuota tulis Firestore harian secara percuma.
+    const KUNCI_KS_TERAKHIR_KIRIM = 'sobatSehatKsTerakhirKirim';
+    const JEDA_KIRIM_KS_MS = 30000; // 30 detik
     formKritikSaran.addEventListener('submit', function (e) {
         e.preventDefault();
         ksError.classList.add('hidden');
@@ -1220,6 +1265,13 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         const pesan = ksPesan.value.trim();
         if (!pesan) {
             ksError.textContent = 'Mohon isi kritik/saran terlebih dahulu.';
+            ksError.classList.remove('hidden');
+            return;
+        }
+        const terakhirKirim = Number(localStorage.getItem(KUNCI_KS_TERAKHIR_KIRIM)) || 0;
+        const sisaJeda = JEDA_KIRIM_KS_MS - (Date.now() - terakhirKirim);
+        if (sisaJeda > 0) {
+            ksError.textContent = `Mohon tunggu ${Math.ceil(sisaJeda / 1000)} detik lagi sebelum mengirim kritik/saran berikutnya.`;
             ksError.classList.remove('hidden');
             return;
         }
@@ -1239,6 +1291,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             pesan,
             waktu: firebase.firestore.FieldValue.serverTimestamp()
         }).then(() => {
+            localStorage.setItem(KUNCI_KS_TERAKHIR_KIRIM, String(Date.now()));
             ksSukses.classList.remove('hidden');
             ksPesan.value = '';
         }).catch(err => {

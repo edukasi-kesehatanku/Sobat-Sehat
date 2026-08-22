@@ -64,7 +64,8 @@ button:focus-visible, input:focus-visible, a:focus-visible, .nav-item:focus-visi
 .auth-scene svg { width: 100%; height: 100%; object-fit: cover; }
 .auth-scene::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(234, 244, 251, 0) 45%, var(--color-bg) 96%); }
 .auth-panel { position: relative; z-index: 1; flex: 1 1 auto; min-height: 100%; justify-content: center; align-items: center; padding: 28px 20px 40px; background-color: transparent; }
-.auth-card { background-color: transparent; backdrop-filter: none; border-radius: 0; padding: 0 8px; box-shadow: none; }
+.auth-card { background-color: rgba(255, 255, 255, 0.68); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 20px; padding: 32px 24px; box-shadow: 0 8px 30px rgba(44, 62, 80, 0.12); }
+.data-form { background-color: rgba(255, 255, 255, 0.68); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 }
 .welcome-text { font-size: 2.8rem; color: #2c3e50; margin-bottom: 20px; }
 .btn-mulai { padding: 12px 32px; background-color: #2c3e50; color: #ffffff; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; transition: background-color 0.2s ease-in-out; }
