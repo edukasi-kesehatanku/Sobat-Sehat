@@ -362,7 +362,7 @@ document.addEventListener('touchend', (e) => {
         tutupSidebar();
     }
 }, { passive: true });
-btnLogout.addEventListener('click', () => {
+function jalankanLogout() {
     akhiriSesiPengunjung();
     emailAktif = null;
     dashboardPage.classList.add('hidden');
@@ -370,7 +370,27 @@ btnLogout.addEventListener('click', () => {
     formData.reset();
     aktifkanSection('dashboard', { scroll: true });
     if (typeof window.refreshGameAkun === 'function') window.refreshGameAkun();
-});
+}
+const panelKonfirmasiLogoutOverlay = document.getElementById('panelKonfirmasiLogoutOverlay');
+const btnKonfirmasiLogout = document.getElementById('btnKonfirmasiLogout');
+const btnBatalLogout = document.getElementById('btnBatalLogout');
+if (panelKonfirmasiLogoutOverlay && btnKonfirmasiLogout && btnBatalLogout) {
+    btnLogout.addEventListener('click', () => {
+        // Klik tombol Logout TIDAK langsung keluar — tampilkan konfirmasi dulu,
+        // supaya tidak ke-logout tidak sengaja (misal kesenggol pas main game).
+        bukaPanelOverlay(panelKonfirmasiLogoutOverlay);
+    });
+    btnKonfirmasiLogout.addEventListener('click', () => {
+        tutupPanelOverlay(panelKonfirmasiLogoutOverlay);
+        jalankanLogout();
+    });
+    btnBatalLogout.addEventListener('click', () => {
+        tutupPanelOverlay(panelKonfirmasiLogoutOverlay);
+    });
+} else {
+    // fallback kalau markup overlay belum ada, supaya tombol tetap berfungsi
+    btnLogout.addEventListener('click', jalankanLogout);
+}
 function bukaMenuUtama(targetId) {
     aktifkanSection(targetId, { scroll: true });
 }
@@ -2049,11 +2069,28 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         if (!emailAktif || typeof db === 'undefined') return;
         clearTimeout(_timerSinkronProgresGame);
         _timerSinkronProgresGame = setTimeout(() => {
-            const dataProgres = kumpulkanProgresGameLokal();
-            dataProgres.diperbaruiPada = firebase.firestore.FieldValue.serverTimestamp();
-            db.collection('progresGame').doc(emailAktif).set(dataProgres, { merge: true }).catch(() => {});
+            segerakanSinkronProgresGame();
         }, 800);
     }
+    // Simpan LANGSUNG ke Firestore (tanpa nunggu jeda 800ms). Dipakai saat tab
+    // mau ditinggalkan/ditutup — supaya progres yang baru saja didapat (misal
+    // abis kocok dadu lalu langsung tutup browser di HP) tidak keburu hilang
+    // karena jeda 800ms di atas belum sempat jalan.
+    function segerakanSinkronProgresGame() {
+        if (!emailAktif || typeof db === 'undefined') return;
+        clearTimeout(_timerSinkronProgresGame);
+        const dataProgres = kumpulkanProgresGameLokal();
+        dataProgres.diperbaruiPada = firebase.firestore.FieldValue.serverTimestamp();
+        db.collection('progresGame').doc(emailAktif).set(dataProgres, { merge: true }).catch(() => {});
+    }
+    // "visibilitychange" ke hidden lebih diandalkan daripada "beforeunload" di HP,
+    // karena browser mobile sering langsung membekukan/mematikan tab begitu app
+    // lain dibuka atau layar dikunci, tanpa sempat memicu beforeunload.
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') segerakanSinkronProgresGame();
+    });
+    window.addEventListener('pagehide', segerakanSinkronProgresGame);
+    window.addEventListener('beforeunload', segerakanSinkronProgresGame);
     function muatProgresDariFirestore(email) {
         if (!email || typeof db === 'undefined') return Promise.resolve();
         return db.collection('progresGame').doc(email).get().then((snap) => {

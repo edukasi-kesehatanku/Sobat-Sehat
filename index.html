@@ -117,6 +117,12 @@
                     <button type="button" id="btnLupaSandi" class="link-inline">Lupa sandi di perangkat ini?</button> </div>
                 <button type="submit">Masuk</button> </form> </div> </div>
     <div id="dashboardPage" class="dashboard hidden">
+        <div class="panel-event-overlay hidden" id="panelKonfirmasiLogoutOverlay"> <div class="panel-event panel-aturan panel-nama-pet"> <div class="panel-event-icon">🚪</div>
+                <h3 class="panel-event-judul">Keluar dari Akun?</h3>
+                <p class="panel-event-teks">Kamu akan keluar dari akun ini di perangkat ini. Progres game, Poin Sehat, dan Pet kamu <strong>tetap aman tersimpan</strong> dan akan muncul lagi begitu login ulang.</p>
+                <div class="reset-konfirmasi-aksi"> <button type="button" class="btn-danger-event" id="btnKonfirmasiLogout">Ya, Keluar</button>
+                    <button type="button" class="btn-secondary-event" id="btnBatalLogout">Batal</button> </div>
+                </div> </div>
         <aside class="sidebar" id="sidebar"> <div class="sidebar-brand">
                 <img src="logo-kampus.png" alt="Logo Poltekkes Kemenkes Kaltim" class="sidebar-logo" onerror="this.style.display='none';"> </div> <div class="sidebar-title">Menu</div>
             <nav class="sidebar-nav" id="sidebarNav"> <div class="nav-indicator" id="navIndicator"></div> <button class="nav-item active" data-target="dashboard">Dashboard</button>

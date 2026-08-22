@@ -59,7 +59,7 @@ button:focus-visible, input:focus-visible, a:focus-visible, .nav-item:focus-visi
 .auth-card { width: 100%; max-width: 420px; }
 @media (max-width: 1024px) {
 .auth-page { flex-direction: column; height: 100vh; }
-.auth-scene { position: relative; flex: none; width: 100%; height: min(40vh, 320px); min-height: 220px; z-index: 0; overflow: hidden; border-radius: 0 0 28px 28px; box-shadow: var(--shadow-md); }
+.auth-scene { position: relative; flex: none; width: 100%; max-width: 100%; height: min(40vh, 320px); min-height: 220px; z-index: 0; overflow: hidden; border-radius: 0 0 28px 28px; box-shadow: var(--shadow-md); }
 .auth-scene svg { width: 100%; height: 100%; }
 .auth-scene::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(234, 244, 251, 0) 60%, var(--color-bg) 100%); }
 .auth-panel { position: relative; z-index: 1; flex: 1 1 auto; min-height: 0; justify-content: center; align-items: center; padding: 28px 20px 40px; background-color: var(--color-bg); }
