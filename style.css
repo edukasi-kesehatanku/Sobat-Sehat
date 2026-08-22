@@ -61,8 +61,8 @@ button:focus-visible, input:focus-visible, a:focus-visible, .nav-item:focus-visi
 .auth-page { flex-direction: column; height: 100vh; }
 .auth-scene { position: absolute; inset: 0; flex: none; width: 100%; max-width: 100%; height: 100%; min-height: 0; z-index: 0; overflow: hidden; border-radius: 0; box-shadow: none; }
 .auth-scene svg { width: 100%; height: 100%; object-fit: cover; }
-.auth-scene::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(234, 244, 251, 0) 30%, var(--color-bg) 78%); }
-.auth-panel { position: relative; z-index: 1; flex: 1 1 auto; min-height: 100%; justify-content: flex-end; align-items: center; padding: 28px 20px 40px; background-color: transparent; }
+.auth-scene::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(234, 244, 251, 0) 8%, var(--color-bg) 52%); }
+.auth-panel { position: relative; z-index: 1; flex: 1 1 auto; min-height: 100%; justify-content: center; align-items: center; padding: 28px 20px 40px; background-color: transparent; }
 .auth-card { background-color: transparent; backdrop-filter: none; border-radius: 0; padding: 0 8px; box-shadow: none; }
 }
 .welcome-text { font-size: 2.8rem; color: #2c3e50; margin-bottom: 20px; }

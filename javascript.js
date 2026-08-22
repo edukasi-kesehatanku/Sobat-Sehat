@@ -2109,7 +2109,8 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         clearTimeout(_timerSinkronProgresGame);
         const dataProgres = kumpulkanProgresGameLokal();
         dataProgres.diperbaruiPada = firebase.firestore.FieldValue.serverTimestamp();
-        db.collection('progresGame').doc(emailAktif).set(dataProgres, { merge: true }).catch(() => {});
+        db.collection('progresGame').doc(emailAktif).set(dataProgres, { merge: true })
+            .catch(err => console.warn('Gagal menyimpan progres game ke Firestore (cek Firestore Security Rules untuk koleksi "progresGame"):', err));
     }
     // "visibilitychange" ke hidden lebih diandalkan daripada "beforeunload" di HP,
     // karena browser mobile sering langsung membekukan/mematikan tab begitu app
@@ -2149,7 +2150,16 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             if (d.absenTerakhir) localStorage.setItem(kunciUntuk(KUNCI_ABSEN_TERAKHIR), d.absenTerakhir);
             if (d.absenStreak !== undefined) localStorage.setItem(kunciUntuk(KUNCI_ABSEN_STREAK), String(d.absenStreak));
             if (d.absenStreakRekor !== undefined) localStorage.setItem(kunciUntuk(KUNCI_ABSEN_STREAK_REKOR), String(d.absenStreakRekor));
-        }).catch(() => {});
+        }).catch(err => {
+            console.warn('Gagal menarik progres game dari Firestore (cek Firestore Security Rules untuk koleksi "progresGame"):', err);
+            // Peringatan kecil di layar (bukan cuma di console) supaya kelihatan
+            // walau yang main tidak buka DevTools — gagal sinkron progres lintas
+            // device itu penting diketahui, bukan cuma dibiarkan diam-diam.
+            const kodeErr = (err && err.code) ? err.code : '';
+            tampilkanToast(kodeErr === 'permission-denied'
+                ? '⚠️ Progres gagal disinkron ke server (izin ditolak, cek Firestore Rules)'
+                : '⚠️ Progres gagal disinkron ke server, tersimpan di HP ini saja dulu');
+        });
     }
     window.muatProgresDariFirestore = muatProgresDariFirestore;
     const elAbsenStreakNilai = document.getElementById('absenStreakNilai');
