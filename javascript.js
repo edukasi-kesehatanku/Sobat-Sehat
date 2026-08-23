@@ -1357,6 +1357,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
     const panelPetInfoOverlay = document.getElementById('panelPetInfoOverlay');
     const btnTutupPetInfo = document.getElementById('btnTutupPetInfo');
     const petEvolusiList = document.getElementById('petEvolusiList');
+    const petInfoIkonHeader = document.getElementById('petInfoIkonHeader');
     const btnEditNamaPet = document.getElementById('btnEditNamaPet');
     // Pet TIDAK punya angka poin sendiri lagi — dia langsung memakai nilai
     // Skor Tertinggi (rekor poin biasa tertinggi milik akun ini), supaya kedua
@@ -1567,6 +1568,12 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         `;
         }).join('');
         petEvolusiList.querySelectorAll('.pet-evolusi-emoji--pet').forEach(pasangFallbackGambarPet);
+        if (petInfoIkonHeader) {
+            const stageTertinggi = PET_STAGES[PET_STAGES.length - 1];
+            petInfoIkonHeader.innerHTML = markupIkonPet(stageTertinggi, stageTertinggi.pola(namaDasar));
+            petInfoIkonHeader.classList.add('pet-evolusi-emoji--pet');
+            pasangFallbackGambarPet(petInfoIkonHeader);
+        }
     }
     if (btnPetInfo && panelPetInfoOverlay) {
         btnPetInfo.addEventListener('click', () => {
@@ -1916,11 +1923,15 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
     }
     const DURASI_LOMPAT_TOKEN = 420; // ms — durasi satu kali lompatan pion. Langkah berikutnya nunggu animasi ini beneran "onfinish" (lihat pindahkanTokenKeTile), bukan timer terpisah, jadi nilai ini nggak perlu disamain manual ke tempat lain lagi.
     let posisiTokenStabilTerakhir = 0; // kotak terakhir yang beneran udah "didarati" bersih (bukan lagi di tengah lompatan)
+    let tileAktifTerakhir = null; // referensi elemen tile yang lagi nyala 'aktif', biar bisa dicopot pas pindah tanpa nunggu/nunda step berikutnya
+    function aktifkanTile(tile) {
+        if (tileAktifTerakhir && tileAktifTerakhir !== tile) tileAktifTerakhir.classList.remove('aktif');
+        tile.classList.add('aktif');
+        tileAktifTerakhir = tile;
+    }
     function pindahkanTokenKeTile(index, instan) {
-        document.querySelectorAll('.papan-tile').forEach(t => { t.classList.remove('aktif'); t.classList.remove('baru-mendarat'); });
         const tileTujuan = document.getElementById(`papanTile${index}`);
         if (!tileTujuan) return;
-        tileTujuan.classList.add('aktif');
         let token = document.getElementById('papanToken');
         const tokenBaru = !token;
         if (tokenBaru) {
@@ -1965,6 +1976,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             token.style.transform = '';
             token.style.opacity = '1';
             tileTujuan.appendChild(token);
+            aktifkanTile(tileTujuan);
             posisiTokenStabilTerakhir = index;
             simpanStateSesi();
             // Nggak ada animasi buat ditunggu — langsung "selesai".
@@ -2011,7 +2023,6 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             papanGrid.appendChild(token); // keluar dari tile selama terbang
             const arahMiring = dx >= 0 ? 1 : -1;
             const tinggiLompat = -Math.max(30, Math.hypot(dx, dy) * 0.4 + 24); // makin jauh, makin tinggi lompatannya
-            tileTujuan.classList.add('baru-mendarat');
             const animasi = token.animate([
                 { transform: 'translate(0, 0) scale(1, 1) rotate(0deg)', offset: 0 },
                 { transform: `translate(${dx * 0.05}px, ${dy * 0.05 + 5}px) scale(1.2, 0.78) rotate(${-6 * arahMiring}deg)`, offset: 0.14 },
@@ -2048,7 +2059,19 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
                     token.style.right = '';
                     token.style.bottom = '';
                     tileTujuan.appendChild(token); // kembali jadi anak tile tujuan seperti biasa
-                    tileTujuan.classList.remove('baru-mendarat');
+                    // Efek 'aktif' & 'baru-mendarat' dipasang PAS di titik ini
+                    // (persis saat pion mendarat), tapi TIDAK menahan resolve()
+                    // sedikit pun — keduanya dibiarkan main sendiri di
+                    // background (self-cleanup lewat classList di helper +
+                    // setTimeout) sementara lompatan berikutnya boleh langsung
+                    // jalan. Jadi kecepatan lompat pion balik secepat semula,
+                    // tapi tiap kotak yang diinjak tetap sempat kelihatan
+                    // efeknya karena 'baru-mendarat' nggak lagi dihapus paksa
+                    // oleh step berikutnya (lihat aktifkanTile & bagian atas
+                    // fungsi ini yang sudah tidak wipe semua tile lagi).
+                    aktifkanTile(tileTujuan);
+                    tileTujuan.classList.add('baru-mendarat');
+                    setTimeout(() => tileTujuan.classList.remove('baru-mendarat'), 500);
                     posisiTokenStabilTerakhir = index;
                     resolve();
                 };
@@ -2070,17 +2093,25 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         btnKocok.disabled = true;
         const hasil = 1 + Math.floor(Math.random() * 6);
         const target = ROTASI_HASIL_DADU[hasil];
-        // beberapa putaran penuh acak biar terasa 'dilempar', lalu mendarat pas di sudut yang menunjukkan sisi hasil
-        const putaranX = 360 * (2 + Math.floor(Math.random() * 2));
-        const putaranY = 360 * (2 + Math.floor(Math.random() * 2));
+        // Beberapa putaran penuh acak biar terasa 'dilempar' kenceng di awal,
+        // lalu mendarat pas di sudut yang menunjukkan sisi hasil. Durasi &
+        // kurva easing-nya diatur di CSS (.dadu-kubus transition) supaya
+        // gerakannya cepat di awal lalu gradasi melambat sampai berhenti —
+        // jumlah putaran ditambah (4-5x) biar tetap kerasa laju walau
+        // durasinya lebih panjang.
+        const putaranX = 360 * (4 + Math.floor(Math.random() * 2));
+        const putaranY = 360 * (4 + Math.floor(Math.random() * 2));
         const selisihX = (((target.x - (dadu3dRotX % 360)) % 360) + 360) % 360;
         const selisihY = (((target.y - (dadu3dRotY % 360)) % 360) + 360) % 360;
         dadu3dRotX += putaranX + selisihX;
         dadu3dRotY += putaranY + selisihY;
         elDadu.style.transform = `rotateX(${dadu3dRotX}deg) rotateY(${dadu3dRotY}deg)`;
+        // Nunggu sampai animasi dadu (transition 1.7s di CSS) beneran
+        // selesai baru pion mulai melompat, biar hasil dadu & laju pion
+        // singkron dan tidak kepotong.
         window.setTimeout(() => {
             langkahkanPemain(hasil);
-        }, 900);
+        }, 1700);
     }
     function langkahkanPemain(sisaLangkah) {
         if (sisaLangkah <= 0) {
@@ -2088,16 +2119,19 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             return;
         }
         posisiPemain = (posisiPemain + 1) % PAPAN_DATA.length;
-        if (posisiPemain === 0) {
-            jumlahLap++;
-            poinSehat += 10;
-            perbaruiTampilanSkor();
-            tampilkanToast('🎉 Keliling papan! +10 Poin Sehat');
-        }
+        const melewatiGarisMulai = (posisiPemain === 0);
         // Nunggu animasi lompatan ini beneran mendarat (bukan timer tebakan)
         // sebelum lanjut ke langkah berikutnya — biar tiap lompatan mulus
-        // berurutan tanpa numpuk/kepotong.
+        // berurutan tanpa numpuk/kepotong. Toast & poin "Keliling papan"
+        // juga baru ditampilkan SETELAH pion mendarat (bukan pas baru mau
+        // lompat), biar tidak kerasa kecepetan/keduluan sebelum pion sampai.
         Promise.resolve(pindahkanTokenKeTile(posisiPemain, false)).then(() => {
+            if (melewatiGarisMulai) {
+                jumlahLap++;
+                poinSehat += 10;
+                perbaruiTampilanSkor();
+                tampilkanToast('🎉 Keliling papan! +10 Poin Sehat');
+            }
             langkahkanPemain(sisaLangkah - 1);
         });
     }
@@ -2156,6 +2190,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             elEventTeks.textContent = tile.teks;
             poinSehat = Math.max(0, poinSehat + tile.poin);
             perbaruiTampilanSkor();
+            tampilkanToast(`${tile.ikon} ${tile.poin >= 0 ? '+' : ''}${tile.poin} Poin Sehat!`);
             mulaiJedaLanjut(tile.teks, tutupEvent);
         } else if (tile.tipe === 'info') {
             const faktaAcak = ambilFaktaKotakAcak();
@@ -2205,9 +2240,10 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         }
         poinSehat = Math.max(0, poinSehat + (benar ? 10 : -5));
         perbaruiTampilanSkor();
-        elEventFeedback.textContent = (benar ? '✅ Benar! +10 Poin Sehat. ' : '❌ Belum tepat, -5 Poin Sehat. ') + tile.penjelasan;
+        elEventFeedback.innerHTML = `<strong class="game-feedback-verdict">${benar ? '✅ Benar! +10 Poin Sehat.' : '❌ Belum tepat, -5 Poin Sehat.'}</strong> <span class="game-feedback-penjelasan">${escapeHtml(tile.penjelasan)}</span>`;
         elEventFeedback.className = `game-feedback ${benar ? 'feedback-benar' : 'feedback-salah'}`;
         elEventFeedback.classList.remove('hidden');
+        tampilkanToast(benar ? '✅ +10 Poin Sehat!' : '❌ -5 Poin Sehat');
         btnLanjutEvent.classList.remove('hidden');
         btnLanjutEvent.onclick = tutupEvent;
     }

@@ -1244,7 +1244,7 @@ to { opacity: 1; transform: translateY(0) scale(1); }
 0%, 100% { transform: translateY(0); }
 50% { transform: translateY(-5px); }
 }
-.dadu-kubus { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transform: rotateX(-18deg) rotateY(28deg); transition: transform 0.9s cubic-bezier(0.22, 0.68, 0.32, 1); }
+.dadu-kubus { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transform: rotateX(-18deg) rotateY(28deg); transition: transform 1.7s cubic-bezier(0.13, 0.82, 0.16, 1); }
 .dadu-sisi { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); padding: 14%; box-sizing: border-box; background: linear-gradient(160deg, #ffffff, #eef2f6); border: 2px solid #2c3e50; border-radius: 16%; box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.6); backface-visibility: hidden; }
 .dadu-titik { width: 62%; aspect-ratio: 1 / 1; align-self: center; justify-self: center; border-radius: 50%; background: radial-gradient(circle at 32% 28%, #56697b, #1a252f 75%); box-shadow: inset -1px -1px 2px rgba(0, 0, 0, 0.4); }
 .dadu-titik.tl { grid-row: 1; grid-column: 1; }
@@ -1296,6 +1296,8 @@ to { opacity: 0; transform: translateY(10px) scale(0.92); }
 .panel-event-overlay.is-open .panel-event { opacity: 1; transform: none; }
 }
 .panel-event-icon { font-size: 2.8rem; margin-bottom: 6px; animation: petMengambang 2.4s ease-in-out infinite; }
+#petInfoIkonHeader.pet-evolusi-emoji--pet { width: auto; height: auto; }
+#petInfoIkonHeader.pet-evolusi-emoji--pet img { width: 64px; height: 64px; margin: 0 auto; }
 .panel-event-judul { margin: 0 0 8px; color: var(--color-primary); font-weight: 800; }
 .panel-event-teks { color: var(--color-text-muted); line-height: 1.55; margin: 0 0 16px; }
 .game-opsi-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 6px; }
@@ -1304,10 +1306,14 @@ to { opacity: 0; transform: translateY(10px) scale(0.92); }
 .game-opsi-btn:disabled { cursor: default; }
 .game-opsi-btn.opsi-benar { border-color: var(--color-success); background-color: #eafaf1; font-weight: 700; }
 .game-opsi-btn.opsi-salah { border-color: var(--color-danger); background-color: #fdecea; }
-.game-feedback { font-size: 0.85rem; line-height: 1.5; margin: 10px 0 16px; padding: 10px 12px; border-radius: 10px; text-align: left; }
-.game-feedback.feedback-benar { background-color: #eafaf1; color: var(--color-success); }
-.game-feedback.feedback-salah { background-color: #fdecea; color: var(--color-danger-dark); }
-.game-feedback.feedback-info { background-color: #eaf4fb; color: var(--color-info); }
+.game-feedback { font-size: 0.85rem; line-height: 1.5; margin: 10px 0 16px; padding: 10px 12px; border-radius: 10px; text-align: left; color: var(--color-primary); }
+.game-feedback.feedback-benar { background-color: #eafaf1; border-left: 3px solid var(--color-success); }
+.game-feedback.feedback-salah { background-color: #fdecea; border-left: 3px solid var(--color-danger-dark); }
+.game-feedback.feedback-info { background-color: #eaf4fb; border-left: 3px solid var(--color-info); }
+.game-feedback-verdict { font-weight: 800; }
+.game-feedback.feedback-benar .game-feedback-verdict { color: var(--color-success); }
+.game-feedback.feedback-salah .game-feedback-verdict { color: var(--color-danger-dark); }
+.game-feedback-penjelasan { color: var(--color-primary); }
 .btn-lanjut-event { padding: 10px 26px; background: linear-gradient(160deg, var(--color-primary), var(--color-primary-dark)); color: #ffffff; border: none; border-radius: var(--radius-pill); font-weight: 700; cursor: pointer; transition: transform 0.15s ease, background-color 0.15s ease, opacity 0.15s ease; }
 .btn-lanjut-event:hover { transform: translateY(-2px); }
 .btn-lanjut-event:disabled { background: #b7c2cc; cursor: not-allowed; opacity: 0.85; transform: none; }
