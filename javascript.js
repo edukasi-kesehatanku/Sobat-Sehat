@@ -1364,14 +1364,21 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
     // Setiap stage punya "pola" (bukan nama tetap) supaya nama pet bisa
     // dikustomisasi per akun — misal "Phoenix" diganti "Kobo" jadi
     // "Telur Kobo", "Kobo Mungil", dst.
+    // Field "gambar" (opsional) adalah path gambar ilustrasi custom untuk
+    // stage ini. Kalau diisi, gambar ini dipakai menggantikan emoji di semua
+    // tempat pet ditampilkan (kartu pet, ikon topbar, daftar evolusi, toast
+    // naik level) — lihat perbaruiTampilanPet(), renderPetEvolusiList(), dan
+    // tampilkanLevelUpPet(). "emoji" tetap disimpan sebagai teks alt/fallback
+    // kalau gambar gagal dimuat.
     const PET_STAGES = [
-        { min: 0, emoji: '🥚', pola: n => `Telur ${n}`, aura: 'rgba(244, 196, 48, 0.45)', desc: 'Telur legendaris yang menyimpan api suci. Yuk kumpulkan Poin Sehat bareng!' },
-        { min: 100, emoji: '🐣', pola: n => `${n} Mungil`, aura: 'rgba(255, 205, 70, 0.5)', desc: 'Menetas dengan percikan api pertama, cikal bakal sang legenda.' },
-        { min: 250, emoji: '🐤', pola: n => `${n} Muda`, aura: 'rgba(255, 170, 60, 0.55)', desc: 'Bulunya mulai berpijar, makin lincah menemanimu belajar.' },
-        { min: 500, emoji: '🦜', pola: n => `${n} Terampil`, aura: 'rgba(255, 140, 66, 0.58)', desc: 'Makin gesit dan paham banyak fakta gula & kesehatan.' },
-        { min: 1000, emoji: '🦉', pola: n => `${n} Bijak`, aura: 'rgba(255, 111, 74, 0.6)', desc: 'Bijak menemani setiap pilihan makanan & minumanmu.' },
-        { min: 2000, emoji: '🦅', pola: n => `${n} Perkasa`, aura: 'rgba(255, 87, 51, 0.62)', desc: 'Sayapnya membara gagah — konsistensimu luar biasa!' },
-        { min: 4000, emoji: '🐦\u200d🔥', pola: n => `${n} Sejati`, aura: 'rgba(255, 61, 0, 0.7)', desc: 'Bertransformasi penuh jadi burung Phoenix legendaris — level tertinggi, pahlawan sehat sejati!' }
+        { min: 0, emoji: '🥚', gambar: 'pet-evo-1.png', pola: n => `Telur ${n}`, aura: 'rgba(244, 196, 48, 0.45)', desc: 'Telur legendaris yang menyimpan api suci. Yuk kumpulkan Poin Sehat bareng!' },
+        { min: 100, emoji: '🐣', gambar: 'pet-evo-2.png', pola: n => `${n} Mungil`, aura: 'rgba(255, 205, 70, 0.5)', desc: 'Menetas dengan percikan api pertama, cikal bakal sang legenda.' },
+        { min: 250, emoji: '🐤', gambar: 'pet-evo-3.png', pola: n => `${n} Muda`, aura: 'rgba(255, 170, 60, 0.55)', desc: 'Bulunya mulai berpijar, makin lincah menemanimu belajar.' },
+        { min: 500, emoji: '🦜', gambar: 'pet-evo-4.png', pola: n => `${n} Terampil`, aura: 'rgba(255, 140, 66, 0.58)', desc: 'Makin gesit dan paham banyak fakta gula & kesehatan.' },
+        { min: 1000, emoji: '🦉', gambar: 'pet-evo-5.png', pola: n => `${n} Bijak`, aura: 'rgba(255, 111, 74, 0.6)', desc: 'Bijak menemani setiap pilihan makanan & minumanmu.' },
+        { min: 2000, emoji: '🦅', gambar: 'pet-evo-6.png', pola: n => `${n} Perkasa`, aura: 'rgba(255, 87, 51, 0.62)', desc: 'Sayapnya membara gagah — konsistensimu luar biasa!' },
+        { min: 4000, emoji: '🐦\u200d🔥', gambar: 'pet-evo-7.png', pola: n => `${n} Sejati`, aura: 'rgba(255, 61, 0, 0.7)', desc: 'Bertransformasi penuh jadi burung Phoenix legendaris, gagah dan membara sepenuhnya.' },
+        { min: 8000, emoji: '🌌', gambar: 'pet-evo-8.png', pola: n => `${n} Semesta`, aura: 'rgba(147, 51, 234, 0.65)', desc: 'Wujud puncak lintas galaksi — level tertinggi, legenda hidup Sobat Sehat!' }
     ];
     function kunciAkunAktif(base) {
         return `${base}_${(typeof emailAktif !== 'undefined' && emailAktif) ? emailAktif : 'tamu'}`;
@@ -1473,12 +1480,43 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         }
         return { stage: PET_STAGES[idx], idx, next: PET_STAGES[idx + 1] || null };
     }
+    // Bikin markup ikon pet: pakai <img> kalau stage-nya punya gambar custom
+    // (field "gambar"), kalau nggak ada baru fallback ke karakter emoji biasa
+    // seperti sebelumnya. Dipakai di semua tempat pet ditampilkan biar
+    // konsisten (kartu pet, ikon topbar, daftar evolusi, toast naik level).
+    //
+    // ===== Fallback kalau gambar gagal dimuat (404 / path salah / offline) =====
+    // Kalau cuma pasang <img src="..."> polos, pas gagal load browser
+    // nampilin ikon "gambar rusak" bawaan + teks alt di-render penuh
+    // memenuhi ruang kotak ikon yang kecil — keliatan berantakan/numpuk ke
+    // teks nama level di sebelahnya. Makanya di sini disiapkan JUGA span
+    // emoji cadangan yang disembunyikan (class "hidden"), lalu
+    // pasangFallbackGambarPet() dipanggil setelah elemen ini ditempel ke
+    // DOM untuk mendengarkan event "error" pada <img>-nya: begitu gambar
+    // gagal dimuat, <img> dihapus dan emoji cadangan itu dimunculkan —
+    // hasilnya tampilan tetap rapi walau gambarnya belum ke-upload/salah path.
+    function markupIkonPet(stage, namaAlt) {
+        if (stage.gambar) {
+            return `<img src="${stage.gambar}" alt="${namaAlt}" loading="lazy" data-ikon-pet-gambar><span class="ikon-pet-fallback hidden">${stage.emoji}</span>`;
+        }
+        return stage.emoji;
+    }
+    function pasangFallbackGambarPet(container) {
+        if (!container) return;
+        const img = container.querySelector('img[data-ikon-pet-gambar]');
+        if (!img) return;
+        img.addEventListener('error', () => {
+            const fallback = container.querySelector('.ikon-pet-fallback');
+            img.remove();
+            if (fallback) fallback.classList.remove('hidden');
+        }, { once: true });
+    }
     function perbaruiTampilanPet() {
         const total = ambilSkorTertinggi();
         const { stage, idx, next } = cariInfoStagePet(total);
         const namaDasar = ambilNamaPetDasar();
         const namaStageAktif = stage.pola(namaDasar);
-        if (petAvatar) { petAvatar.textContent = stage.emoji; petAvatar.style.setProperty('--aura-color', stage.aura); }
+        if (petAvatar) { petAvatar.innerHTML = markupIkonPet(stage, namaStageAktif); petAvatar.style.setProperty('--aura-color', stage.aura); pasangFallbackGambarPet(petAvatar); }
         if (petNama) petNama.textContent = namaStageAktif;
         if (petDesc) petDesc.textContent = stage.desc;
         if (petBadgeLevel) petBadgeLevel.textContent = `Level ${idx + 1}`;
@@ -1491,7 +1529,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
                 ? `${total} / ${next.min} Poin menuju ${next.pola(namaDasar)}`
                 : `${total} Poin — Level maksimal tercapai! 🎉`;
         }
-        if (topbarPetEmoji) { topbarPetEmoji.textContent = stage.emoji; topbarPetEmoji.style.setProperty('--aura-color', stage.aura); }
+        if (topbarPetEmoji) { topbarPetEmoji.innerHTML = markupIkonPet(stage, namaStageAktif); topbarPetEmoji.style.setProperty('--aura-color', stage.aura); pasangFallbackGambarPet(topbarPetEmoji); }
         if (topbarPetNama) topbarPetNama.textContent = namaStageAktif;
         if (topbarPet) topbarPet.classList.toggle('hidden', !emailAktif);
         if (btnEditNamaPet) {
@@ -1505,8 +1543,10 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         if (toastLama) toastLama.remove();
         const toast = document.createElement('div');
         toast.className = 'papan-toast papan-toast-levelup';
-        toast.innerHTML = `<span class="levelup-emoji" style="--aura-color:${stage.aura}">${stage.emoji}</span> Pet-mu naik level jadi <strong>${stage.pola(ambilNamaPetDasar())}</strong>!`;
+        const namaStageIni = stage.pola(ambilNamaPetDasar());
+        toast.innerHTML = `<span class="levelup-emoji" style="--aura-color:${stage.aura}">${markupIkonPet(stage, namaStageIni)}</span> Pet-mu naik level jadi <strong>${namaStageIni}</strong>!`;
         document.body.appendChild(toast);
+        pasangFallbackGambarPet(toast.querySelector('.levelup-emoji'));
         setTimeout(() => toast.remove(), 2900);
     }
     function renderPetEvolusiList() {
@@ -1514,15 +1554,19 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         const total = ambilSkorTertinggi();
         const { idx: idxAktif } = cariInfoStagePet(total);
         const namaDasar = ambilNamaPetDasar();
-        petEvolusiList.innerHTML = PET_STAGES.map((s, i) => `
+        petEvolusiList.innerHTML = PET_STAGES.map((s, i) => {
+            const namaStageIni = s.pola(namaDasar);
+            return `
             <li class="pet-evolusi-item${i === idxAktif ? ' pet-evolusi-aktif' : ''}">
-                <span class="pet-evolusi-emoji" style="--aura-color:${s.aura}">${s.emoji}</span>
+                <span class="pet-evolusi-emoji pet-evolusi-emoji--pet" style="--aura-color:${s.aura}">${markupIkonPet(s, namaStageIni)}</span>
                 <span class="pet-evolusi-teks">
-                    <span class="pet-evolusi-nama">Level ${i + 1} — ${s.pola(namaDasar)}${i === idxAktif ? ' (sekarang)' : ''}</span>
+                    <span class="pet-evolusi-nama">Level ${i + 1} — ${namaStageIni}${i === idxAktif ? ' (sekarang)' : ''}</span>
                     <span class="pet-evolusi-syarat">${s.min === 0 ? 'Mulai dari 0 Poin' : `Mulai dari ${s.min} Poin kumulatif`}</span>
                 </span>
             </li>
-        `).join('');
+        `;
+        }).join('');
+        petEvolusiList.querySelectorAll('.pet-evolusi-emoji--pet').forEach(pasangFallbackGambarPet);
     }
     if (btnPetInfo && panelPetInfoOverlay) {
         btnPetInfo.addEventListener('click', () => {
@@ -1870,7 +1914,8 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             papanGrid.appendChild(el);
         });
     }
-    const DURASI_LOMPAT_TOKEN = 420; // ms — samain dengan interval antar-langkah di bawah biar animasi nggak kepotong
+    const DURASI_LOMPAT_TOKEN = 420; // ms — durasi satu kali lompatan pion. Langkah berikutnya nunggu animasi ini beneran "onfinish" (lihat pindahkanTokenKeTile), bukan timer terpisah, jadi nilai ini nggak perlu disamain manual ke tempat lain lagi.
+    let posisiTokenStabilTerakhir = 0; // kotak terakhir yang beneran udah "didarati" bersih (bukan lagi di tengah lompatan)
     function pindahkanTokenKeTile(index, instan) {
         document.querySelectorAll('.papan-tile').forEach(t => { t.classList.remove('aktif'); t.classList.remove('baru-mendarat'); });
         const tileTujuan = document.getElementById(`papanTile${index}`);
@@ -1887,6 +1932,25 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         // Hentikan animasi lompat sebelumnya kalau masih jalan (misal langkah
         // dipanggil beruntun cepat), supaya nggak numpuk/patah-patah.
         if (token.getAnimations) token.getAnimations().forEach(a => a.cancel());
+        // ===== Perbaikan bug "pion lompat sembarang arah" =====
+        // cancel() di atas cuma menghentikan animasi transform-nya, TAPI style
+        // posisi manual (left/top/right/bottom) yang dipasang pas mulai
+        // terbang tetap nempel di elemennya. Kalau langkah berikutnya
+        // kepanggil SEBELUM lompatan lama sempat "mendarat" (onfinish) —
+        // misal HP lagi nge-lag/tab sempat nggak fokus — sisa posisi nyasar
+        // itu ikut kebawa jadi titik ukur awal lompatan baru, hasilnya pion
+        // keliatan lompat ke arah random. Makanya di sini dipaksa "dibenerin"
+        // dulu balik ke kotak stabil terakhir sebelum ngukur lompatan baru.
+        if (token.classList.contains('melayang')) {
+            token.classList.remove('lagi-melompat', 'melayang');
+            token.style.left = '';
+            token.style.top = '';
+            token.style.right = '';
+            token.style.bottom = '';
+            token.style.transform = '';
+            const tileStabil = document.getElementById(`papanTile${posisiTokenStabilTerakhir}`);
+            (tileStabil || tileTujuan).appendChild(token);
+        }
         // Hormati setting "kurangi animasi" perangkat (migrain/vertigo dll) —
         // animasi CSS lain di web ini sudah otomatis dipercepat lewat
         // prefers-reduced-motion, tapi animasi lompat ini jalan lewat Web
@@ -1901,6 +1965,10 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             token.style.transform = '';
             token.style.opacity = '1';
             tileTujuan.appendChild(token);
+            posisiTokenStabilTerakhir = index;
+            simpanStateSesi();
+            // Nggak ada animasi buat ditunggu — langsung "selesai".
+            return Promise.resolve();
         } else {
             // ===== Animasi lompat pion (arc lintas kotak) =====
             // Tiap .papan-tile pakai overflow:hidden (biar sudut & background
@@ -1913,14 +1981,27 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             // dianimasikan (translate + arc + squash/rotate) ke titik kotak
             // tujuan pakai Web Animations API. Abis mendarat, token
             // dikembalikan jadi anak tile tujuan seperti biasa.
-            const rectAwal = token.getBoundingClientRect();
-            tileTujuan.appendChild(token); // sementara, cuma buat ukur posisi mendarat yang presisi
-            const rectAkhir = token.getBoundingClientRect();
+            //
+            // PENTING soal kelancaran: SEMUA pengukuran posisi (getBoundingClientRect)
+            // di bawah ini dilakukan berurutan TANPA ada perubahan DOM di
+            // antaranya (murni "baca" semua, baru "tulis" belakangan). Sebelumnya
+            // token sempat dipindah ke tile tujuan dulu di tengah-tengah proses
+            // ukur-mengukur cuma buat ngukur posisi mendaratnya — pola baca-ubah-baca
+            // gitu memaksa browser menghitung ulang tata letak dua kali secara
+            // paksa (layout thrashing), dan itu penyebab utama lompatannya
+            // kerasa nyendat/patah tiap mulai lompat. Karena semua kotak papan
+            // ukurannya seragam, jarak antar-kotak bisa dihitung cukup dari
+            // posisi kotak asal & kotak tujuan-nya langsung (nggak perlu
+            // mindahin token dulu buat itu).
+            const tileAsal = token.parentElement && token.parentElement.classList.contains('papan-tile') ? token.parentElement : tileTujuan;
+            const rectTokenAwal = token.getBoundingClientRect();
+            const rectTileAsal = tileAsal.getBoundingClientRect();
+            const rectTileTujuan = tileTujuan.getBoundingClientRect();
             const rectGrid = papanGrid.getBoundingClientRect();
-            const startLeft = rectAwal.left - rectGrid.left;
-            const startTop = rectAwal.top - rectGrid.top;
-            const dx = (rectAkhir.left - rectGrid.left) - startLeft;
-            const dy = (rectAkhir.top - rectGrid.top) - startTop;
+            const startLeft = rectTokenAwal.left - rectGrid.left;
+            const startTop = rectTokenAwal.top - rectGrid.top;
+            const dx = rectTileTujuan.left - rectTileAsal.left;
+            const dy = rectTileTujuan.top - rectTileAsal.top;
             token.classList.add('lagi-melompat', 'melayang');
             token.style.left = `${startLeft}px`;
             token.style.top = `${startTop}px`;
@@ -1942,20 +2023,37 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
                 easing: 'cubic-bezier(0.3, 0.05, 0.25, 1)',
                 fill: 'forwards'
             });
-            animasi.onfinish = () => {
-                // cancel (bukan cuma biarin "forwards") biar animasi idle
-                // tokenBounce di CSS bisa lanjut lagi dengan mulus setelah mendarat
-                animasi.cancel();
-                token.classList.remove('lagi-melompat', 'melayang');
-                token.style.left = '';
-                token.style.top = '';
-                token.style.right = '';
-                token.style.bottom = '';
-                tileTujuan.appendChild(token); // kembali jadi anak tile tujuan seperti biasa
-                tileTujuan.classList.remove('baru-mendarat');
-            };
+            simpanStateSesi();
+            // ===== Chaining lompatan lewat "selesai animasi", bukan timer tebakan =====
+            // Sebelumnya langkah berikutnya dijadwalkan pakai setTimeout dengan
+            // durasi tebak-tebakan (DURASI_LOMPAT_TOKEN + 30ms). Kalau device lagi
+            // berat / tab sempat nggak fokus / browser telat ngejadwalin frame,
+            // animasi asli bisa belum kelar pas timer itu nembak duluan — hasilnya
+            // lompatan berikutnya mulai numpuk/motong lompatan yang sebelumnya,
+            // keliatan kayak "lag" atau lompatannya keulang-ulang di tempat yang
+            // sama. Makanya di sini fungsi ini balikin Promise yang baru resolve
+            // PAS animasi beneran selesai (event asli dari Web Animations API),
+            // supaya pemanggil (langkahkanPemain / pindahTanpaEvent) bisa nunggu
+            // titik itu persis sebelum mulai ngukur & menjalankan lompatan
+            // berikutnya. Hasilnya pion melewati tiap kotak berurutan dengan mulus,
+            // tanpa jeda ganjil atau tabrakan animasi.
+            return new Promise(resolve => {
+                animasi.onfinish = () => {
+                    // cancel (bukan cuma biarin "forwards") biar animasi idle
+                    // tokenBounce di CSS bisa lanjut lagi dengan mulus setelah mendarat
+                    animasi.cancel();
+                    token.classList.remove('lagi-melompat', 'melayang');
+                    token.style.left = '';
+                    token.style.top = '';
+                    token.style.right = '';
+                    token.style.bottom = '';
+                    tileTujuan.appendChild(token); // kembali jadi anak tile tujuan seperti biasa
+                    tileTujuan.classList.remove('baru-mendarat');
+                    posisiTokenStabilTerakhir = index;
+                    resolve();
+                };
+            });
         }
-        simpanStateSesi();
     }
     function tampilkanToast(pesan) {
         const toastLama = document.querySelector('.papan-toast');
@@ -1996,8 +2094,12 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             perbaruiTampilanSkor();
             tampilkanToast('🎉 Keliling papan! +10 Poin Sehat');
         }
-        pindahkanTokenKeTile(posisiPemain, false);
-        window.setTimeout(() => langkahkanPemain(sisaLangkah - 1), DURASI_LOMPAT_TOKEN + 30);
+        // Nunggu animasi lompatan ini beneran mendarat (bukan timer tebakan)
+        // sebelum lanjut ke langkah berikutnya — biar tiap lompatan mulus
+        // berurutan tanpa numpuk/kepotong.
+        Promise.resolve(pindahkanTokenKeTile(posisiPemain, false)).then(() => {
+            langkahkanPemain(sisaLangkah - 1);
+        });
     }
     function pindahTanpaEvent(delta, selesai) {
         const arah = delta > 0 ? 1 : -1;
@@ -2005,9 +2107,8 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         function langkah() {
             if (sisa <= 0) { selesai(); return; }
             posisiPemain = (posisiPemain + arah + PAPAN_DATA.length) % PAPAN_DATA.length;
-            pindahkanTokenKeTile(posisiPemain, false);
             sisa--;
-            window.setTimeout(langkah, DURASI_LOMPAT_TOKEN + 30);
+            Promise.resolve(pindahkanTokenKeTile(posisiPemain, false)).then(langkah);
         }
         langkah();
     }
@@ -2455,7 +2556,10 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
     const panelKonfirmasiResetOverlay = document.getElementById('panelKonfirmasiResetOverlay');
     const btnKonfirmasiResetGame = document.getElementById('btnKonfirmasiResetGame');
     const btnBatalResetGame = document.getElementById('btnBatalResetGame');
-    if (panelKonfirmasiResetOverlay && btnKonfirmasiResetGame && btnBatalResetGame) {
+    // Tombol "Ulangi dari awal" sudah dihilangkan dari tampilan (index.html),
+    // jadi btnResetGame bisa jadi null di sini — semua pasang-listener di bawah
+    // dijaga supaya skrip nggak error kalau elemennya memang nggak ada.
+    if (btnResetGame && panelKonfirmasiResetOverlay && btnKonfirmasiResetGame && btnBatalResetGame) {
         btnResetGame.addEventListener('click', () => {
             // Jangan langsung reset — tampilkan peringatan dulu supaya pemain
             // sadar Poin Sehat & posisi papan yang sedang berjalan akan hilang
@@ -2469,7 +2573,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         btnBatalResetGame.addEventListener('click', () => {
             tutupPanelOverlay(panelKonfirmasiResetOverlay);
         });
-    } else {
+    } else if (btnResetGame) {
         // fallback kalau markup overlay belum ada, supaya tombol tetap berfungsi
         btnResetGame.addEventListener('click', resetGame);
     }

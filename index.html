@@ -137,31 +137,35 @@
                 <button type="button" id="topbarPet" class="topbar-pet hidden" data-target="game" title="Pet belajarmu — ketuk untuk main Game" aria-label="Pet belajarmu"> <span id="topbarPetEmoji">🥚</span> <span id="topbarPetNama">Telur Phoenix</span> </button>
                 <button id="btnLogout" class="btn-logout">Logout</button> </div>
             <section id="dashboard" class="content-section active section-show">
-                <div class="dash-hero"> <div class="dash-hero-text"> <p id="dashboardWelcome" class="dash-hero-greeting"></p>
+                <div class="dash-hero"> <div class="dash-hero-blob dash-hero-blob-1" aria-hidden="true"></div> <div class="dash-hero-blob dash-hero-blob-2" aria-hidden="true"></div>
+                    <div class="dash-hero-text"> <span class="dash-hero-badge">✨ Yuk, mulai perjalanan sehatmu!</span>
+                        <p id="dashboardWelcome" class="dash-hero-greeting"></p>
                         <h1 class="dash-hero-title">Kenali Gula. Pahami Tubuh. Pilih Lebih Bijak.</h1>
                         <p class="dash-hero-subtitle">Website edukasi untuk membantu remaja mengenal gula, memahami kebiasaan sehari-hari, dan membuat pilihan makanan dan minuman dengan lebih sadar.</p>
-                        <button id="btnMulaiBelajarDashboard" class="btn-lanjut dash-hero-btn">MULAI BELAJAR →</button> </div> <div class="dash-hero-icons" aria-hidden="true">
+                        <button id="btnMulaiBelajarDashboard" class="btn-lanjut dash-hero-btn">🚀 MULAI BELAJAR →</button> </div> <div class="dash-hero-icons" aria-hidden="true">
                         <span>🍬</span><span>🥤</span><span>🎒</span><span>💚</span> </div> </div>
-                <div class="detail-block"> <h2 class="materi-section-title">Apa yang Bisa Kamu Lakukan?</h2>
+                <div class="detail-block dash-feature-block"> <h2 class="materi-section-title">Apa yang Bisa Kamu Lakukan?</h2>
                     <p class="materi-intro-text" style="margin-bottom:20px;">Gunakan berbagai fitur di website ini untuk belajar, memahami, dan menerapkan informasi tentang gula dalam kehidupan sehari-hari.</p>
                     <div class="dash-feature-grid">
-                        <button class="tips-card dash-feature-card" data-target="materi"> <span class="tips-card-icon">📖</span> <span class="tips-card-title">Belajar</span>
+                        <button class="tips-card dash-feature-card" data-target="materi"> <span class="dash-feature-step">1</span> <span class="tips-card-icon">📖</span> <span class="tips-card-title">Belajar</span>
                             <span class="tips-card-desc">Kenali gula dan berbagai hal penting tentang konsumsi gula melalui materi edukasi.</span> <span class="tips-card-cta">JELAJAHI MATERI →</span>
                         </button>
-                        <button class="tips-card dash-feature-card" data-target="kalkulator"> <span class="tips-card-icon">🧮</span> <span class="tips-card-title">Hitung</span>
+                        <span class="dash-feature-arrow" aria-hidden="true">→</span>
+                        <button class="tips-card dash-feature-card" data-target="kalkulator"> <span class="dash-feature-step">2</span> <span class="tips-card-icon">🧮</span> <span class="tips-card-title">Hitung</span>
                             <span class="tips-card-desc">Gunakan kalkulator untuk mengetahui perkiraan batas konsumsi gula harian berdasarkan data yang kamu masukkan.</span>
                             <span class="tips-card-cta">COBA KALKULATOR →</span> </button>
-                        <button class="tips-card dash-feature-card" data-target="tips"> <span class="tips-card-icon">💡</span> <span class="tips-card-title">Terapkan</span>
+                        <span class="dash-feature-arrow" aria-hidden="true">→</span>
+                        <button class="tips-card dash-feature-card" data-target="tips"> <span class="dash-feature-step">3</span> <span class="tips-card-icon">💡</span> <span class="tips-card-title">Terapkan</span>
                             <span class="tips-card-desc">Temukan tips sederhana yang dapat membantu membangun kebiasaan memilih makanan dan minuman dengan lebih sadar.</span>
                             <span class="tips-card-cta">LIHAT TIPS →</span> </button>
                     </div> </div>
-                <div class="detail-block"> <h2 class="materi-section-title">🌱 Mulai dari Dirimu</h2>
+                <div class="detail-block dash-reflect-block"> <div class="dash-reflect-icon">🌱</div> <h2 class="materi-section-title">Mulai dari Dirimu</h2>
                     <p class="materi-intro-text">Setiap hari kita membuat pilihan tentang apa yang kita makan dan minum. Tapi, seberapa sadar kita terhadap pilihan tersebut?</p>
                     <ul class="materi-side-questions dash-reflect-questions"> <li>Apakah kamu memilih karena lapar atau hanya karena ingin?</li>
                         <li>Apakah lingkungan sekitar ikut memengaruhi pilihanmu?</li> <li>Seberapa sering kamu memperhatikan apa yang kamu konsumsi?</li> </ul>
                     <p class="materi-intro-text">Yuk, kenali lebih jauh melalui materi edukasi.</p>
                     <div style="text-align:center;"> <button id="btnMulaiBelajarRefleksi" class="btn-lanjut dash-hero-btn">MULAI BELAJAR →</button> </div> </div>
-                <div class="detail-block"> <div class="closing-card"> <h2 class="closing-title">Sudah Tahu Apa yang Kamu Konsumsi?</h2>
+                <div class="detail-block"> <div class="closing-card dash-closing-card"> <span class="dash-closing-icon">🎯</span> <h2 class="closing-title">Sudah Tahu Apa yang Kamu Konsumsi?</h2>
                         <p class="closing-subtext">Sekarang coba hitung batas konsumsi gula harianmu dan kenali hasilnya.</p> <div class="closing-buttons">
                             <button id="btnHitungGulaHarian" class="btn-lanjut">HITUNG GULA HARIAN →</button> </div> </div> </div>
             </section>
@@ -183,12 +187,11 @@
                                         <div class="dadu-sisi dadu-bawah"> <span class="dadu-titik tl"></span> <span class="dadu-titik tr"></span> <span class="dadu-titik mc"></span> <span class="dadu-titik bl"></span> <span class="dadu-titik br"></span> </div>
                                         <div class="dadu-sisi dadu-belakang"> <span class="dadu-titik tl"></span> <span class="dadu-titik ml"></span> <span class="dadu-titik bl"></span> <span class="dadu-titik tr"></span> <span class="dadu-titik mr"></span> <span class="dadu-titik br"></span> </div>
                                     </div> </div>
-                                    <button type="button" class="btn-kocok-dadu" id="btnKocokDadu">Kocok Dadu</button>
-                                    <button type="button" class="btn-reset-game" id="btnResetGame">Ulangi dari awal</button> </div> </div> </div>
+                                    <button type="button" class="btn-kocok-dadu" id="btnKocokDadu">Kocok Dadu</button> </div> </div> </div>
                         <p class="game-hint">Setiap kotak punya kejutan: kuis, fakta seru, bonus sehat, atau jebakan gula. Terus jalan sampai keliling papan untuk dapat bonus putaran!</p> </div>
                     <aside class="game-absen-panel"> <div class="pet-card" id="petCard"> <button type="button" class="pet-info-btn" id="btnPetInfo" aria-label="Info cara kerja Pet">?</button>
                             <span class="pet-badge-level" id="petBadgeLevel">Level 1</span>
-                            <div class="pet-avatar" id="petAvatar" style="--aura-color: rgba(244, 196, 48, 0.45)">🥚</div> <div class="pet-nama-row"> <h3 class="pet-nama" id="petNama">Telur Phoenix</h3> <button type="button" class="pet-nama-edit-btn" id="btnEditNamaPet" title="Ganti nama pet" aria-label="Ganti nama pet">✏️</button> </div>
+                            <div class="pet-avatar" id="petAvatar" style="--aura-color: rgba(244, 196, 48, 0.45)">🥚</div> <div class="pet-nama-row"> <span class="pet-nama-spacer" aria-hidden="true"></span> <h3 class="pet-nama" id="petNama">Telur Phoenix</h3> <button type="button" class="pet-nama-edit-btn" id="btnEditNamaPet" title="Ganti nama pet" aria-label="Ganti nama pet">✏️</button> </div>
                             <p class="pet-desc" id="petDesc">Telur legendaris yang menyimpan api suci. Yuk kumpulkan Poin Sehat bareng!</p>
                             <div class="pet-progress-track"> <div class="pet-progress-fill" id="petProgressFill" style="width:0%"></div> </div>
                             <p class="pet-progress-text" id="petProgressText">0 / 100 Poin menuju Phoenix Mungil</p> </div>
@@ -880,14 +883,15 @@
                 <nav class="breadcrumb" aria-label="Breadcrumb"> <button type="button" class="breadcrumb-link" data-breadcrumb-target="dashboard">Dashboard</button>
                     <span class="breadcrumb-sep">/</span> <span class="breadcrumb-current">Kalkulator Sehat</span> </nav>
                 <div class="detail-block" style="margin-bottom:8px;"> <button id="btnKembaliDashboardKalkulator" class="btn-kembali">← Kembali ke Dashboard</button> </div>
-                <div class="kalkulator-header"> <h1 class="kalkulator-title">🧮 Kalkulator Sehat</h1>
-                    <p class="kalkulator-subtitle">Kenali kebutuhan energimu dan cari tahu batas konsumsi gula harianmu.</p>
-                    <p class="kalkulator-desc">Masukkan beberapa data sederhana tentang dirimu. Hasil yang ditampilkan merupakan perkiraan berdasarkan data yang kamu masukkan.</p> </div>
+                <div class="kalkulator-header"> <div class="kalkulator-header-icon" aria-hidden="true">🧮</div>
+                    <div class="kalkulator-header-text"> <h1 class="kalkulator-title">Kalkulator Sehat</h1>
+                        <p class="kalkulator-subtitle">Kenali kebutuhan energimu dan cari tahu batas konsumsi gula harianmu.</p>
+                        <p class="kalkulator-desc">Masukkan beberapa data sederhana tentang dirimu. Hasil yang ditampilkan merupakan perkiraan berdasarkan data yang kamu masukkan.</p> </div> </div>
                 <div id="kalkulatorProgress" class="kalkulator-progress hidden"> <span class="progress-step" data-progress="2">1 Data Diri</span> <span class="progress-line"></span>
                     <span class="progress-step" data-progress="3">2 Aktivitas</span> <span class="progress-line"></span> <span class="progress-step" data-progress="4">3 Hasil</span> </div>
                 <div id="kalkulatorStep1" class="kalkulator-step"> <p class="kalkulator-question">Siapa kamu?</p>
-                    <div class="gender-choice"> <button class="btn-gender" data-gender="Laki-laki"> <span class="btn-gender-icon">👨</span> <span>Laki-laki</span> </button>
-                        <button class="btn-gender" data-gender="Perempuan"> <span class="btn-gender-icon">👩</span> <span>Perempuan</span> </button> </div> </div>
+                    <div class="gender-choice"> <button class="btn-gender" data-gender="Laki-laki"> <span class="btn-gender-icon btn-gender-icon-l">👦</span> <span>Laki-laki</span> </button>
+                        <button class="btn-gender" data-gender="Perempuan"> <span class="btn-gender-icon btn-gender-icon-p">👧</span> <span>Perempuan</span> </button> </div> </div>
                 <div id="kalkulatorStep2" class="kalkulator-step hidden"> <p class="kalkulator-question">Data Dirimu</p>
                     <form id="formDataDiri" class="kalkulator-form"> <div class="form-group"> <label for="beratBadan">Berat Badan (kg)</label>
                             <input type="number" id="beratBadan" placeholder="Masukkan berat badan" min="1" step="any" inputmode="decimal"> </div>
