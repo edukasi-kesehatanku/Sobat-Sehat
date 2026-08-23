@@ -2328,6 +2328,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
     }
     window.muatProgresDariFirestore = muatProgresDariFirestore;
     const elAbsenStreakNilai = document.getElementById('absenStreakNilai');
+    const elAbsenIconApi = document.getElementById('absenIconApi');
     const elAbsenStreakRekor = document.getElementById('absenStreakRekorNilai');
     // Rekor dihitung dari nilai tersimpan vs streak saat ini (bukan cuma nilai
     // tersimpan mentah), biar akun lama yang belum pernah punya field rekor
@@ -2338,14 +2339,22 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         return Math.max(rekorTersimpan, streakSaatIni);
     }
     // ===== Milestone api Streak Absen — makin panjang streak-nya, api 🔥
-    // makin besar & warnanya makin "panas" (oranye → merah → ungu → biru). =====
+    // makin besar & warnanya makin "panas", urut sesuai nomor file aslinya
+    // (Api_1 → Api_8): abu netral → merah tua → merah terang → oranye →
+    // emas → hijau mistis → biru → ungu (legend, 120 hari). =====
+    // Ikon api-nya sendiri (gambar) diatur lewat CSS berdasar "kelas" di
+    // bawah — lihat .absen-streak-nilai.streak-tier-N::before dan
+    // .streak-tier-emoji.streak-tier-N di style.css — biar satu sumber
+    // kebenaran buat file gambarnya, nggak dobel ditulis di JS & CSS.
     const STREAK_TIERS = [
         { min: 0, kelas: 'streak-tier-0', label: 'Yuk mulai absen tiap hari!' },
-        { min: 3, kelas: 'streak-tier-1', label: 'Awal yang bagus, 3 hari beruntun!' },
-        { min: 7, kelas: 'streak-tier-2', label: 'Seminggu penuh tanpa putus!' },
-        { min: 14, kelas: 'streak-tier-3', label: 'Dua minggu beruntun, makin membara!' },
-        { min: 30, kelas: 'streak-tier-4', label: 'Sebulan penuh — api ungu, luar biasa!' },
-        { min: 60, kelas: 'streak-tier-5', label: 'Legend! Api biru, konsistensimu top!' }
+        { min: 3, kelas: 'streak-tier-1', label: 'Awal yang bagus, 3 hari beruntun — api merah tua!' },
+        { min: 7, kelas: 'streak-tier-2', label: 'Seminggu penuh tanpa putus — api merah menyala!' },
+        { min: 14, kelas: 'streak-tier-3', label: 'Dua minggu beruntun — api oranye!' },
+        { min: 30, kelas: 'streak-tier-4', label: 'Sebulan penuh — api emas, luar biasa!' },
+        { min: 60, kelas: 'streak-tier-5', label: 'Dua bulan beruntun — api hijau mistis!' },
+        { min: 90, kelas: 'streak-tier-6', label: 'Tiga bulan beruntun — api biru, langka!' },
+        { min: 120, kelas: 'streak-tier-7', label: 'Legend! Api ungu menyala, konsistensimu top!' }
     ];
     function terapkanTierStreak(streak) {
         if (!elAbsenStreakNilai) return;
@@ -2355,6 +2364,10 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         }
         elAbsenStreakNilai.className = `absen-streak-nilai ${tier.kelas}`;
         elAbsenStreakNilai.title = tier.label;
+        // Ikon api utama yang dipindah ke atas kartu — pakai styling
+        // .streak-tier-emoji yang sama (ukuran & warna otomatis ngikutin
+        // tier aktif) supaya konsisten dengan daftar tingkatan di panel info.
+        if (elAbsenIconApi) { elAbsenIconApi.className = `absen-icon-api streak-tier-emoji ${tier.kelas}`; elAbsenIconApi.title = tier.label; }
     }
     function cariTierStreak(streak) {
         let tier = STREAK_TIERS[0];
