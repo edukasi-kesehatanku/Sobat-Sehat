@@ -1,16 +1,25 @@
 <!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Sobat Sehat — Edukasi Pencegahan Diabetes Remaja</title>
 <meta name="description" content="Sobat Sehat — media edukasi interaktif pencegahan diabetes untuk remaja, lengkap dengan game, kalkulator sehat, dan materi edukasi.">
 <link rel="preconnect" href="https://fonts.googleapis.com"> <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20260823">
+<link rel="stylesheet" href="style.css?v=20260829">
 </head> <body>
     <audio id="bgMusic" src="bg-music.mp3?v=20260828" loop preload="auto"></audio>
-    <audio id="sfxLangkahPion" src="sfx-langkah-pion.wav?v=20260829" preload="auto"></audio>
-    <audio id="sfxNotifPoin" src="sfx-notif-poin.wav?v=20260829" preload="auto"></audio>
-    <audio id="sfxPencapaian" src="sfx-pencapaian.wav?v=20260829" preload="auto"></audio>
-    <audio id="sfxDadu" src="sfx-dadu.wav?v=20260829" preload="auto"></audio>
     <button type="button" id="btnToggleMusik" class="btn-toggle-musik" aria-label="Aktifkan musik latar" aria-pressed="false" title="Musik latar">
-        <span id="iconMusikOn" class="hidden">🔊</span>
-        <span id="iconMusikOff">🔇</span>
+        <span class="btn-toggle-musik-ring" aria-hidden="true"></span>
+        <span id="iconMusikOn" class="hidden">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4.5 9.5v5h3.6l5 4V5.5l-5 4H4.5z" fill="currentColor" stroke="none"/>
+                <path d="M15.7 8.3a5 5 0 0 1 0 7.4"/>
+                <path d="M18.4 5.6a9 9 0 0 1 0 12.8"/>
+            </svg>
+        </span>
+        <span id="iconMusikOff">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4.5 9.5v5h3.6l5 4V5.5l-5 4H4.5z" fill="currentColor" stroke="none"/>
+                <path d="M16 9.2l5 5.6"/>
+                <path d="M21 9.2l-5 5.6"/>
+            </svg>
+        </span>
     </button>
     <svg width="0" height="0" style="position:absolute" aria-hidden="true"> <defs> <symbol id="sceneIllustration" viewBox="0 0 700 1000"> <defs>
                     <linearGradient id="skyGrad" x1="0" y1="0" x2="0.15" y2="1"> <stop offset="0%" stop-color="#dcedfb"/> <stop offset="55%" stop-color="#eaf5fc"/> <stop offset="100%" stop-color="#fdf1e6"/> </linearGradient>

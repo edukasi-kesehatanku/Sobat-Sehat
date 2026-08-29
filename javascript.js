@@ -25,51 +25,81 @@ const bgMusic = document.getElementById('bgMusic');
 const btnToggleMusik = document.getElementById('btnToggleMusik');
 const iconMusikOn = document.getElementById('iconMusikOn');
 const iconMusikOff = document.getElementById('iconMusikOff');
-// ===== SFX langkah pion =====
-// Beda dari bgMusic (musik latar, bisa dimatikan lewat tombol toggle), efek
-// suara "gelembung" ini SFX pendek yang bunyi tiap pion mendarat di satu
-// kotak papan (lihat pindahkanTokenKeTile()) — tidak loop dan tidak
-// tersambung ke tombol toggle musik latar.
-const sfxLangkahPion = document.getElementById('sfxLangkahPion');
+// ===== SFX (efek suara) — pakai Web Audio API, BUKAN elemen <audio> biasa =====
+// Sebelumnya tiap SFX pakai elemen <audio> HTML + reset currentTime (atau
+// cloneNode buat dadu). Di HP itu suka kerasa delay/kadang telat bunyi,
+// karena browser mesti "menyiapkan" ulang jalur pemutaran tiap kali play()
+// dipanggil (apalagi cloneNode = elemen baru dari nol tiap tik dadu).
+// Web Audio API men-decode tiap file SEKALI ke memori (AudioBuffer) saat
+// halaman dibuka, lalu tiap mau bunyi tinggal "trigger" node baru dari
+// buffer itu langsung dari memori — nyaris nol delay, dan aman ditumpuk
+// rapat (dadu) tanpa saling motong.
+let sfxAudioCtx = null;
+function ambilSfxAudioCtx() {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return null;
+    if (!sfxAudioCtx) sfxAudioCtx = new Ctx();
+    // Kebijakan autoplay browser (terutama HP) mengunci AudioContext dalam
+    // status 'suspended' sampai ada interaksi pengguna. Tiap mainkanBufferSfx()
+    // dipanggil (yang selalu berasal dari klik tombol/aksi pemain), context
+    // ini dicoba di-resume lagi — begitu berhasil sekali, dia tetap 'running'
+    // untuk pemanggilan berikutnya (termasuk yang dijadwalkan lewat
+    // setTimeout, seperti tik dadu).
+    if (sfxAudioCtx.state === 'suspended') sfxAudioCtx.resume().catch(() => {});
+    return sfxAudioCtx;
+}
+const sfxBufferCache = {}; // url -> Promise<AudioBuffer|null>, supaya tiap file cuma di-fetch+decode SEKALI
+function muatSfxBuffer(url) {
+    const ctx = ambilSfxAudioCtx();
+    if (!ctx) return Promise.resolve(null);
+    if (sfxBufferCache[url]) return sfxBufferCache[url];
+    const janji = fetch(url)
+        .then(res => res.arrayBuffer())
+        .then(data => ctx.decodeAudioData(data))
+        .catch(err => { console.warn('Gagal memuat SFX:', url, err); return null; });
+    sfxBufferCache[url] = janji;
+    return janji;
+}
+// volume: 0-1 biasa. rate: kecepatan putar sekaligus nada (1 = normal,
+// >1 = lebih cepat/nada lebih tinggi, <1 = lebih lambat/nada lebih rendah).
+function mainkanBufferSfx(url, { volume = 0.6, rate = 1 } = {}) {
+    const ctx = ambilSfxAudioCtx();
+    if (!ctx) return;
+    muatSfxBuffer(url).then(buffer => {
+        if (!buffer) return;
+        const sumber = ctx.createBufferSource();
+        sumber.buffer = buffer;
+        sumber.playbackRate.value = rate;
+        const gain = ctx.createGain();
+        gain.gain.value = volume;
+        sumber.connect(gain).connect(ctx.destination);
+        sumber.start(0);
+    });
+}
+// URL SFX dipusatkan di sini biar gampang di-preload & dipakai ulang.
+const SFX_LANGKAH_PION_URL = 'sfx-langkah-pion.wav?v=20260829';
+const SFX_NOTIF_POIN_URL = 'sfx-notif-poin.wav?v=20260829';
+const SFX_PENCAPAIAN_URL = 'sfx-pencapaian.wav?v=20260829';
+const SFX_DADU_URL = 'sfx-dadu.wav?v=20260829';
+// Preload + decode semua SFX dari awal (bukan nunggu dipakai pertama kali),
+// supaya begitu dipanggil beneran, buffer-nya sudah siap di memori dan
+// mainkanBufferSfx() nggak nunggu proses fetch/decode sama sekali.
+[SFX_LANGKAH_PION_URL, SFX_NOTIF_POIN_URL, SFX_PENCAPAIAN_URL, SFX_DADU_URL].forEach(muatSfxBuffer);
 function mainkanSfxLangkahPion() {
-    if (!sfxLangkahPion) return;
-    try {
-        // currentTime direset ke 0 dulu supaya kalau pion melangkah cepat
-        // beruntun (misal dapat 6 dari dadu), SFX yang belum kelar diputar
-        // ulang dari awal tiap kotak, bukan numpuk/nggak kedengeran sama
-        // sekali karena elemen audio-nya masih "busy".
-        sfxLangkahPion.currentTime = 0;
-        sfxLangkahPion.volume = 0.55;
-        sfxLangkahPion.play().catch(() => {}); // diamkan kalau autoplay ditolak browser
-    } catch (err) { /* abaikan, SFX opsional & tidak boleh menghentikan gameplay */ }
+    mainkanBufferSfx(SFX_LANGKAH_PION_URL, { volume: 0.55 });
 }
-// ===== SFX notifikasi Poin Sehat bertambah/berkurang =====
-// Bunyi tiap kali toast poin muncul — baik pas dapat poin (kuis benar,
-// fakta, bonus, keliling papan, absen) maupun pas berkurang (kuis salah,
-// jebakan). Dipakai lewat tampilkanToastPoin() di bawah, BUKAN dicolok ke
-// tampilkanToast() biasa, karena toast biasa juga dipakai buat pesan yang
-// nggak ada hubungannya sama perubahan poin (misal galat sinkron server).
-const sfxNotifPoin = document.getElementById('sfxNotifPoin');
 function mainkanSfxNotifPoin() {
-    if (!sfxNotifPoin) return;
-    try {
-        sfxNotifPoin.currentTime = 0;
-        sfxNotifPoin.volume = 0.6;
-        sfxNotifPoin.play().catch(() => {});
-    } catch (err) { /* abaikan, SFX opsional & tidak boleh menghentikan gameplay */ }
+    mainkanBufferSfx(SFX_NOTIF_POIN_URL, { volume: 0.6 });
 }
-// ===== SFX popup Pencapaian (pet naik level / streak naik tier) =====
-// Beda dari sfxNotifPoin (dipakai di toast poin biasa), suara ini khusus
-// nemenin popup pencapaian yang lebih besar — lihat tampilkanPencapaian()
-// di bagian bawah file ini.
-const sfxPencapaian = document.getElementById('sfxPencapaian');
 function mainkanSfxPencapaian() {
-    if (!sfxPencapaian) return;
-    try {
-        sfxPencapaian.currentTime = 0;
-        sfxPencapaian.volume = 0.65;
-        sfxPencapaian.play().catch(() => {});
-    } catch (err) { /* abaikan, SFX opsional & tidak boleh menghentikan gameplay */ }
+    mainkanBufferSfx(SFX_PENCAPAIAN_URL, { volume: 0.65 });
+}
+// rate & volume buat SFX dadu diatur per-tik langsung dari dalam frameSpin()
+// di kocokDadu() (dipicu dari rotasi asli, bukan jadwal waktu tetap),
+// bukan nilai tetap di sini — biar nadanya ikut turun dari cepat/tinggi ke
+// lambat/rendah sesuai putaran dadunya.
+function mainkanSfxDadu(rate = 1, volume = 0.5) {
+    mainkanBufferSfx(SFX_DADU_URL, { volume, rate });
 }
 const KUNCI_AKUN_TERSIMPAN = 'sobatSehatAkunTersimpan';
 const MAKS_AKUN_TERSIMPAN = 6;
@@ -2278,54 +2308,63 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         mainkanSfxNotifPoin();
         tampilkanToast(pesan);
     }
-    // ===== SFX dadu — "tik" berkali-kali mengikuti laju putaran dadu =====
-    // File suaranya cuma ~125ms (pendek), sedangkan dadu berputar 1.7 detik
-    // dari kencang lalu melambat (lihat transition .dadu-kubus di CSS, pakai
-    // cubic-bezier(0.13, 0.82, 0.16, 1)). Solusinya: putar file SFX yang
-    // sama berkali-kali, TAPI jadwal waktunya dihitung dari kurva easing
-    // yang SAMA PERSIS dengan animasi dadunya — bukan interval tetap.
-    // Caranya: kurva easing itu di-sampling jadi tabel (t, progres), lalu
-    // dicari titik waktu yang progres-nya sama rata (mis. tiap naik 1/8
-    // bagian). Karena kurva ini naik cepat di awal & landai di akhir, jarak
-    // ANTAR titik waktu tsb otomatis rapat di awal (kedengeran "cepat") dan
-    // makin renggang menjelang berhenti (kedengeran "melambat") — persis
-    // ngikutin gerakan visual dadunya, tanpa perlu 8 file suara beda-beda.
-    const DURASI_KOCOK_DADU = 1700; // ms — HARUS sama persis dengan transition .dadu-kubus di style.css
-    const KURVA_DADU_P1 = { x: 0.13, y: 0.82 };
-    const KURVA_DADU_P2 = { x: 0.16, y: 1 };
-    const TARGET_PROGRES_TIK_DADU = [0.06, 0.14, 0.24, 0.36, 0.50, 0.66, 0.82, 0.95];
-    function bangunTabelKurvaDadu(jumlahSampel = 1000) {
-        const tabel = [];
-        for (let i = 0; i <= jumlahSampel; i++) {
-            const t = i / jumlahSampel;
-            const mt = 1 - t;
-            const y = 3 * mt * mt * t * KURVA_DADU_P1.y + 3 * mt * t * t * KURVA_DADU_P2.y + t * t * t;
-            tabel.push({ t, y });
-        }
-        return tabel;
+    // ===== Kocok dadu — SATU kurva gerak kontinu, SFX dijadwal dari kurva yang sama =====
+    // Percobaan sebelumnya masih "patah-patah": dadu digerakkan lewat
+    // BEBERAPA transisi CSS yang disambung-sambung (satu transisi per tik).
+    // Masalahnya, tiap kali transisi baru dipasang di tengah jalan (buat
+    // nyambung ke tik berikutnya), kecepatan geraknya "dipotong" dan mulai
+    // dari nol lagi di titik sambungan itu — walau easing per segmennya
+    // udah dihalusin, TETAP ada 9-10 titik sambungan yang masing-masing
+    // berpotensi kerasa sebagai jeda/sentakan kecil. Rantai transisi CSS
+    // pada dasarnya tidak bisa benar-benar mulus 100%.
+    // Solusinya sekarang: dadu digerakkan lewat SATU fungsi easing kontinu
+    // (easeSpinDadu) yang dihitung ulang tiap frame lewat requestAnimationFrame
+    // — jadi sudut dadu itu murni fungsi dari "sudah berapa lama sejak mulai
+    // kocok", tanpa sambungan/potongan sama sekali, semulus mungkin sesuai
+    // frame rate device. Bunyi tik SFX tetap dijadwalkan lewat setTimeout,
+    // tapi waktunya dihitung dari TITIK-TITIK DI KURVA YANG SAMA PERSIS
+    // (dibalik dari easeSpinDadu) — jadi tik selalu jatuh pas dadu ada di
+    // progres yang "seharusnya", sinkron, walau geraknya sendiri kontinu.
+    const DURASI_SPIN_DADU = 2050; // ms — fase muter utama, DIPERPANJANG (dari 1718) biar fase melambatnya kerasa lebih lama/landai, bukan buru-buru berhenti
+    const DURASI_SETTLE_DADU = 450; // ms — fase "lentur" pas mendarat: goyangan kecil yang meredam ke posisi final
+    const DURASI_KOCOK_DADU = DURASI_SPIN_DADU + DURASI_SETTLE_DADU; // total sampai dadu benar-benar diam
+    // t: 0..1 (progres WAKTU di fase spin) -> hasil: 0..1 (progres ROTASI).
+    // CATATAN: pangkat 1.25 yang dipakai sebelumnya ternyata secara
+    // matematis punya "rem mendadak" tersembunyi tepat di ujung — begitu
+    // pangkatnya < 2, LAJU PERLAMBATANNYA sendiri (bukan kecepatannya)
+    // melonjak tajam pas mendekati t=1, jadi walau kelihatan mulus, kupingnya
+    // masih nangkep semacam "snap" berhenti di detik terakhir (makanya tik
+    // terakhir masih kerasa kaku). Sekarang dinaikkan ke 2.6 — dengan
+    // pangkat > 2, laju perlambatannya sendiri ikut mengecil landai menuju
+    // nol pas t=1 (bukan melonjak), jadi dadunya "meluncur" pelan-pelan
+    // sampai benar-benar berhenti, bukan direm mendadak di ujung. Awalnya
+    // pun tetap kenceng (bahkan makin nendang) karena pangkat lebih tinggi
+    // = kecepatan awal lebih tinggi juga.
+    function easeSpinDadu(t) { return 1 - Math.pow(1 - t, 2.6); }
+    // Getaran elastis kecil yang ditumpangkan DI ATAS kurva perlambatan di
+    // atas — biar putarannya kerasa "lentur" kayak per, bukan gerak lurus
+    // yang steril. Amplitudonya FIXED dalam derajat (bukan proporsional ke
+    // jumlah putaran total), jadi jumlah putaran penuh & hasil akhir dadu
+    // TETAP presisi — nilainya selalu nol pas t=0 (mulai) dan t=1 (mendarat),
+    // jadi tidak bikin sentakan di awal atau meleset di akhir.
+    function elasticGiveDadu(t) {
+        return Math.sin(t * Math.PI * 6) * 4.5 * t * (1 - t);
     }
-    const TABEL_KURVA_DADU = bangunTabelKurvaDadu();
-    function jadwalTikDadu() {
-        return TARGET_PROGRES_TIK_DADU.map(target => {
-            const titik = TABEL_KURVA_DADU.find(p => p.y >= target) || TABEL_KURVA_DADU[TABEL_KURVA_DADU.length - 1];
-            return Math.round(titik.t * DURASI_KOCOK_DADU);
-        });
-    }
-    const sfxDadu = document.getElementById('sfxDadu');
-    function mainkanSfxDadu() {
-        if (!sfxDadu) return;
-        try {
-            // cloneNode dipakai (bukan currentTime = 0 di elemen yang sama)
-            // karena di sini SFX-nya sengaja bakal tumpang tindih rapat-rapat
-            // (jarak antar tik di awal bisa cuma ~40-60ms, lebih pendek dari
-            // durasi filenya sendiri ~125ms) — kalau pakai satu elemen yang
-            // sama, tiap play() baru bakal motong play() sebelumnya jadi
-            // kedengeran putus-putus, bukan menumpuk rapat kayak dadu asli.
-            const salinan = sfxDadu.cloneNode(true);
-            salinan.volume = 0.5;
-            salinan.play().catch(() => {});
-        } catch (err) { /* abaikan, SFX opsional & tidak boleh menghentikan gameplay */ }
-    }
+    // Tik SFX SEKARANG dipicu LANGSUNG dari rotasi asli tiap frame (bukan
+    // jadwal waktu tetap yang "asal penting sfx-nya kelar bareng animasi").
+    // Sebelumnya TIK_DADU_MS dihitung manual berdasar kurva easing versi
+    // lama — begitu easing/gerakannya diubah (jadi lebih lentur), jadwal itu
+    // otomatis meleset dari visualnya. Sekarang tik dianggap bunyi tiap kali
+    // dadu udah menempuh kelipatan 90° (seperempat putaran) — kira-kira
+    // momen satu sisi dadu "menghadap depan" lalu berganti ke sisi berikutnya
+    // — dihitung dari SUDUT ASLI yang lagi dirender (termasuk getaran
+    // elastisnya), jadi tik selalu jatuh PAS di momen visualnya, bukan
+    // nebak-nebak waktu. Karena jaraknya dihitung dalam derajat (bukan ms),
+    // efeknya otomatis ikut melambat sesuai gerakan dadunya sendiri: pas
+    // muter kenceng di awal, tik-nya rapat; pas melambat di akhir, tik-nya
+    // ikut merenggang — dan jumlah tik-nya PAS sama banyak sisi yang benar-
+    // benar terlewati, bukan dipotong/dipanjangin paksa biar "abisnya bareng".
+    const INTERVAL_TIK_DERAJAT = 90;
     function kocokDadu() {
         if (sedangJalan) return;
         sedangJalan = true;
@@ -2333,25 +2372,83 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         const hasil = 1 + Math.floor(Math.random() * 6);
         const target = ROTASI_HASIL_DADU[hasil];
         // Beberapa putaran penuh acak biar terasa 'dilempar' kenceng di awal,
-        // lalu mendarat pas di sudut yang menunjukkan sisi hasil. Durasi &
-        // kurva easing-nya diatur di CSS (.dadu-kubus transition) supaya
-        // gerakannya cepat di awal lalu gradasi melambat sampai berhenti —
-        // jumlah putaran ditambah (4-5x) biar tetap kerasa laju walau
-        // durasinya lebih panjang.
+        // lalu mendarat pas di sudut yang menunjukkan sisi hasil.
         const putaranX = 360 * (4 + Math.floor(Math.random() * 2));
         const putaranY = 360 * (4 + Math.floor(Math.random() * 2));
         const selisihX = (((target.x - (dadu3dRotX % 360)) % 360) + 360) % 360;
         const selisihY = (((target.y - (dadu3dRotY % 360)) % 360) + 360) % 360;
-        dadu3dRotX += putaranX + selisihX;
-        dadu3dRotY += putaranY + selisihY;
-        elDadu.style.transform = `rotateX(${dadu3dRotX}deg) rotateY(${dadu3dRotY}deg)`;
-        // Jadwalkan tik SFX dadu mengikuti kurva easing yang sama dengan
-        // animasi visualnya (lihat jadwalTikDadu()) — rapat di awal, makin
-        // renggang menjelang berhenti.
-        jadwalTikDadu().forEach(ms => window.setTimeout(mainkanSfxDadu, ms));
-        // Nunggu sampai animasi dadu (transition 1.7s di CSS) beneran
-        // selesai baru pion mulai melompat, biar hasil dadu & laju pion
-        // singkron dan tidak kepotong.
+        const rotXAwal = dadu3dRotX;
+        const rotYAwal = dadu3dRotY;
+        const deltaX = putaranX + selisihX;
+        const deltaY = putaranY + selisihY;
+        const rotXFinal = rotXAwal + deltaX;
+        const rotYFinal = rotYAwal + deltaY;
+        // Rata-rata jarak sudut yang ditempuh kedua sumbu — dipakai buat
+        // nentuin berapa kali tik "seharusnya" bunyi total (buat ngitung
+        // frac rate/volume tiap tik), BUKAN buat nentuin waktunya — waktunya
+        // murni nyusul dari rotasi asli tiap frame di bawah.
+        const totalDerajatTempuhDadu = (Math.abs(deltaX) + Math.abs(deltaY)) / 2;
+        const estimasiJumlahTikDadu = Math.max(1, totalDerajatTempuhDadu / INTERVAL_TIK_DERAJAT);
+        let tikDaduTerakhirKe = 0; // index tik terakhir yang sudah dibunyikan di kocokan ini
+        // Semua gerakan sekarang di-drive manual tiap frame, BUKAN transisi
+        // CSS sama sekali — biar benar-benar satu kurva mulus tanpa sambungan.
+        elDadu.style.transition = 'none';
+        const mulaiSpin = performance.now();
+        function frameSpin(now) {
+            const t = Math.min(1, (now - mulaiSpin) / DURASI_SPIN_DADU);
+            const progres = easeSpinDadu(t);
+            const give = elasticGiveDadu(t);
+            dadu3dRotX = rotXAwal + deltaX * progres + give;
+            dadu3dRotY = rotYAwal + deltaY * progres + give * 0.7;
+            elDadu.style.transform = `rotateX(${dadu3dRotX}deg) rotateY(${dadu3dRotY}deg)`;
+            // Cek apakah rotasi ASLI (yang barusan dirender di atas) udah
+            // menempuh kelipatan 90° baru sejak tik terakhir — kalau ya,
+            // bunyikan tik SEKARANG JUGA, di frame yang sama persis dengan
+            // visualnya, bukan lewat setTimeout terpisah yang bisa meleset.
+            const jarakTempuhDadu = (Math.abs(dadu3dRotX - rotXAwal) + Math.abs(dadu3dRotY - rotYAwal)) / 2;
+            const tikDaduKe = Math.floor(jarakTempuhDadu / INTERVAL_TIK_DERAJAT);
+            if (tikDaduKe > tikDaduTerakhirKe) {
+                for (let i = tikDaduTerakhirKe + 1; i <= tikDaduKe; i++) {
+                    const frac = Math.min(1, i / estimasiJumlahTikDadu);
+                    mainkanSfxDadu(1.35 - frac * 0.5, 0.55 - frac * 0.15);
+                }
+                tikDaduTerakhirKe = tikDaduKe;
+            }
+            if (t < 1) {
+                requestAnimationFrame(frameSpin);
+            } else {
+                mulaiSettleDadu();
+            }
+        }
+        requestAnimationFrame(frameSpin);
+        // Fase kedua: dadu udah "mendarat" tepat di hasil akhir (spin
+        // selesai), tapi dikasih goyangan kecil yang meredam sendiri —
+        // ini bagian "lentur"-nya, kayak per yang habis nyampe lalu
+        // bergetar sebentar sebelum benar-benar diam. Selalu balik PAS
+        // ke rotXFinal/rotYFinal di akhir, jadi hasil dadu tidak meleset.
+        function mulaiSettleDadu() {
+            const mulaiSettle = performance.now();
+            function frameSettle(now) {
+                const u = Math.min(1, (now - mulaiSettle) / DURASI_SETTLE_DADU);
+                const redam = (1 - u) * (1 - u); // amplitudo goyangan mengecil terus ke 0
+                const offset = Math.sin(u * Math.PI * 2.4) * 5 * redam; // derajat — dinaikkan dari 3 biar landing-nya kerasa lebih lentur/mantul
+                elDadu.style.transform = `rotateX(${rotXFinal + offset}deg) rotateY(${rotYFinal + offset * 0.6}deg)`;
+                if (u < 1) {
+                    requestAnimationFrame(frameSettle);
+                } else {
+                    dadu3dRotX = rotXFinal;
+                    dadu3dRotY = rotYFinal;
+                    elDadu.style.transform = `rotateX(${rotXFinal}deg) rotateY(${rotYFinal}deg)`;
+                }
+            }
+            requestAnimationFrame(frameSettle);
+        }
+        // Tik SFX SEKARANG dipicu langsung dari dalam frameSpin() di atas
+        // (lihat blok "jarakTempuhDadu"), jadi tidak perlu dijadwalkan
+        // terpisah lagi di sini.
+        // Nunggu sampai animasi dadu (spin + settle) beneran selesai baru
+        // pion mulai melompat, biar hasil dadu & laju pion singkron dan
+        // tidak kepotong.
         window.setTimeout(() => {
             langkahkanPemain(hasil);
         }, DURASI_KOCOK_DADU);
@@ -2506,6 +2603,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         sedangJalan = false;
         dadu3dRotX = -18;
         dadu3dRotY = 28;
+        elDadu.style.transition = 'none'; // snap instan — jangan ikut kepakai transisi/durasi sisa kocokan terakhir
         elDadu.style.transform = `rotateX(${dadu3dRotX}deg) rotateY(${dadu3dRotY}deg)`;
         btnKocok.disabled = false;
         bersihkanJedaLanjut();
