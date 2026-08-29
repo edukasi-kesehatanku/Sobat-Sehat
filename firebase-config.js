@@ -25,20 +25,38 @@ const db = firebase.firestore();
 //    tanpa perlu logic tambahan manual di javascript.js
 // 3) Mengurangi jumlah pembacaan (read) berulang ke Firestore, karena data
 //    yang sudah pernah diambil bisa dibaca dari cache lokal dulu.
-// Dibungkus .catch supaya kalau gagal aktif (misal dibuka di banyak tab
-// sekaligus, atau browser lama yang belum dukung), web tetap jalan normal
-// seperti sebelumnya — cuma tanpa manfaat offline-nya.
-db.enablePersistence({ synchronizeTabs: true })
-    .catch(err => {
-        if (err.code === 'failed-precondition') {
-            // Persistence cuma bisa aktif di satu tab; dengan
-            // synchronizeTabs:true seharusnya jarang kejadian, tapi tetap
-            // dijaga supaya tidak melempar error yang menghentikan skrip.
-            console.warn('Firestore offline persistence tidak aktif: dibuka di banyak tab.');
-        } else if (err.code === 'unimplemented') {
-            console.warn('Firestore offline persistence tidak didukung browser ini.');
-        } else {
-            console.warn('Gagal mengaktifkan Firestore offline persistence:', err);
-        }
-    });
+//
+// db.enablePersistence() sudah DEPRECATED (muncul warning kuning di
+// console), diganti lewat db.settings({ cache: ... }). Tapi karena
+// db.settings() cuma bisa dipanggil SEKALI sebelum operasi Firestore
+// lain, dan API barunya (persistentLocalCache dkk) baru ada di versi
+// compat yang cukup baru, kita cek dulu ketersediaannya — kalau ada,
+// pakai cara baru (warning-nya hilang); kalau ternyata versi SDK-nya
+// belum punya, otomatis balik pakai enablePersistence() seperti biasa
+// (situs tetap jalan normal, cuma warning-nya nongol lagi, bukan error).
+if (typeof firebase.firestore.persistentLocalCache === 'function') {
+    try {
+        db.settings({
+            cache: firebase.firestore.persistentLocalCache({
+                tabManager: firebase.firestore.persistentMultipleTabManager()
+            })
+        });
+    } catch (err) {
+        console.warn('Gagal mengaktifkan Firestore persistent cache lewat settings():', err);
+    }
+} else {
+    db.enablePersistence({ synchronizeTabs: true })
+        .catch(err => {
+            if (err.code === 'failed-precondition') {
+                // Persistence cuma bisa aktif di satu tab; dengan
+                // synchronizeTabs:true seharusnya jarang kejadian, tapi tetap
+                // dijaga supaya tidak melempar error yang menghentikan skrip.
+                console.warn('Firestore offline persistence tidak aktif: dibuka di banyak tab.');
+            } else if (err.code === 'unimplemented') {
+                console.warn('Firestore offline persistence tidak didukung browser ini.');
+            } else {
+                console.warn('Gagal mengaktifkan Firestore offline persistence:', err);
+            }
+        });
+}
 

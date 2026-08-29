@@ -347,6 +347,44 @@ if (btnToggleMusik) {
         terapkanTampilanIkonMusik();
     });
 }
+// ===== Musik "mati sendiri" — auto-nyalain lagi kalau di-pause PAKSA =====
+// Browser (terutama Chrome/Safari di HP) otomatis mem-PAUSE audio yang lagi
+// jalan di background begitu tab-nya disembunyikan (pindah app, kunci
+// layar, ganti tab) — buat ngirit baterai/kuota, bukan karena kita yang
+// nyuruh. Sebelumnya tidak ada logic buat menyalakan lagi otomatis pas tab
+// keliatan lagi, jadi musiknya kelihatan "mati sendiri" dan diam terus
+// sampai pemain sadar dan pencet tombol speaker manual.
+//
+// Caranya bedain pause yang DIMINTA user (lewat tombol toggle di atas —
+// musikAktif SUDAH di-set false SEBELUM bgMusic.pause() dipanggil) vs pause
+// yang DIPAKSA browser (musikAktif masih true, tapi audionya somehow
+// berhenti): kalau musikAktif masih true tapi audionya paused, itu tandanya
+// bukan kemauan user — coba nyalakan lagi begitu tab kelihatan/fokus lagi.
+function cobaLanjutkanMusikJikaTerhenti() {
+    if (musikAktif && bgMusic && bgMusic.paused) {
+        putarMusikBackground();
+    }
+}
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') cobaLanjutkanMusikJikaTerhenti();
+});
+// pageshow juga dipasang buat jaga-jaga kasus balik dari cache
+// (tombol back/forward di beberapa browser tidak selalu memicu
+// visibilitychange dengan konsisten).
+window.addEventListener('pageshow', cobaLanjutkanMusikJikaTerhenti);
+window.addEventListener('focus', cobaLanjutkanMusikJikaTerhenti);
+if (bgMusic) {
+    // Kalau audionya gagal dimuat di tengah jalan (koneksi HP putus-putus,
+    // misalnya) browser akan diam-diam berhenti tanpa ada usaha coba lagi.
+    // Begitu error kedetect, muat ulang filenya dan coba putar lagi sekali
+    // (kalau memang musikAktif masih nyala) — supaya satu glitch koneksi
+    // tidak bikin musiknya bisu untuk sisa sesi.
+    bgMusic.addEventListener('error', () => {
+        if (!musikAktif) return;
+        bgMusic.load();
+        putarMusikBackground();
+    });
+}
 // ===== "Pembuka kunci" autoplay di sentuhan pertama =====
 // Browser memblokir audio berbunyi otomatis sebelum ada interaksi apa pun
 // dari pengguna di halaman ini (kebijakan autoplay browser, bukan bug).
