@@ -3,6 +3,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"> <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css?v=20260823">
 </head> <body>
+    <audio id="bgMusic" src="bg-music.mp3?v=20260828" loop preload="auto"></audio>
+    <audio id="sfxLangkahPion" src="sfx-langkah-pion.wav?v=20260829" preload="auto"></audio>
+    <audio id="sfxNotifPoin" src="sfx-notif-poin.wav?v=20260829" preload="auto"></audio>
+    <audio id="sfxPencapaian" src="sfx-pencapaian.wav?v=20260829" preload="auto"></audio>
+    <audio id="sfxDadu" src="sfx-dadu.wav?v=20260829" preload="auto"></audio>
+    <button type="button" id="btnToggleMusik" class="btn-toggle-musik" aria-label="Aktifkan musik latar" aria-pressed="false" title="Musik latar">
+        <span id="iconMusikOn" class="hidden">🔊</span>
+        <span id="iconMusikOff">🔇</span>
+    </button>
     <svg width="0" height="0" style="position:absolute" aria-hidden="true"> <defs> <symbol id="sceneIllustration" viewBox="0 0 700 1000"> <defs>
                     <linearGradient id="skyGrad" x1="0" y1="0" x2="0.15" y2="1"> <stop offset="0%" stop-color="#dcedfb"/> <stop offset="55%" stop-color="#eaf5fc"/> <stop offset="100%" stop-color="#fdf1e6"/> </linearGradient>
                     <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%"> <stop offset="0%" stop-color="#ffd873" stop-opacity="0.55"/> <stop offset="100%" stop-color="#ffd873" stop-opacity="0"/> </radialGradient>
@@ -195,12 +204,14 @@
                             <p class="pet-desc" id="petDesc">Telur legendaris yang menyimpan api suci. Yuk kumpulkan Poin Sehat bareng!</p>
                             <div class="pet-progress-track"> <div class="pet-progress-fill" id="petProgressFill" style="width:0%"></div> </div>
                             <p class="pet-progress-text" id="petProgressText">0 / 100 Poin menuju Phoenix Mungil</p> </div>
-                        <div class="absen-card"> <button type="button" class="pet-info-btn" id="btnAbsenInfo" aria-label="Info cara kerja Streak Absen">?</button> <span class="absen-icon-api streak-tier-emoji streak-tier-0" id="absenIconApi" title="Streak Absen" aria-hidden="true"></span> <h3 class="absen-title">Absen Harian</h3>
-                            <button type="button" class="btn-absen" id="btnAbsenHarian">Absen Sekarang</button> <p class="absen-desc" id="absenDesc">Belum absen hari ini</p> <div class="absen-streak"> <div class="absen-streak-top-row"> <span class="absen-streak-label">Streak Absen</span> <span class="absen-streak-rekor" id="absenStreakRekor" title="Rekor Streak Absen terpanjang di akun ini">🏆 <span id="absenStreakRekorNilai">0</span></span> </div>
-                                <span class="absen-streak-nilai" id="absenStreakNilai"><span id="absenStreak">0</span> hari</span> </div> </div> </aside> </div>
-                <div class="panel-event-overlay hidden" id="panelAbsenInfoOverlay"> <div class="panel-event panel-aturan panel-pet-info"> <div class="panel-event-icon">🔥</div>
+                        <div class="absen-card"> <button type="button" class="pet-info-btn" id="btnAbsenInfo" aria-label="Info cara kerja Streak Absen">?</button>
+                            <div class="absen-card-konten"> <span class="absen-icon-api streak-tier-emoji streak-tier-0" id="absenIconApi" title="Streak Absen" aria-hidden="true"></span> <h3 class="absen-title">Absen Harian</h3>
+                                <button type="button" class="btn-absen" id="btnAbsenHarian">Absen Sekarang</button> <p class="absen-desc" id="absenDesc">Belum absen hari ini</p> <div class="absen-streak"> <div class="absen-streak-top-row"> <span class="absen-streak-label">Streak Absen</span> <span class="absen-streak-rekor" id="absenStreakRekor" title="Rekor Streak Absen terpanjang di akun ini">🏆 <span id="absenStreakRekorNilai">0</span></span> </div>
+                                    <span class="absen-streak-nilai" id="absenStreakNilai"><span id="absenStreak">0</span> hari</span> </div> </div>
+                            <div class="absen-tabung" id="absenTabung" title="Progres menuju bonus +20 Poin Sehat tiap 7 hari absen penuh"> <span class="absen-tabung-hadiah" id="absenTabungHadiah">🎁</span> <div class="absen-tabung-track"> <div class="absen-tabung-fill" id="absenTabungFill"></div> </div> <span class="absen-tabung-label" id="absenTabungLabel">0/7</span> </div> </div> </aside> </div>
+                <div class="panel-event-overlay hidden" id="panelAbsenInfoOverlay"> <div class="panel-event panel-aturan panel-pet-info"> <span class="panel-event-icon panel-event-icon-streak streak-tier-emoji streak-tier-7" aria-hidden="true"></span>
                         <h3 class="panel-event-judul">Cara Kerja Streak Absen</h3>
-                        <p class="panel-event-teks">Absen tiap hari tanpa putus bikin Streak Absen-mu naik terus (+10 Poin Sehat tiap absen). Kalau sampai kelewatan satu hari, streak-nya balik ke 1. Makin panjang streak-mu, ikon api 🔥 di kartu ini bakal berubah warna dan makin besar sesuai capaian berikut:</p>
+                        <p class="panel-event-teks">Absen tiap hari tanpa putus bikin Streak Absen-mu naik terus (+10 Poin Sehat tiap absen). Kalau sampai kelewatan satu hari, streak-nya balik ke 0. Tiap kali kamu absen penuh 7 hari beruntun (hari ke-7, 14, 21, dan seterusnya), kamu dapat bonus tambahan +20 Poin Sehat di luar poin absen harian. Makin panjang streak-mu, ikon api 🔥 di kartu ini bakal berubah warna dan makin besar sesuai capaian berikut:</p>
                         <ul class="pet-evolusi-list" id="absenTierList"></ul>
                         <button type="button" class="btn-lanjut-event" id="btnTutupAbsenInfo">Mengerti →</button> </div> </div>
                 <div class="panel-event-overlay hidden" id="panelAbsenFaktaOverlay"> <div class="panel-event panel-absen-fakta"> <div class="panel-event-icon" id="absenFaktaIkon">💡</div>
@@ -220,6 +231,7 @@
                             <li><span class="aturan-ikon">🩺</span> <strong>Cek Sehat</strong> (4 kotak sudut) — langsung dapat +10 Poin Sehat.</li>
                             <li><span class="aturan-ikon">🏁</span> <strong>Mulai</strong> — setiap kali token melewati/kembali ke kotak ini (keliling penuh papan), dapat bonus +10 Poin Sehat.</li>
                             <li><span class="aturan-ikon">📅</span> <strong>Absen Harian</strong> — di panel kanan, klik "Absen Sekarang" sekali tiap hari buat dapat +10 Poin Sehat gratis.</li>
+                            <li><span class="aturan-ikon">🎁</span> <strong>Bonus Absen 7 Hari</strong> — absen penuh 7 hari beruntun tanpa putus (hari ke-7, 14, 21, dst.) dapat bonus tambahan +20 Poin Sehat. Kalau sampai kelewatan satu hari, streak balik ke 0 dan hitungan menuju bonus berikutnya mulai dari awal lagi.</li>
                             <li><strong>Skor Tertinggi</strong> tersimpan otomatis di perangkat kamu. Tombol <strong>"Ulangi dari awal"</strong> mengembalikan posisi & Poin Sehat ke 0 kapan saja.</li>
                         </ul> <button type="button" class="btn-lanjut-event" id="btnTutupAturan">Mengerti →</button> </div> </div>
                 <div class="panel-event-overlay hidden" id="panelNamaPetOverlay"> <div class="panel-event panel-aturan panel-nama-pet"> <div class="panel-event-icon">✏️</div>
@@ -1695,6 +1707,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="firebase-config.js"></script>
     <script src="javascript.js?v=20260823"></script>
+    <script src="sfx.js?v=20260828"></script>
     <script>
         (function () {
             var svg = document.getElementById('authSceneSvg');

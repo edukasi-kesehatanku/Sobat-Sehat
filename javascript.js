@@ -21,6 +21,56 @@ const navItems = document.querySelectorAll('.nav-item');
 const sidebar = document.getElementById('sidebar');
 const sidebarOverlay = document.getElementById('sidebarOverlay');
 const btnMenuToggle = document.getElementById('btnMenuToggle');
+const bgMusic = document.getElementById('bgMusic');
+const btnToggleMusik = document.getElementById('btnToggleMusik');
+const iconMusikOn = document.getElementById('iconMusikOn');
+const iconMusikOff = document.getElementById('iconMusikOff');
+// ===== SFX langkah pion =====
+// Beda dari bgMusic (musik latar, bisa dimatikan lewat tombol toggle), efek
+// suara "gelembung" ini SFX pendek yang bunyi tiap pion mendarat di satu
+// kotak papan (lihat pindahkanTokenKeTile()) — tidak loop dan tidak
+// tersambung ke tombol toggle musik latar.
+const sfxLangkahPion = document.getElementById('sfxLangkahPion');
+function mainkanSfxLangkahPion() {
+    if (!sfxLangkahPion) return;
+    try {
+        // currentTime direset ke 0 dulu supaya kalau pion melangkah cepat
+        // beruntun (misal dapat 6 dari dadu), SFX yang belum kelar diputar
+        // ulang dari awal tiap kotak, bukan numpuk/nggak kedengeran sama
+        // sekali karena elemen audio-nya masih "busy".
+        sfxLangkahPion.currentTime = 0;
+        sfxLangkahPion.volume = 0.55;
+        sfxLangkahPion.play().catch(() => {}); // diamkan kalau autoplay ditolak browser
+    } catch (err) { /* abaikan, SFX opsional & tidak boleh menghentikan gameplay */ }
+}
+// ===== SFX notifikasi Poin Sehat bertambah/berkurang =====
+// Bunyi tiap kali toast poin muncul — baik pas dapat poin (kuis benar,
+// fakta, bonus, keliling papan, absen) maupun pas berkurang (kuis salah,
+// jebakan). Dipakai lewat tampilkanToastPoin() di bawah, BUKAN dicolok ke
+// tampilkanToast() biasa, karena toast biasa juga dipakai buat pesan yang
+// nggak ada hubungannya sama perubahan poin (misal galat sinkron server).
+const sfxNotifPoin = document.getElementById('sfxNotifPoin');
+function mainkanSfxNotifPoin() {
+    if (!sfxNotifPoin) return;
+    try {
+        sfxNotifPoin.currentTime = 0;
+        sfxNotifPoin.volume = 0.6;
+        sfxNotifPoin.play().catch(() => {});
+    } catch (err) { /* abaikan, SFX opsional & tidak boleh menghentikan gameplay */ }
+}
+// ===== SFX popup Pencapaian (pet naik level / streak naik tier) =====
+// Beda dari sfxNotifPoin (dipakai di toast poin biasa), suara ini khusus
+// nemenin popup pencapaian yang lebih besar — lihat tampilkanPencapaian()
+// di bagian bawah file ini.
+const sfxPencapaian = document.getElementById('sfxPencapaian');
+function mainkanSfxPencapaian() {
+    if (!sfxPencapaian) return;
+    try {
+        sfxPencapaian.currentTime = 0;
+        sfxPencapaian.volume = 0.65;
+        sfxPencapaian.play().catch(() => {});
+    } catch (err) { /* abaikan, SFX opsional & tidak boleh menghentikan gameplay */ }
+}
 const KUNCI_AKUN_TERSIMPAN = 'sobatSehatAkunTersimpan';
 const MAKS_AKUN_TERSIMPAN = 6;
 let emailAktif = null; // email akun yang sedang login — dipakai untuk data per akun seperti Pet
@@ -198,6 +248,100 @@ function tutupPanelOverlay(el) {
 btnMulai.addEventListener('click', () => {
     landingPage.classList.add('hidden');
     loginPage.classList.remove('hidden');
+    putarMusikBackground();
+});
+
+// ===== Musik latar (background music) =====
+// Preferensi aktif/nonaktif disimpan di localStorage supaya kalau user
+// mematikan musik, pilihannya diingat walau halaman di-refresh.
+// Browser modern memblokir audio dengan suara sebelum ada interaksi user
+// (autoplay policy), jadi bgMusic.play() dipanggil di titik-titik yang
+// memang dipicu oleh klik user (tombol "Mulai", habis login, dan tombol
+// toggle musik itu sendiri) — bukan langsung saat halaman dimuat.
+const KUNCI_MUSIK_AKTIF = 'sobatSehatMusikAktif';
+let musikAktif = localStorage.getItem(KUNCI_MUSIK_AKTIF) !== 'off'; // default: nyala
+
+// Ikon tombol speaker mengikuti status PUTAR SUNGGUHAN dari elemen audio
+// (bgMusic.paused), bukan cuma preferensi tersimpan (musikAktif). Ini
+// penting karena browser sering menolak autoplay di awal — kalau ikon
+// dipaksa tampil "nyala" padahal audionya masih diam (paused), tombol jadi
+// butuh 2x tekan (tekan 1: dikira "lagi bunyi" jadi cuma di-pause padahal
+// memang belum bunyi; tekan 2: baru beneran play()). Dengan mengacu ke
+// bgMusic.paused, begitu autoplay ditolak ikon otomatis tampil "mati" —
+// jadi cukup 1x tekan untuk benar-benar menyalakan suaranya.
+function musikSedangBunyi() {
+    return !!(musikAktif && bgMusic && !bgMusic.paused);
+}
+
+function terapkanTampilanIkonMusik() {
+    if (!btnToggleMusik) return;
+    const bunyi = musikSedangBunyi();
+    btnToggleMusik.setAttribute('aria-pressed', bunyi ? 'true' : 'false');
+    btnToggleMusik.setAttribute('aria-label', bunyi ? 'Nonaktifkan musik latar' : 'Aktifkan musik latar');
+    iconMusikOn.classList.toggle('hidden', !bunyi);
+    iconMusikOff.classList.toggle('hidden', bunyi);
+}
+
+function putarMusikBackground() {
+    if (!bgMusic || !musikAktif) return;
+    bgMusic.volume = 0.35;
+    // .play() mengembalikan Promise; kalau ditolak (misal browser masih
+    // menganggap belum ada interaksi user yang valid), diamkan saja supaya
+    // tidak muncul error di console — tapi tetap perbarui ikon (jadi "mati")
+    // supaya tombol speaker mencerminkan kondisi yang sebenarnya, dan cukup
+    // 1x tekan berikutnya untuk menyalakan suaranya.
+    bgMusic.play().then(terapkanTampilanIkonMusik).catch(terapkanTampilanIkonMusik);
+}
+
+function jedaMusikBackground() {
+    if (!bgMusic) return;
+    bgMusic.pause();
+    terapkanTampilanIkonMusik();
+}
+
+if (btnToggleMusik) {
+    terapkanTampilanIkonMusik();
+    btnToggleMusik.addEventListener('click', () => {
+        // Cek kondisi audio yang SEBENARNYA saat ini, jangan cuma nilai
+        // musikAktif yang tersimpan — supaya 1x tekan selalu berujung ke
+        // aksi yang benar-benar terjadi (nyala beneran / mati beneran).
+        if (musikSedangBunyi()) {
+            musikAktif = false;
+            localStorage.setItem(KUNCI_MUSIK_AKTIF, 'off');
+            jedaMusikBackground();
+        } else {
+            musikAktif = true;
+            localStorage.setItem(KUNCI_MUSIK_AKTIF, 'on');
+            putarMusikBackground();
+        }
+        terapkanTampilanIkonMusik();
+    });
+}
+// ===== "Pembuka kunci" autoplay di sentuhan pertama =====
+// Browser memblokir audio berbunyi otomatis sebelum ada interaksi apa pun
+// dari pengguna di halaman ini (kebijakan autoplay browser, bukan bug).
+// Jadi kalau seseorang masuk otomatis ke dashboard karena sesi/riwayat
+// login tersimpan (tanpa sempat klik tombol apa pun), putarMusikBackground()
+// di atas kemungkinan besar ditolak diam-diam oleh browser.
+// Untuk menyiasatinya: begitu terdeteksi interaksi PERTAMA apa pun di
+// halaman (klik, ketuk, scroll, atau tekan tombol), musik langsung dicoba
+// diputar saat itu juga — supaya jedanya sekecil mungkin tanpa perlu
+// pengguna sengaja menekan tombol speaker.
+function bukaKunciMusikSaatSentuhanPertama() {
+    if (!musikAktif || (bgMusic && !bgMusic.paused)) {
+        lepasPendengarSentuhanPertama();
+        return;
+    }
+    putarMusikBackground();
+    lepasPendengarSentuhanPertama();
+}
+function lepasPendengarSentuhanPertama() {
+    ['pointerdown', 'touchstart', 'keydown', 'scroll'].forEach(evt => {
+        document.removeEventListener(evt, bukaKunciMusikSaatSentuhanPertama);
+    });
+}
+['pointerdown', 'touchstart', 'keydown', 'scroll'].forEach(evt => {
+    document.addEventListener(evt, bukaKunciMusikSaatSentuhanPertama, { passive: true });
 });
 // Dipanggil setelah login berhasil (baik lewat form email+sandi maupun
 // lewat tombol "Masuk dengan Google") — supaya kedua jalur login berujung
@@ -212,6 +356,7 @@ function selesaikanLogin(email, nama) {
     landingPage.classList.add('hidden');
     loginPage.classList.add('hidden');
     dashboardPage.classList.remove('hidden');
+    putarMusikBackground();
     pindahkanIndikatorNav(document.querySelector('.nav-item.active'), false);
     catatLoginPengunjung(email, nama);
     // Simpan sesi aktif supaya kalau halaman di-refresh (F5), pemain TIDAK
@@ -294,6 +439,12 @@ if (btnGoogleLogin) {
         }
         if (googleLoginError) googleLoginError.classList.add('hidden');
         btnGoogleLogin.disabled = true;
+        // Coba "buka kunci" audio langsung di sini, selagi masih dianggap
+        // gesture pengguna yang sah oleh browser — signInWithPopup di bawah
+        // ini asinkron (pakai .then()), dan begitu hasilnya baru muncul
+        // beberapa browser (terutama Safari) sudah tidak menganggapnya
+        // sebagai gesture pengguna lagi sehingga bgMusic.play() bisa ditolak.
+        putarMusikBackground();
         const provider = new firebase.auth.GoogleAuthProvider();
         // "select_account" memaksa Google selalu menampilkan jendela pilih akun
         // (bukan langsung login diam-diam ke akun terakhir) — supaya kalau HP
@@ -1331,6 +1482,9 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
     const btnAbsenHarian = document.getElementById('btnAbsenHarian');
     const elAbsenDesc = document.getElementById('absenDesc');
     const elAbsenStreak = document.getElementById('absenStreak');
+    const elAbsenTabung = document.getElementById('absenTabung');
+    const elAbsenTabungFill = document.getElementById('absenTabungFill');
+    const elAbsenTabungLabel = document.getElementById('absenTabungLabel');
     const btnAbsenInfo = document.getElementById('btnAbsenInfo');
     const panelAbsenInfoOverlay = document.getElementById('panelAbsenInfoOverlay');
     const btnTutupAbsenInfo = document.getElementById('btnTutupAbsenInfo');
@@ -1539,16 +1693,39 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             btnEditNamaPet.title = terkunci ? 'Nama pet sudah dikunci' : 'Beri nama pet (hanya sekali)';
         }
     }
-    function tampilkanLevelUpPet(stage) {
-        const toastLama = document.querySelector('.papan-toast');
-        if (toastLama) toastLama.remove();
-        const toast = document.createElement('div');
-        toast.className = 'papan-toast papan-toast-levelup';
+    // ===== Popup Pencapaian (achievement) generik =====
+    // Dipakai buat capaian yang "kelihatan" wujud barunya — pet naik level
+    // ATAU streak absen naik tier — beda dari toast poin biasa (yang cuma
+    // teks singkat), popup ini nongol lebih besar di tengah layar lengkap
+    // sama ikon/gambar capaiannya, biar berasa kayak "achievement unlocked"
+    // di game. ikonHtml boleh berisi <img> (pakai markupIkonPet) ATAU span
+    // sprite streak-tier-emoji — keduanya sama-sama didukung.
+    function tampilkanPencapaian({ ikonHtml, aura, badge, judul, subjudul, adaGambarImg }) {
+        const popupLama = document.querySelector('.pencapaian-popup');
+        if (popupLama) popupLama.remove();
+        const popup = document.createElement('div');
+        popup.className = 'pencapaian-popup';
+        popup.innerHTML = `
+            <span class="pencapaian-badge">${badge}</span>
+            <span class="pencapaian-ikon" style="--aura-color:${aura || 'rgba(244, 196, 48, 0.5)'}">${ikonHtml}</span>
+            <span class="pencapaian-judul">${judul}</span>
+            ${subjudul ? `<span class="pencapaian-sub">${subjudul}</span>` : ''}
+        `;
+        document.body.appendChild(popup);
+        if (adaGambarImg) pasangFallbackGambarPet(popup.querySelector('.pencapaian-ikon'));
+        mainkanSfxPencapaian();
+        setTimeout(() => popup.remove(), 3600);
+    }
+    function tampilkanLevelUpPet(stage, idx) {
         const namaStageIni = stage.pola(ambilNamaPetDasar());
-        toast.innerHTML = `<span class="levelup-emoji" style="--aura-color:${stage.aura}">${markupIkonPet(stage, namaStageIni)}</span> Pet-mu naik level jadi <strong>${namaStageIni}</strong>!`;
-        document.body.appendChild(toast);
-        pasangFallbackGambarPet(toast.querySelector('.levelup-emoji'));
-        setTimeout(() => toast.remove(), 2900);
+        tampilkanPencapaian({
+            ikonHtml: markupIkonPet(stage, namaStageIni),
+            aura: stage.aura,
+            badge: '🎉 Pet Naik Level!',
+            judul: `Level ${idx + 1} — ${namaStageIni}`,
+            subjudul: stage.desc,
+            adaGambarImg: true
+        });
     }
     function renderPetEvolusiList() {
         if (!petEvolusiList) return;
@@ -1896,9 +2073,9 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         const rekorBaru = ambilSkorTertinggi();
         elSkorTertinggi.textContent = rekorBaru;
         perbaruiTampilanPet();
-        const stageBaru = cariInfoStagePet(rekorBaru).stage;
+        const { stage: stageBaru, idx: idxBaru } = cariInfoStagePet(rekorBaru);
         if (stageBaru.min !== stageLama.min) {
-            tampilkanLevelUpPet(stageBaru);
+            tampilkanLevelUpPet(stageBaru, idxBaru);
         }
     }
     function perbaruiTampilanSkor() {
@@ -1979,6 +2156,11 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             aktifkanTile(tileTujuan);
             posisiTokenStabilTerakhir = index;
             simpanStateSesi();
+            // SFX cuma bunyi buat langkah gameplay beneran, bukan pas token
+            // pertama kali dipasang balik ke posisi tersimpan waktu halaman
+            // baru dibuka (instan === true khusus dipakai buat itu, lihat
+            // pindahkanTokenKeTile(posisiPemain, true) di pemulihan sesi).
+            if (!instan) mainkanSfxLangkahPion();
             // Nggak ada animasi buat ditunggu — langsung "selesai".
             return Promise.resolve();
         } else {
@@ -2073,6 +2255,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
                     tileTujuan.classList.add('baru-mendarat');
                     setTimeout(() => tileTujuan.classList.remove('baru-mendarat'), 500);
                     posisiTokenStabilTerakhir = index;
+                    mainkanSfxLangkahPion();
                     resolve();
                 };
             });
@@ -2086,6 +2269,62 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         toast.textContent = pesan;
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 2000);
+    }
+    // Sama seperti tampilkanToast(), tapi khusus dipakai di titik-titik yang
+    // poinSehat-nya beneran berubah (nambah ATAU berkurang) — ikut memutar
+    // SFX notifikasi. Toast yang tidak terkait poin (misal galat sinkron ke
+    // server) tetap pakai tampilkanToast() polos, tanpa bunyi ini.
+    function tampilkanToastPoin(pesan) {
+        mainkanSfxNotifPoin();
+        tampilkanToast(pesan);
+    }
+    // ===== SFX dadu — "tik" berkali-kali mengikuti laju putaran dadu =====
+    // File suaranya cuma ~125ms (pendek), sedangkan dadu berputar 1.7 detik
+    // dari kencang lalu melambat (lihat transition .dadu-kubus di CSS, pakai
+    // cubic-bezier(0.13, 0.82, 0.16, 1)). Solusinya: putar file SFX yang
+    // sama berkali-kali, TAPI jadwal waktunya dihitung dari kurva easing
+    // yang SAMA PERSIS dengan animasi dadunya — bukan interval tetap.
+    // Caranya: kurva easing itu di-sampling jadi tabel (t, progres), lalu
+    // dicari titik waktu yang progres-nya sama rata (mis. tiap naik 1/8
+    // bagian). Karena kurva ini naik cepat di awal & landai di akhir, jarak
+    // ANTAR titik waktu tsb otomatis rapat di awal (kedengeran "cepat") dan
+    // makin renggang menjelang berhenti (kedengeran "melambat") — persis
+    // ngikutin gerakan visual dadunya, tanpa perlu 8 file suara beda-beda.
+    const DURASI_KOCOK_DADU = 1700; // ms — HARUS sama persis dengan transition .dadu-kubus di style.css
+    const KURVA_DADU_P1 = { x: 0.13, y: 0.82 };
+    const KURVA_DADU_P2 = { x: 0.16, y: 1 };
+    const TARGET_PROGRES_TIK_DADU = [0.06, 0.14, 0.24, 0.36, 0.50, 0.66, 0.82, 0.95];
+    function bangunTabelKurvaDadu(jumlahSampel = 1000) {
+        const tabel = [];
+        for (let i = 0; i <= jumlahSampel; i++) {
+            const t = i / jumlahSampel;
+            const mt = 1 - t;
+            const y = 3 * mt * mt * t * KURVA_DADU_P1.y + 3 * mt * t * t * KURVA_DADU_P2.y + t * t * t;
+            tabel.push({ t, y });
+        }
+        return tabel;
+    }
+    const TABEL_KURVA_DADU = bangunTabelKurvaDadu();
+    function jadwalTikDadu() {
+        return TARGET_PROGRES_TIK_DADU.map(target => {
+            const titik = TABEL_KURVA_DADU.find(p => p.y >= target) || TABEL_KURVA_DADU[TABEL_KURVA_DADU.length - 1];
+            return Math.round(titik.t * DURASI_KOCOK_DADU);
+        });
+    }
+    const sfxDadu = document.getElementById('sfxDadu');
+    function mainkanSfxDadu() {
+        if (!sfxDadu) return;
+        try {
+            // cloneNode dipakai (bukan currentTime = 0 di elemen yang sama)
+            // karena di sini SFX-nya sengaja bakal tumpang tindih rapat-rapat
+            // (jarak antar tik di awal bisa cuma ~40-60ms, lebih pendek dari
+            // durasi filenya sendiri ~125ms) — kalau pakai satu elemen yang
+            // sama, tiap play() baru bakal motong play() sebelumnya jadi
+            // kedengeran putus-putus, bukan menumpuk rapat kayak dadu asli.
+            const salinan = sfxDadu.cloneNode(true);
+            salinan.volume = 0.5;
+            salinan.play().catch(() => {});
+        } catch (err) { /* abaikan, SFX opsional & tidak boleh menghentikan gameplay */ }
     }
     function kocokDadu() {
         if (sedangJalan) return;
@@ -2106,12 +2345,16 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         dadu3dRotX += putaranX + selisihX;
         dadu3dRotY += putaranY + selisihY;
         elDadu.style.transform = `rotateX(${dadu3dRotX}deg) rotateY(${dadu3dRotY}deg)`;
+        // Jadwalkan tik SFX dadu mengikuti kurva easing yang sama dengan
+        // animasi visualnya (lihat jadwalTikDadu()) — rapat di awal, makin
+        // renggang menjelang berhenti.
+        jadwalTikDadu().forEach(ms => window.setTimeout(mainkanSfxDadu, ms));
         // Nunggu sampai animasi dadu (transition 1.7s di CSS) beneran
         // selesai baru pion mulai melompat, biar hasil dadu & laju pion
         // singkron dan tidak kepotong.
         window.setTimeout(() => {
             langkahkanPemain(hasil);
-        }, 1700);
+        }, DURASI_KOCOK_DADU);
     }
     function langkahkanPemain(sisaLangkah) {
         if (sisaLangkah <= 0) {
@@ -2130,7 +2373,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
                 jumlahLap++;
                 poinSehat += 10;
                 perbaruiTampilanSkor();
-                tampilkanToast('🎉 Keliling papan! +10 Poin Sehat');
+                tampilkanToastPoin('🎉 Keliling papan! +10 Poin Sehat');
             }
             langkahkanPemain(sisaLangkah - 1);
         });
@@ -2190,7 +2433,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             elEventTeks.textContent = tile.teks;
             poinSehat = Math.max(0, poinSehat + tile.poin);
             perbaruiTampilanSkor();
-            tampilkanToast(`${tile.ikon} ${tile.poin >= 0 ? '+' : ''}${tile.poin} Poin Sehat!`);
+            tampilkanToastPoin(`${tile.ikon} ${tile.poin >= 0 ? '+' : ''}${tile.poin} Poin Sehat!`);
             mulaiJedaLanjut(tile.teks, tutupEvent);
         } else if (tile.tipe === 'info') {
             const faktaAcak = ambilFaktaKotakAcak();
@@ -2202,7 +2445,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             elEventFeedback.textContent = '✅ +5 Poin Sehat!';
             elEventFeedback.className = 'game-feedback feedback-benar';
             elEventFeedback.classList.remove('hidden');
-            tampilkanToast('📌 +5 Poin Sehat!');
+            tampilkanToastPoin('📌 +5 Poin Sehat!');
             mulaiJedaLanjut(faktaAcak.teks, tutupEvent);
         } else if (tile.tipe === 'bonus' || tile.tipe === 'jebakan') {
             const kejadianAcak = tile.tipe === 'bonus' ? ambilBonusAcak() : ambilJebakanAcak();
@@ -2243,7 +2486,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         elEventFeedback.innerHTML = `<strong class="game-feedback-verdict">${benar ? '✅ Benar! +10 Poin Sehat.' : '❌ Belum tepat, -5 Poin Sehat.'}</strong> <span class="game-feedback-penjelasan">${escapeHtml(tile.penjelasan)}</span>`;
         elEventFeedback.className = `game-feedback ${benar ? 'feedback-benar' : 'feedback-salah'}`;
         elEventFeedback.classList.remove('hidden');
-        tampilkanToast(benar ? '✅ +10 Poin Sehat!' : '❌ -5 Poin Sehat');
+        tampilkanToastPoin(benar ? '✅ +10 Poin Sehat!' : '❌ -5 Poin Sehat');
         btnLanjutEvent.classList.remove('hidden');
         btnLanjutEvent.onclick = tutupEvent;
     }
@@ -2274,6 +2517,55 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
     const KUNCI_ABSEN_TERAKHIR = 'sobatSehatAbsenTerakhir';
     const KUNCI_ABSEN_STREAK = 'sobatSehatAbsenStreak';
     const KUNCI_ABSEN_STREAK_REKOR = 'sobatSehatAbsenStreakRekor';
+    // Bonus Absen Penuh 7 Hari: tiap kelipatan 7 hari absen beruntun tanpa
+    // putus, siswa dapat Poin Sehat tambahan di luar +10 poin absen harian.
+    const BONUS_ABSEN_KELIPATAN_HARI = 7;
+    const BONUS_ABSEN_POIN = 20;
+    // ===== Streak putus karena kelewatan hari =====
+    // Streak cuma valid kalau absen terakhir itu HARI INI atau KEMARIN.
+    // Kalau absen terakhir lebih lama dari kemarin (siswa lewat 1 hari atau
+    // lebih tanpa absen), maka streak sudah putus — dan ini harus kelihatan
+    // dari SEKARANG (begitu halaman dibuka/dicek), bukan nunggu sampai siswa
+    // absen lagi baru streak-nya dikoreksi. Rekor (KUNCI_ABSEN_STREAK_REKOR)
+    // tidak disentuh sama sekali di sini — capaian terpanjang tetap tersimpan.
+    function streakSudahPutus() {
+        const terakhir = localStorage.getItem(kunciAkunAktif(KUNCI_ABSEN_TERAKHIR));
+        if (!terakhir) return false; // belum pernah absen sama sekali -> bukan "putus"
+        const hariIni = formatTanggal(new Date());
+        if (terakhir === hariIni) return false; // sudah absen hari ini
+        const kemarin = new Date();
+        kemarin.setDate(kemarin.getDate() - 1);
+        return terakhir !== formatTanggal(kemarin); // selain hari ini/kemarin -> putus
+    }
+    // Sumber tunggal buat baca streak saat ini: kalau ternyata sudah putus,
+    // nilai yang tersimpan langsung dikoreksi ke 0 (self-heal) supaya seluruh
+    // bagian UI & sinkronisasi cloud konsisten memakai angka yang benar.
+    function ambilStreakSaatIni() {
+        if (streakSudahPutus()) {
+            localStorage.setItem(kunciAkunAktif(KUNCI_ABSEN_STREAK), '0');
+            return 0;
+        }
+        return Number(localStorage.getItem(kunciAkunAktif(KUNCI_ABSEN_STREAK))) || 0;
+    }
+    // Posisi siklus tabung bonus 7-hari dari streak saat ini: hari ke-1 dari
+    // streak = 1/7 terisi, hari ke-7 = 7/7 (penuh, dapat bonus), lalu hari
+    // ke-8 mulai lagi dari 1/7 (kosong dulu, baru terisi) — bukan lanjut ke
+    // 8/7. streak 0 (belum absen sama sekali / streak putus) = tabung kosong.
+    function posisiTabungBonus(streak) {
+        if (!streak || streak <= 0) return 0;
+        return ((streak - 1) % BONUS_ABSEN_KELIPATAN_HARI) + 1;
+    }
+    // Render visual tabung: tinggi cairan mengikuti persentase posisi/7, dan
+    // kelas "penuh" ditambahkan pas persis kelipatan 7 buat efek berdenyut +
+    // ikon hadiah menyala menandakan bonus sudah didapat.
+    function perbaruiTabungBonus(streak) {
+        if (!elAbsenTabungFill) return;
+        const posisi = posisiTabungBonus(streak);
+        const persen = (posisi / BONUS_ABSEN_KELIPATAN_HARI) * 100;
+        elAbsenTabungFill.style.height = `${persen}%`;
+        if (elAbsenTabungLabel) elAbsenTabungLabel.textContent = `${posisi}/${BONUS_ABSEN_KELIPATAN_HARI}`;
+        if (elAbsenTabung) elAbsenTabung.classList.toggle('penuh', posisi === BONUS_ABSEN_KELIPATAN_HARI);
+    }
     // ===== Sinkronisasi progres game ke Firestore =====
     // localStorage itu per-device/per-browser, jadi kalau cuma disimpan di situ,
     // progres game (Poin Sehat, posisi papan, skor tertinggi, nama pet, streak
@@ -2290,7 +2582,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             jumlahLap: Number(localStorage.getItem(kunciAkunAktif(KUNCI_LAP_SESI_BASE))) || 0,
             skorTertinggi: Number(localStorage.getItem(kunciAkunAktif(KUNCI_SKOR_TERTINGGI))) || 0,
             absenTerakhir: localStorage.getItem(kunciAkunAktif(KUNCI_ABSEN_TERAKHIR)),
-            absenStreak: Number(localStorage.getItem(kunciAkunAktif(KUNCI_ABSEN_STREAK))) || 0,
+            absenStreak: ambilStreakSaatIni(),
             absenStreakRekor: Number(localStorage.getItem(kunciAkunAktif(KUNCI_ABSEN_STREAK_REKOR))) || 0
         };
     }
@@ -2371,7 +2663,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
     // tetap langsung dapat rekor yang benar tanpa perlu migrasi data.
     function ambilRekorStreak() {
         const rekorTersimpan = Number(localStorage.getItem(kunciAkunAktif(KUNCI_ABSEN_STREAK_REKOR))) || 0;
-        const streakSaatIni = Number(localStorage.getItem(kunciAkunAktif(KUNCI_ABSEN_STREAK))) || 0;
+        const streakSaatIni = ambilStreakSaatIni();
         return Math.max(rekorTersimpan, streakSaatIni);
     }
     // ===== Milestone api Streak Absen — makin panjang streak-nya, api 🔥
@@ -2414,7 +2706,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
     }
     function renderAbsenTierList() {
         if (!absenTierList) return;
-        const streakSaatIni = Number(localStorage.getItem(kunciAkunAktif(KUNCI_ABSEN_STREAK))) || 0;
+        const streakSaatIni = ambilStreakSaatIni();
         const tierAktif = cariTierStreak(streakSaatIni);
         absenTierList.innerHTML = STREAK_TIERS.map((t) => `
             <li class="pet-evolusi-item ${t.kelas}${t.kelas === tierAktif.kelas ? ' pet-evolusi-aktif' : ''}">
@@ -2449,10 +2741,11 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         btnAbsenHarian.disabled = sudahAbsenHariIni;
         btnAbsenHarian.textContent = sudahAbsenHariIni ? '✓ Sudah Absen' : 'Absen Sekarang';
         elAbsenDesc.textContent = sudahAbsenHariIni ? 'Absen hari ini selesai ✓' : 'Belum absen hari ini';
-        const streakSaatIni = Number(localStorage.getItem(kunciAkunAktif(KUNCI_ABSEN_STREAK))) || 0;
+        const streakSaatIni = ambilStreakSaatIni();
         elAbsenStreak.textContent = streakSaatIni;
         terapkanTierStreak(streakSaatIni);
         if (elAbsenStreakRekor) elAbsenStreakRekor.textContent = ambilRekorStreak();
+        perbaruiTabungBonus(streakSaatIni);
     }
     function absenHariIni() {
         const hariIni = new Date();
@@ -2461,7 +2754,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         if (terakhir === strHariIni) return; // jaga-jaga: sudah absen hari ini
         const kemarin = new Date(hariIni);
         kemarin.setDate(kemarin.getDate() - 1);
-        const streakSebelumnya = Number(localStorage.getItem(kunciAkunAktif(KUNCI_ABSEN_STREAK))) || 0;
+        const streakSebelumnya = ambilStreakSaatIni();
         const streakBaru = (terakhir === formatTanggal(kemarin)) ? streakSebelumnya + 1 : 1;
         localStorage.setItem(kunciAkunAktif(KUNCI_ABSEN_TERAKHIR), strHariIni);
         localStorage.setItem(kunciAkunAktif(KUNCI_ABSEN_STREAK), String(streakBaru));
@@ -2474,16 +2767,42 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         }
         jadwalkanSinkronProgresGame();
         poinSehat += 10;
+        // ===== Bonus Absen Penuh 7 Hari =====
+        // Tiap kelipatan 7 hari beruntun (7, 14, 21, ...) siswa dapat bonus
+        // +20 Poin Sehat TAMBAHAN di luar +10 poin absen harian biasa.
+        // Dicek dari streakBaru (bukan streakSebelumnya) supaya bonus ini
+        // ikut aktif lagi tiap kali kelipatan 7 tercapai selama streak-nya
+        // terus berlanjut tanpa putus.
+        const dapatBonusMingguan = streakBaru > 0 && streakBaru % BONUS_ABSEN_KELIPATAN_HARI === 0;
+        if (dapatBonusMingguan) {
+            poinSehat += BONUS_ABSEN_POIN;
+        }
         perbaruiTampilanSkor();
         perbaruiTampilanAbsen();
         const tierSebelumnya = cariTierStreak(streakSebelumnya);
         const tierBaru = cariTierStreak(streakBaru);
-        if (rekorPecah && streakBaru > 1) {
-            tampilkanToast(`🏆 Rekor baru! Streak ${streakBaru} hari — terpanjang yang pernah kamu capai`);
+        // Popup pencapaian buat naik tier api (independen dari toast poin di
+        // bawah — bisa saja tampil bareng "Rekor baru"/"Bonus 7 hari" kalau
+        // kebetulan terjadi di absen yang sama, teksnya beda tapi keduanya
+        // tetap sah-sah aja muncul).
+        if (tierBaru.kelas !== tierSebelumnya.kelas) {
+            tampilkanPencapaian({
+                ikonHtml: `<span class="streak-tier-emoji ${tierBaru.kelas}"></span>`,
+                badge: '🔥 Streak Naik Tingkat!',
+                judul: `${streakBaru} Hari Beruntun`,
+                subjudul: tierBaru.label
+            });
+        }
+        if (dapatBonusMingguan && rekorPecah) {
+            tampilkanToastPoin(`🏆🎁 ${streakBaru} hari penuh berturut-turut — Rekor baru + Bonus +${BONUS_ABSEN_POIN} Poin Sehat!`);
+        } else if (dapatBonusMingguan) {
+            tampilkanToastPoin(`🎁 Absen penuh ${streakBaru} hari beruntun — Bonus +${BONUS_ABSEN_POIN} Poin Sehat!`);
+        } else if (rekorPecah && streakBaru > 1) {
+            tampilkanToastPoin(`🏆 Rekor baru! Streak ${streakBaru} hari — terpanjang yang pernah kamu capai`);
         } else if (tierBaru.kelas !== tierSebelumnya.kelas) {
-            tampilkanToast(`🔥 Streak naik ke ${streakBaru} hari — ${tierBaru.label}`);
+            tampilkanToastPoin(`🔥 Streak naik ke ${streakBaru} hari — ${tierBaru.label}`);
         } else {
-            tampilkanToast('🎉 Absen berhasil! +10 Poin Sehat');
+            tampilkanToastPoin('🎉 Absen berhasil! +10 Poin Sehat');
         }
     }
     // ===== Bank Fakta Sehat Absen — fakta/arahan singkat seputar pencegahan
