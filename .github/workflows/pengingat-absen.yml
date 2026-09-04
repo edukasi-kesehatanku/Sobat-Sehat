@@ -1,0 +1,32 @@
+name: Pengingat Absen Harian
+
+on:
+  schedule:
+    # 11:00 UTC = 19:00 WITA (Asia/Makassar, UTC+8).
+    # GitHub Actions cron SELALU pakai UTC, jadi jam WITA-nya harus
+    # dikonversi manual di sini. Kalau mau ganti jam kirimnya, kurangi
+    # 8 dari jam WITA yang diinginkan buat dapat jam UTC-nya.
+    - cron: '0 11 * * *'
+  # Supaya bisa dites manual kapan aja lewat tab "Actions" di GitHub,
+  # tanpa perlu nunggu jadwal cron di atas.
+  workflow_dispatch: {}
+
+jobs:
+  kirim-pengingat:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Kirim pengingat absen
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: npm run kirim
