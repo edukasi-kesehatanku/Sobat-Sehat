@@ -1,0 +1,13 @@
+{
+  "name": "sobat-sehat-pengingat-absen",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Script pengingat absen harian Sobat Sehat, dijalankan otomatis oleh GitHub Actions",
+  "main": "scripts/kirim-pengingat-absen.js",
+  "scripts": {
+    "kirim": "node scripts/kirim-pengingat-absen.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.1.0"
+  }
+}
