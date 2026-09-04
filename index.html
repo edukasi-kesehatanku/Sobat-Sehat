@@ -198,13 +198,14 @@
                 <nav class="breadcrumb" aria-label="Breadcrumb"> <button type="button" class="breadcrumb-link" data-breadcrumb-target="dashboard">Dashboard</button>
                     <span class="breadcrumb-sep">/</span> <span class="breadcrumb-current">Game</span> </nav>
                 <div class="detail-block" style="margin-bottom:8px;"> <button id="btnKembaliDashboardGame" class="btn-kembali">← Kembali ke Dashboard</button> </div>
-                <div class="game-layout"> <div class="game-wrap"> <div class="game-intro"> <h1 class="game-title">🎲 Ayo Main Game!</h1>
+                <div class="game-layout"> <div class="game-wrap"> <div class="game-intro"> <span class="dash-hero-badge">🎮 Waktunya main & belajar!</span>
+                            <h1 class="game-title">🎲 Ayo Main Game!</h1>
                             <p class="game-subtitle">Kocok dadu, jalan keliling papan, dan kumpulkan Poin Sehat sebanyak-banyaknya. Hati-hati sama kotak jebakan gula!</p>
                             <button type="button" class="btn-aturan-main" id="btnAturanMain">📖 Aturan Main</button> </div>
-                        <div class="game-skor-bar"> <div class="game-skor-item"> <span class="game-skor-label">Poin Sehat</span> <span class="game-skor-nilai" id="gamePoin">0</span> </div>
+                        <div class="game-skor-bar"> <div class="game-skor-item"> <span class="game-skor-label">Poin</span> <span class="game-skor-nilai" id="gamePoin">0</span> </div>
                             <div class="game-skor-item"> <span class="game-skor-label">Putaran</span> <span class="game-skor-nilai" id="gameLap">0</span> </div> <div class="game-skor-item">
-                                <span class="game-skor-label">Skor Tertinggi</span> <span class="game-skor-nilai" id="gameSkorTertinggi">0</span> </div>
-                            <div class="game-skor-item game-skor-streak" id="gameStreakKuisItem" title="Jawab 5 kuis benar berturut-turut untuk bonus +20 Poin Sehat"> <span class="game-skor-label">🔥 Kuis Beruntun</span> <span class="game-skor-nilai" id="gameStreakKuisNilai">0/5</span> <div class="streak-kuis-track"> <div class="streak-kuis-fill" id="gameStreakKuisFill"></div> </div> </div> </div>
+                                <span class="game-skor-label">Poin Tertinggi</span> <span class="game-skor-nilai" id="gameSkorTertinggi">0</span> </div>
+                            <div class="game-skor-item game-skor-streak" id="gameStreakKuisItem" title="Jawab 5 kuis benar berturut-turut untuk bonus +20 Poin Sehat"> <span class="game-skor-label">🔥 Bonus</span> <span class="game-skor-nilai" id="gameStreakKuisNilai">0/5</span> <div class="streak-kuis-track"> <div class="streak-kuis-fill" id="gameStreakKuisFill"></div> </div> </div> </div>
                         <div class="papan-container"> <div class="papan-grid" id="papanGrid"> <div class="papan-tengah"> <div class="dadu-scene"> <div class="dadu-kubus" id="papanDadu">
                                         <div class="dadu-sisi dadu-depan"> <span class="dadu-titik mc"></span> </div>
                                         <div class="dadu-sisi dadu-atas"> <span class="dadu-titik tl"></span> <span class="dadu-titik br"></span> </div>
@@ -245,6 +246,7 @@
                         <h3 class="panel-event-judul">Aturan Main</h3> <ul class="aturan-list">
                             <li><strong>Kocok Dadu</strong> — tekan tombol, token kamu jalan sebanyak angka dadu yang keluar (1-6), satu kotak demi satu kotak.</li>
                             <li><span class="aturan-ikon">❓</span> <strong>Kuis</strong> — jawab pertanyaan seputar gula & kesehatan. Benar +10 Poin Sehat, salah -5 Poin Sehat (lengkap penjelasannya).</li>
+                            <li><span class="aturan-ikon">🔥</span> <strong>Bonus Kuis Beruntun</strong> — jawab 5 kuis BENAR secara berturut-turut (tanpa diselingi jawaban salah) dapat tambahan +20 Poin Sehat. Progresnya kelihatan di kotak "🔥 Bonus" pada baris skor — kalau ada jawaban salah, hitungannya balik ke 0 dan mulai dari awal lagi.</li>
                             <li><span class="aturan-ikon">📌</span> <strong>Fakta</strong> — baca info singkat, otomatis dapat +5 Poin Sehat.</li>
                             <li><span class="aturan-ikon">💧</span> <strong>Bonus</strong> — kebiasaan baik, token maju beberapa langkah tambahan.</li>
                             <li><span class="aturan-ikon">🍩</span> <strong>Jebakan</strong> — kebiasaan kurang sehat, token mundur beberapa langkah.</li>
