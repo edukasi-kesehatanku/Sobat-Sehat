@@ -179,6 +179,10 @@
                         <button class="tips-card dash-feature-card" data-target="tips"> <span class="dash-feature-step">3</span> <span class="tips-card-icon">💡</span> <span class="tips-card-title">Terapkan</span>
                             <span class="tips-card-desc">Temukan tips sederhana yang dapat membantu membangun kebiasaan memilih makanan dan minuman dengan lebih sadar.</span>
                             <span class="tips-card-cta">LIHAT TIPS →</span> </button>
+                        <span class="dash-feature-arrow" aria-hidden="true">→</span>
+                        <button class="tips-card dash-feature-card" data-target="game"> <span class="dash-feature-step">4</span> <span class="tips-card-icon">🎲</span> <span class="tips-card-title">Main</span>
+                            <span class="tips-card-desc">Uji pemahamanmu sambil main game papan seru, kumpulkan Poin Sehat, dan kembangkan pet-mu.</span>
+                            <span class="tips-card-cta">MAIN GAME →</span> </button>
                     </div> </div>
                 <div class="detail-block dash-reflect-block"> <div class="dash-reflect-icon">🌱</div> <h2 class="materi-section-title">Mulai dari Dirimu</h2>
                     <p class="materi-intro-text">Setiap hari kita membuat pilihan tentang apa yang kita makan dan minum. Tapi, seberapa sadar kita terhadap pilihan tersebut?</p>
@@ -199,7 +203,8 @@
                             <button type="button" class="btn-aturan-main" id="btnAturanMain">📖 Aturan Main</button> </div>
                         <div class="game-skor-bar"> <div class="game-skor-item"> <span class="game-skor-label">Poin Sehat</span> <span class="game-skor-nilai" id="gamePoin">0</span> </div>
                             <div class="game-skor-item"> <span class="game-skor-label">Putaran</span> <span class="game-skor-nilai" id="gameLap">0</span> </div> <div class="game-skor-item">
-                                <span class="game-skor-label">Skor Tertinggi</span> <span class="game-skor-nilai" id="gameSkorTertinggi">0</span> </div> </div>
+                                <span class="game-skor-label">Skor Tertinggi</span> <span class="game-skor-nilai" id="gameSkorTertinggi">0</span> </div>
+                            <div class="game-skor-item game-skor-streak" id="gameStreakKuisItem" title="Jawab 5 kuis benar berturut-turut untuk bonus +20 Poin Sehat"> <span class="game-skor-label">🔥 Kuis Beruntun</span> <span class="game-skor-nilai" id="gameStreakKuisNilai">0/5</span> <div class="streak-kuis-track"> <div class="streak-kuis-fill" id="gameStreakKuisFill"></div> </div> </div> </div>
                         <div class="papan-container"> <div class="papan-grid" id="papanGrid"> <div class="papan-tengah"> <div class="dadu-scene"> <div class="dadu-kubus" id="papanDadu">
                                         <div class="dadu-sisi dadu-depan"> <span class="dadu-titik mc"></span> </div>
                                         <div class="dadu-sisi dadu-atas"> <span class="dadu-titik tl"></span> <span class="dadu-titik br"></span> </div>
@@ -219,7 +224,10 @@
                         <div class="absen-card"> <button type="button" class="pet-info-btn" id="btnAbsenInfo" aria-label="Info cara kerja Streak Absen">?</button>
                             <div class="absen-card-konten"> <span class="absen-icon-api streak-tier-emoji streak-tier-0" id="absenIconApi" title="Streak Absen" aria-hidden="true"></span> <h3 class="absen-title">Absen Harian</h3>
                                 <button type="button" class="btn-absen" id="btnAbsenHarian">Absen Sekarang</button> <p class="absen-desc" id="absenDesc">Belum absen hari ini</p> <div class="absen-streak"> <div class="absen-streak-top-row"> <span class="absen-streak-label">Streak Absen</span> <span class="absen-streak-rekor" id="absenStreakRekor" title="Rekor Streak Absen terpanjang di akun ini">🏆 <span id="absenStreakRekorNilai">0</span></span> </div>
-                                    <span class="absen-streak-nilai" id="absenStreakNilai"><span id="absenStreak">0</span> hari</span> </div> </div>
+                                    <span class="absen-streak-nilai" id="absenStreakNilai"><span id="absenStreak">0</span> hari</span> </div>
+                                <button type="button" class="btn-notif-absen hidden" id="btnAktifkanNotifikasi">🔔 Aktifkan Pengingat Absen</button>
+                                <p class="notif-absen-status hidden" id="notifAbsenStatus"></p>
+                            </div>
                             <div class="absen-tabung" id="absenTabung" title="Progres menuju bonus +20 Poin Sehat tiap 7 hari absen penuh"> <span class="absen-tabung-hadiah" id="absenTabungHadiah">🎁</span> <div class="absen-tabung-track"> <div class="absen-tabung-fill" id="absenTabungFill"></div> </div> <span class="absen-tabung-label" id="absenTabungLabel">0/7</span> </div> </div> </aside> </div>
                 <div class="panel-event-overlay hidden" id="panelAbsenInfoOverlay"> <div class="panel-event panel-aturan panel-pet-info"> <span class="panel-event-icon panel-event-icon-streak streak-tier-emoji streak-tier-7" aria-hidden="true"></span>
                         <h3 class="panel-event-judul">Cara Kerja Streak Absen</h3>
@@ -1716,9 +1724,9 @@
                     Politeknik Kesehatan Kementerian Kesehatan Kalimantan Timur </p> <p class="site-footer-copyright">&copy; 2026</p> </footer>
         </div> </div>
     <script src="https://cdn.jsdelivr.net/npm/@twemoji/api@17.0.3/dist/twemoji.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
     <script src="firebase-config.js"></script>
-    <script src="javascript.js?v=20260823"></script>
+    <script src="javascript.js?v=20260903"></script>
     <script src="sfx.js?v=20260828"></script>
     <script>
         (function () {

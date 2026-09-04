@@ -420,7 +420,7 @@ to { opacity: 1; transform: translateY(0); }
 50% { transform: translateY(-8px) rotate(3deg); }
 }
 .dash-feature-block .materi-section-title { margin-bottom: 6px; }
-.dash-feature-grid { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: stretch; gap: 16px; }
+.dash-feature-grid { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr; align-items: stretch; gap: 16px; }
 .dash-feature-card { position: relative; }
 .dash-feature-step { position: absolute; top: 14px; right: 14px; width: 24px; height: 24px; border-radius: 50%; background-color: var(--color-primary); color: #ffffff; font-size: 0.72rem; font-weight: 800; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(44, 62, 80, 0.25); }
 .dash-feature-card .tips-card-icon { display: flex; align-items: center; justify-content: center; width: 56px; height: 56px; border-radius: 50%; font-size: 1.8rem; margin-bottom: 4px; }
@@ -438,6 +438,9 @@ to { opacity: 1; transform: translateY(0); }
 .dash-feature-grid .dash-feature-card:nth-of-type(3) .tips-card-icon { background-color: rgba(39, 174, 96, 0.14); }
 .dash-feature-grid .dash-feature-card:nth-of-type(3) .dash-feature-step { background-color: var(--color-success); }
 .dash-feature-grid .dash-feature-card:nth-of-type(3) .tips-card-cta { color: var(--color-success); }
+.dash-feature-grid .dash-feature-card:nth-of-type(4) .tips-card-icon { background-color: rgba(155, 89, 182, 0.14); }
+.dash-feature-grid .dash-feature-card:nth-of-type(4) .dash-feature-step { background-color: #9b59b6; }
+.dash-feature-grid .dash-feature-card:nth-of-type(4) .tips-card-cta { color: #8e44ad; }
 .dash-reflect-block { text-align: center; background: linear-gradient(160deg, #f4fbf6 0%, #ffffff 100%); border: 1.5px solid #dff3e4; }
 .dash-reflect-icon { width: 54px; height: 54px; margin: 0 auto 10px; border-radius: 50%; background-color: #eafaf1; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; box-shadow: 0 4px 12px rgba(39, 174, 96, 0.2); }
 .dash-closing-card { position: relative; background: linear-gradient(135deg, #eafaf1 0%, #eaf4fb 55%, #fff7ea 100%); }
@@ -1115,6 +1118,17 @@ button.sm-chip.sm-chip-active { background-color: #3498db; border-color: #3498db
 .btn-absen:active:not(:disabled) { transform: translateY(1px) scale(0.98); border-bottom-width: 1px; }
 .btn-absen:disabled { opacity: 0.55; cursor: not-allowed; transform: none; border-bottom-color: transparent; }
 .absen-streak { margin-top: 10px; padding-top: 8px; border-top: 1.5px dashed #bfe6cf; }
+/* Tombol kecil buat minta izin notifikasi browser (pengingat absen harian).
+   Sengaja dibuat "outline"/lebih ringan dari .btn-absen (hijau solid) biar
+   nggak bersaing secara visual — ini aksi opsional/sekunder, bukan aksi
+   utama kartu. Disembunyikan otomatis lewat JS begitu izin sudah aktif
+   atau kalau browser tidak mendukung notifikasi sama sekali. */
+.btn-notif-absen { width: 100%; margin-top: 10px; padding: 8px 10px; background: #ffffff; color: var(--color-accent-dark); border: 1.5px solid #ffcf8a; border-radius: var(--radius-pill); font-weight: 700; font-size: 0.68rem; cursor: pointer; transition: background-color 0.15s ease, transform 0.1s ease; }
+.btn-notif-absen:hover { background: #fff3e2; transform: translateY(-1px); }
+.btn-notif-absen:disabled { opacity: 0.6; cursor: default; transform: none; }
+.notif-absen-status { margin-top: 6px; font-size: 0.66rem; font-weight: 600; text-align: center; color: var(--color-text-muted); }
+.notif-absen-status.status-aktif { color: var(--color-success); }
+.notif-absen-status.status-ditolak { color: var(--color-danger); }
 .absen-streak-top-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-wrap: wrap; margin-bottom: 2px; }
 .absen-streak-label { font-size: 0.62rem; color: var(--color-text-muted); }
 .absen-streak-rekor { display: inline-flex; align-items: center; gap: 2px; font-size: 0.6rem; font-weight: 800; line-height: 1; color: #b9770e; background: rgba(255, 255, 255, 0.8); border: 1px solid #f2d9a8; border-radius: 999px; padding: 3px 6px; white-space: nowrap; flex-shrink: 0; }
@@ -1225,6 +1239,20 @@ to { opacity: 1; transform: translateY(0) scale(1); }
 }
 .game-skor-label { display: block; font-size: 0.72rem; color: var(--color-text-muted); font-weight: 600; }
 .game-skor-nilai { display: block; font-size: 1.4rem; font-weight: 800; color: var(--color-primary); }
+/* Kotak "Kuis Beruntun" — gauge horizontal yang terisi tiap kali kuis
+   dijawab BENAR (reset ke kosong kalau ada jawaban salah), dan berkedip
+   penuh sesaat begitu mencapai 5/5 sebagai penanda bonus +20 Poin Sehat
+   sudah didapat (lihat perbaruiTampilanStreakKuis() di javascript.js). */
+.game-skor-item.game-skor-streak { border-color: #ffcf8a; background: linear-gradient(160deg, #ffffff, #fff3e2); }
+.streak-kuis-track { position: relative; width: 100%; height: 8px; margin-top: 8px; background: linear-gradient(90deg, #fff4e8, #ffe4c2); border: 2px solid #ffcf8a; border-radius: 999px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(140, 80, 10, 0.15); }
+.streak-kuis-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #ff8a5c, #f4c430, #2ecc71); background-size: 200% 100%; border-radius: 999px; transition: width 0.4s cubic-bezier(0.34, 1.4, 0.64, 1); animation: tabungShimmerH 2.4s linear infinite; }
+@keyframes tabungShimmerH {
+0% { background-position: 0% 50%; }
+100% { background-position: 200% 50%; }
+}
+.game-skor-item.game-skor-streak.penuh { border-color: #ff8a5c; animation: skorPopIn 0.3s ease; }
+.game-skor-item.game-skor-streak.penuh .streak-kuis-fill { animation: tabungShimmerH 0.9s linear infinite, tabungPenuhBerdenyut 1s ease-in-out infinite; }
+.game-skor-item.game-skor-streak.penuh .game-skor-nilai { animation: tabungHadiahMuncul 0.5s ease; color: #e07118; }
 .papan-container { position: relative; display: flex; justify-content: center; padding: 20px; background: linear-gradient(160deg, #eaf4fb, #fdf1ea 55%, #fdeaf1); border-radius: 28px; box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.8), 0 8px 28px rgba(31, 51, 71, 0.1); overflow: hidden; }
 .papan-container::before { content: "⭐"; position: absolute; top: 10px; left: 16px; font-size: 1rem; opacity: 0.35; animation: floatDeco 4s ease-in-out infinite; }
 .papan-container::after { content: "🎈"; position: absolute; bottom: 10px; right: 18px; font-size: 1.1rem; opacity: 0.35; animation: floatDeco 5s ease-in-out infinite 0.6s; }

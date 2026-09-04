@@ -1529,6 +1529,9 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
     const elPoin = document.getElementById('gamePoin');
     const elLap = document.getElementById('gameLap');
     const elSkorTertinggi = document.getElementById('gameSkorTertinggi');
+    const elStreakKuisItem = document.getElementById('gameStreakKuisItem');
+    const elStreakKuisNilai = document.getElementById('gameStreakKuisNilai');
+    const elStreakKuisFill = document.getElementById('gameStreakKuisFill');
     const elDadu = document.getElementById('papanDadu');
     const btnKocok = document.getElementById('btnKocokDadu');
     const btnResetGame = document.getElementById('btnResetGame');
@@ -1557,6 +1560,8 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
     const panelAbsenInfoOverlay = document.getElementById('panelAbsenInfoOverlay');
     const btnTutupAbsenInfo = document.getElementById('btnTutupAbsenInfo');
     const absenTierList = document.getElementById('absenTierList');
+    const btnAktifkanNotifikasi = document.getElementById('btnAktifkanNotifikasi');
+    const elNotifAbsenStatus = document.getElementById('notifAbsenStatus');
     // ===== Fakta Sehat Sebelum Absen — muncul tiap kali tombol "Absen Sekarang"
     // ditekan, supaya siswa yang cuma masuk buat jaga api streak tetap kebagian
     // paparan edukasi pencegahan DM sebelum absennya benar-benar tercatat. =====
@@ -1694,6 +1699,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         poinSehat = Number(localStorage.getItem(kunciAkunAktif(KUNCI_POIN_SESI_BASE))) || 0;
         jumlahLap = Number(localStorage.getItem(kunciAkunAktif(KUNCI_LAP_SESI_BASE))) || 0;
         perbaruiTampilanSkor();
+        perbaruiTampilanStreakKuis();
         pindahkanTokenKeTile(posisiPemain, true);
     }
     function cariInfoStagePet(total) {
@@ -1832,6 +1838,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
     window.refreshGameAkun = () => {
         perbaruiTampilanPet();
         if (typeof window.refreshSkorDanAbsen === 'function') window.refreshSkorDanAbsen();
+        perbaruiTampilanNotifikasiAbsen();
     };
     // Skor Tertinggi = rekor poin biasa (poinSehat) tertinggi yang PERNAH dicapai
     // akun ini. Cuma berubah kalau poin biasa saat ini melampaui rekor sebelumnya;
@@ -2128,6 +2135,9 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
     let poinSehat = 0;
     let jumlahLap = 0;
     let sedangJalan = false;
+    // Bonus Beruntun Kuis: hitung berapa kali jawaban kuis BENAR secara
+    // berturut-turut (reset ke 0 begitu ada jawaban yang salah).
+    let streakKuisBenar = 0;
     function ambilSkorTertinggi() {
         return Number(localStorage.getItem(kunciAkunAktif(KUNCI_SKOR_TERTINGGI))) || 0;
     }
@@ -2151,6 +2161,18 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         elLap.textContent = jumlahLap;
         simpanStateSesi();
         simpanSkorTertinggiJikaRekor();
+    }
+    // Update gauge "Kuis Beruntun" supaya siswa bisa langsung lihat progres
+    // menuju bonus +20 Poin Sehat (mirip tabung bonus Absen 7 Hari).
+    // tampilkanPenuh=true dipakai SEKALI saat bonus baru saja didapat, biar
+    // gauge sempat kelihatan penuh 5/5 dulu sebelum balik kosong lagi.
+    function perbaruiTampilanStreakKuis(tampilkanPenuh) {
+        if (!elStreakKuisItem) return;
+        const nilaiTampil = tampilkanPenuh ? STREAK_KUIS_TARGET : streakKuisBenar;
+        const persen = (nilaiTampil / STREAK_KUIS_TARGET) * 100;
+        elStreakKuisFill.style.width = `${persen}%`;
+        elStreakKuisNilai.textContent = `${nilaiTampil}/${STREAK_KUIS_TARGET}`;
+        elStreakKuisItem.classList.toggle('penuh', tampilkanPenuh === true);
     }
     function bangunPapan() {
         PAPAN_DATA.forEach((tile, i) => {
@@ -2608,6 +2630,13 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         }
         bukaPanelOverlay(overlayEvent);
     }
+    // ===== Bonus Beruntun Kuis: 5x jawaban benar berturut-turut =====
+    // Tiap kali pemain menjawab 5 soal kuis dengan BENAR secara
+    // berturut-turut (tanpa diselingi jawaban salah), dapat tambahan
+    // Poin Sehat di luar +10 poin jawaban benar biasa. Begitu ada jawaban
+    // salah, hitungan beruntunnya reset ke 0 dan mulai dihitung dari awal.
+    const STREAK_KUIS_TARGET = 5;
+    const BONUS_STREAK_KUIS_POIN = 20;
     function jawabKuis(indexDipilih, tile, btnDipilih) {
         const semuaBtn = elEventOpsiList.querySelectorAll('.game-opsi-btn');
         semuaBtn.forEach(b => (b.disabled = true));
@@ -2617,11 +2646,42 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             semuaBtn[tile.benar].classList.add('opsi-benar');
         }
         poinSehat = Math.max(0, poinSehat + (benar ? 10 : -5));
+
+        let dapatBonusStreak = false;
+        if (benar) {
+            streakKuisBenar++;
+            if (streakKuisBenar >= STREAK_KUIS_TARGET) {
+                poinSehat += BONUS_STREAK_KUIS_POIN;
+                dapatBonusStreak = true;
+                streakKuisBenar = 0; // reset supaya bisa dapat bonus lagi di rentetan berikutnya
+            }
+        } else {
+            streakKuisBenar = 0;
+        }
+
+        // Kalau baru saja dapat bonus, tampilkan gauge penuh (5/5) dulu
+        // sebentar sebagai penanda, baru balik kosong setelah jeda —
+        // supaya siswa sempat lihat gauge-nya penuh, bukan langsung 0/5.
+        perbaruiTampilanStreakKuis(dapatBonusStreak);
+        if (dapatBonusStreak) {
+            window.setTimeout(() => perbaruiTampilanStreakKuis(), 1200);
+        }
+
         perbaruiTampilanSkor();
-        elEventFeedback.innerHTML = `<strong class="game-feedback-verdict">${benar ? '✅ Benar! +10 Poin Sehat.' : '❌ Belum tepat, -5 Poin Sehat.'}</strong> <span class="game-feedback-penjelasan">${escapeHtml(tile.penjelasan)}</span>`;
+        let teksVerdict = benar ? '✅ Benar! +10 Poin Sehat.' : '❌ Belum tepat, -5 Poin Sehat.';
+        if (dapatBonusStreak) {
+            teksVerdict += ` 🔥 Bonus ${STREAK_KUIS_TARGET}x Benar Berturut-turut: +${BONUS_STREAK_KUIS_POIN} Poin Sehat!`;
+        }
+        elEventFeedback.innerHTML = `<strong class="game-feedback-verdict">${teksVerdict}</strong> <span class="game-feedback-penjelasan">${escapeHtml(tile.penjelasan)}</span>`;
         elEventFeedback.className = `game-feedback ${benar ? 'feedback-benar' : 'feedback-salah'}`;
         elEventFeedback.classList.remove('hidden');
         tampilkanToastPoin(benar ? '✅ +10 Poin Sehat!' : '❌ -5 Poin Sehat');
+        if (dapatBonusStreak) {
+            mainkanSfxPencapaian();
+            window.setTimeout(() => {
+                tampilkanToastPoin(`🔥 ${STREAK_KUIS_TARGET}x Benar Berturut-turut! +${BONUS_STREAK_KUIS_POIN} Poin Sehat Bonus!`);
+            }, 700);
+        }
         btnLanjutEvent.classList.remove('hidden');
         btnLanjutEvent.onclick = tutupEvent;
     }
@@ -2638,6 +2698,8 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         posisiPemain = 0;
         poinSehat = 0;
         jumlahLap = 0;
+        streakKuisBenar = 0;
+        perbaruiTampilanStreakKuis();
         sedangJalan = false;
         dadu3dRotX = -18;
         dadu3dRotY = 28;
@@ -3082,6 +3144,119 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         btnResetGame.addEventListener('click', resetGame);
     }
     btnKocok.addEventListener('click', kocokDadu);
+
+    // ===== Notifikasi Pengingat Absen (Firebase Cloud Messaging) =====
+    // Modul ini HANYA menangani sisi "client": minta izin notifikasi ke
+    // user, ambil token perangkatnya dari FCM, lalu simpan token itu ke
+    // Firestore (koleksi "progresGame", field fcmToken) supaya bisa
+    // dipakai server (Cloud Function terjadwal) buat mengirim notifikasi
+    // "belum absen hari ini" ke device yang bersangkutan.
+    //
+    // VAPID key ini didapat dari Firebase Console > Project Settings >
+    // Cloud Messaging > Web Push certificates. Bukan rahasia/password
+    // (sama seperti firebaseConfig), aman ditulis di kode client.
+    const VAPID_KEY_FCM = 'BAd7RzUn3V4B7P_jb1afELiW8eF1cM-vrWIC3O3WcBLT_fzCDlVPRzdvlgRXH-ILkKedHAVD9yWCqMMiCsApTzI';
+    let _messagingInstance = null;
+    let _onMessageTerpasang = false;
+    // Fitur ini butuh: (1) API Notification & Service Worker didukung
+    // browser, dan (2) SDK firebase-messaging-compat berhasil dimuat.
+    // Kalau salah satu tidak ada (mis. browser lama, atau di-block
+    // ekstensi), modul ini diam saja — tombol & status ikut disembunyikan
+    // lewat perbaruiTampilanNotifikasiAbsen(), bukan melempar error.
+    function notifikasiDidukungBrowser() {
+        return ('Notification' in window) && ('serviceWorker' in navigator)
+            && typeof firebase !== 'undefined' && typeof firebase.messaging === 'function';
+    }
+    function ambilMessagingInstance() {
+        if (!_messagingInstance) _messagingInstance = firebase.messaging();
+        // onMessage menangani notifikasi yang masuk PAS tab ini sedang
+        // dibuka/fokus (kalau tab tertutup/background, yang menangani
+        // adalah onBackgroundMessage() di firebase-messaging-sw.js).
+        if (!_onMessageTerpasang) {
+            _onMessageTerpasang = true;
+            _messagingInstance.onMessage((payload) => {
+                const judul = (payload.notification && payload.notification.title) || 'Sobat Sehat';
+                const isi = (payload.notification && payload.notification.body) || '';
+                tampilkanToast(`🔔 ${judul}${isi ? ' — ' + isi : ''}`);
+            });
+        }
+        return _messagingInstance;
+    }
+    // Update tampilan tombol + teks status sesuai kondisi izin notifikasi
+    // saat ini. Dipanggil dari window.refreshGameAkun() (lihat atas), jadi
+    // otomatis ter-refresh tiap kali login / sesi dipulihkan / ganti akun.
+    function perbaruiTampilanNotifikasiAbsen() {
+        if (!btnAktifkanNotifikasi || !elNotifAbsenStatus) return;
+        if (!emailAktif || !notifikasiDidukungBrowser()) {
+            btnAktifkanNotifikasi.classList.add('hidden');
+            elNotifAbsenStatus.classList.add('hidden');
+            return;
+        }
+        const izin = Notification.permission; // 'default' | 'granted' | 'denied'
+        if (izin === 'granted') {
+            btnAktifkanNotifikasi.classList.add('hidden');
+            elNotifAbsenStatus.textContent = '🔔 Pengingat absen aktif di perangkat ini';
+            elNotifAbsenStatus.className = 'notif-absen-status status-aktif';
+            // Token FCM bisa berubah sewaktu-waktu (mis. cache browser
+            // dibersihkan) — diam-diam disegarkan tiap tampilan diperbarui,
+            // TANPA memunculkan prompt baru karena izin sudah granted.
+            daftarkanTokenNotifikasi({ senyap: true });
+        } else if (izin === 'denied') {
+            btnAktifkanNotifikasi.classList.add('hidden');
+            elNotifAbsenStatus.textContent = '🔕 Notifikasi diblokir browser. Aktifkan lewat pengaturan situs kalau berubah pikiran.';
+            elNotifAbsenStatus.className = 'notif-absen-status status-ditolak';
+        } else {
+            btnAktifkanNotifikasi.classList.remove('hidden');
+            btnAktifkanNotifikasi.disabled = false;
+            btnAktifkanNotifikasi.textContent = '🔔 Aktifkan Pengingat Absen';
+            elNotifAbsenStatus.classList.add('hidden');
+        }
+    }
+    // Proses inti: daftarkan service worker, minta token FCM, simpan ke
+    // Firestore. opsi.senyap=true dipakai buat penyegaran token diam-diam
+    // (tidak menampilkan toast/pesan error ke user, karena bukan aksi yang
+    // sengaja mereka lakukan).
+    function daftarkanTokenNotifikasi(opsi) {
+        const senyap = !!(opsi && opsi.senyap);
+        if (!emailAktif || typeof db === 'undefined') return Promise.resolve();
+        return navigator.serviceWorker.register('firebase-messaging-sw.js')
+            .then((registration) => ambilMessagingInstance().getToken({
+                vapidKey: VAPID_KEY_FCM,
+                serviceWorkerRegistration: registration
+            }))
+            .then((token) => {
+                if (!token) throw new Error('Token FCM kosong');
+                return db.collection('progresGame').doc(emailAktif).set({
+                    fcmToken: token,
+                    fcmTokenDiperbaruiPada: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+            })
+            .catch((err) => {
+                console.warn('Gagal mendaftarkan notifikasi pengingat absen:', err);
+                if (!senyap) tampilkanToast('Gagal mengaktifkan notifikasi. Coba lagi ya.');
+            });
+    }
+    // Diklik user lewat tombol "🔔 Aktifkan Pengingat Absen" — ini SATU-
+    // SATUNYA tempat yang memicu prompt izin notifikasi, sengaja tidak
+    // diminta otomatis saat halaman dibuka supaya tidak terasa mengganggu/
+    // spam ke pengunjung baru.
+    if (btnAktifkanNotifikasi) {
+        btnAktifkanNotifikasi.addEventListener('click', () => {
+            if (!notifikasiDidukungBrowser()) return;
+            btnAktifkanNotifikasi.disabled = true;
+            btnAktifkanNotifikasi.textContent = 'Memproses...';
+            Notification.requestPermission().then((izin) => {
+                if (izin === 'granted') {
+                    return daftarkanTokenNotifikasi({ senyap: false }).then(() => {
+                        tampilkanToastPoin('🔔 Pengingat absen aktif!');
+                    });
+                }
+            }).finally(() => {
+                btnAktifkanNotifikasi.disabled = false;
+                perbaruiTampilanNotifikasiAbsen();
+            });
+        });
+    }
 })();
 // ===== Cegah tombol Back (HP/browser) langsung "keluar" dari web =====
 // Web ini SPA — semua halaman (landing, login, dashboard, game, dst) cuma
