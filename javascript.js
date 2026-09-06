@@ -81,10 +81,16 @@ const SFX_LANGKAH_PION_URL = 'sfx-langkah-pion.wav?v=20260829';
 const SFX_NOTIF_POIN_URL = 'sfx-notif-poin.wav?v=20260829';
 const SFX_PENCAPAIAN_URL = 'sfx-pencapaian.wav?v=20260829';
 const SFX_DADU_URL = 'sfx-dadu.wav?v=20260829';
+// Chime singkat & lembut yang dibunyikan SEKALI tiap kali login berhasil
+// (lihat selesaikanLogin() di bawah) — BUKAN saat halaman baru dibuka,
+// karena browser memblokir audio otomatis sebelum ada interaksi user.
+// Klik tombol "Masuk" itu sendiri sudah dihitung sebagai interaksi yang
+// valid, jadi SFX ini boleh langsung bunyi tepat setelahnya.
+const SFX_SELAMAT_DATANG_URL = 'sfx-selamat-datang.wav?v=20260906';
 // Preload + decode semua SFX dari awal (bukan nunggu dipakai pertama kali),
 // supaya begitu dipanggil beneran, buffer-nya sudah siap di memori dan
 // mainkanBufferSfx() nggak nunggu proses fetch/decode sama sekali.
-[SFX_LANGKAH_PION_URL, SFX_NOTIF_POIN_URL, SFX_PENCAPAIAN_URL, SFX_DADU_URL].forEach(muatSfxBuffer);
+[SFX_LANGKAH_PION_URL, SFX_NOTIF_POIN_URL, SFX_PENCAPAIAN_URL, SFX_DADU_URL, SFX_SELAMAT_DATANG_URL].forEach(muatSfxBuffer);
 function mainkanSfxLangkahPion() {
     mainkanBufferSfx(SFX_LANGKAH_PION_URL, { volume: 0.55 });
 }
@@ -93,6 +99,9 @@ function mainkanSfxNotifPoin() {
 }
 function mainkanSfxPencapaian() {
     mainkanBufferSfx(SFX_PENCAPAIAN_URL, { volume: 0.65 });
+}
+function mainkanSfxSelamatDatang() {
+    mainkanBufferSfx(SFX_SELAMAT_DATANG_URL, { volume: 0.5 });
 }
 // rate & volume buat SFX dadu diatur per-tik langsung dari dalam frameSpin()
 // di kocokDadu() (dipicu dari rotasi asli, bukan jadwal waktu tetap),
@@ -415,7 +424,22 @@ function lepasPendengarSentuhanPertama() {
 // lewat tombol "Masuk dengan Google") — supaya kedua jalur login berujung
 // ke proses yang sama persis: buka dashboard, catat pengunjung, tarik
 // progres dari Firestore, dst.
-function selesaikanLogin(email, nama) {
+// Toast kecil "Login berhasil" — dipakai HANYA saat login baru (bukan saat
+// sesi lama dipulihkan otomatis lewat refresh, lihat selesaikanLogin()).
+// Dibuat terpisah dari tampilkanToast()/tampilkanToastPoin() di modul game
+// (di bawah), karena dua fungsi itu ada di dalam IIFE game yang belum tentu
+// sudah terdefinisi/terjangkau dari sini — style-nya (class "papan-toast")
+// tetap yang sama, global di style.css, jadi tampilannya konsisten.
+function tampilkanNotifLoginBerhasil(nama) {
+    const toastLama = document.querySelector('.papan-toast');
+    if (toastLama) toastLama.remove();
+    const toast = document.createElement('div');
+    toast.className = 'papan-toast';
+    toast.textContent = `✅ Login berhasil! Selamat datang, ${nama} 👋`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2000);
+}
+function selesaikanLogin(email, nama, opts = {}) {
     emailAktif = email;
     topbarUser.textContent = `Halo, ${nama}`;
     dashboardWelcome.textContent = `Selamat datang, ${nama}! Berikut ringkasan halaman kamu.`;
@@ -425,6 +449,15 @@ function selesaikanLogin(email, nama) {
     loginPage.classList.add('hidden');
     dashboardPage.classList.remove('hidden');
     putarMusikBackground();
+    // Chime "Selamat Datang" HANYA dibunyikan saat ini benar-benar aksi
+    // login (klik tombol Masuk / Google) — bukan saat sesi lama otomatis
+    // dipulihkan tiap kali halaman di-refresh (lihat pulihkanSesiTersimpan
+    // di akhir file, yang memanggil fungsi ini TANPA opts.baruLogin), biar
+    // nggak bolak-balik bunyi tiap F5.
+    if (opts.baruLogin) {
+        mainkanSfxSelamatDatang();
+        tampilkanNotifLoginBerhasil(nama);
+    }
     pindahkanIndikatorNav(document.querySelector('.nav-item.active'), false);
     catatLoginPengunjung(email, nama);
     // Simpan sesi aktif supaya kalau halaman di-refresh (F5), pemain TIDAK
@@ -455,7 +488,7 @@ formData.addEventListener('submit', function (e) {
         simpanAkun({ email, password });
     }
     const nama = turunkanNamaDariEmail(email);
-    selesaikanLogin(email, nama);
+    selesaikanLogin(email, nama, { baruLogin: true });
 });
 // ===== Masuk dengan Google (satu ketukan, tanpa isi ulang email/sandi) =====
 // Memakai Firebase Authentication (Google provider). Akun Google yang
@@ -485,7 +518,7 @@ function prosesUserGoogle(user) {
     // password diisi null (bukan dipakai) — akun ini login lewat Google,
     // ditandai supaya kolom sandi tidak ikut ditawarkan/diisi otomatis.
     simpanAkun({ email, password: null, viaGoogle: true });
-    selesaikanLogin(email, nama);
+    selesaikanLogin(email, nama, { baruLogin: true });
 }
 // Kalau tadi sempat dialihkan ke halaman login Google penuh (signInWithRedirect,
 // dipakai sebagai cadangan saat jendela pop-up diblokir), tangkap hasilnya di
@@ -1627,6 +1660,28 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         localStorage.setItem(kunciAkunAktif(KUNCI_NAMA_PET_BASE), namaBaru);
         jadwalkanSinkronProgresGame();
     }
+    // ===== Kesempatan Ganti Nama Pet — didapat dari bonus Absen 7 Hari =====
+    // Nama pertama tetap GRATIS (lihat sudahMemberiNamaPet di atas). Setelah
+    // itu, nama cuma bisa diganti lagi kalau siswa punya "kesempatan" yang
+    // didapat tiap kali streak Absen Harian tembus kelipatan 7 hari
+    // berturut-turut (lihat blok dapatBonusMingguan di prosesAbsenHarian).
+    // Disimpan sebagai ANGKA (bukan boolean) supaya kalau kebetulan dapat
+    // beberapa kelipatan 7 hari tanpa sempat dipakai, kesempatannya menumpuk.
+    const KUNCI_NAMA_PET_KESEMPATAN_BASE = 'sobatSehatKesempatanGantiNamaPet';
+    function ambilKesempatanGantiNama() {
+        return Number(localStorage.getItem(kunciAkunAktif(KUNCI_NAMA_PET_KESEMPATAN_BASE))) || 0;
+    }
+    function tambahKesempatanGantiNama() {
+        const baru = ambilKesempatanGantiNama() + 1;
+        localStorage.setItem(kunciAkunAktif(KUNCI_NAMA_PET_KESEMPATAN_BASE), String(baru));
+        jadwalkanSinkronProgresGame();
+        perbaruiTampilanPet(); // biar ikon ✏️ di kartu pet langsung berubah jadi 🎁
+    }
+    function gunakanKesempatanGantiNama() {
+        const sisa = Math.max(0, ambilKesempatanGantiNama() - 1);
+        localStorage.setItem(kunciAkunAktif(KUNCI_NAMA_PET_KESEMPATAN_BASE), String(sisa));
+        jadwalkanSinkronProgresGame();
+    }
     // ===== Panel "Beri Nama Pet" — dipicu dari ikon ✏️ di kartu pet =====
     const panelNamaPetOverlay = document.getElementById('panelNamaPetOverlay');
     const namaPetJudul = document.getElementById('namaPetJudul');
@@ -1636,34 +1691,49 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
     const namaPetPeringatan = document.getElementById('namaPetPeringatan');
     const btnSimpanNamaPet = document.getElementById('btnSimpanNamaPet');
     const btnTutupNamaPet = document.getElementById('btnTutupNamaPet');
+    let _modeNamaPetSaatIni = 'baru'; // 'baru' | 'ganti' | 'terkunci'
     function bukaPanelNamaPet() {
         if (!panelNamaPetOverlay) return;
-        if (sudahMemberiNamaPet()) {
-            if (namaPetJudul) namaPetJudul.textContent = 'Nama Pet Sudah Dikunci';
-            if (namaPetInfoTeks) namaPetInfoTeks.innerHTML = `Nama pet-mu untuk akun ini sudah ditetapkan sebagai <strong>${ambilNamaPetDasar()}</strong> dan tidak bisa diganti lagi.`;
-            if (formNamaPetBaru) formNamaPetBaru.classList.add('hidden');
-            if (btnSimpanNamaPet) btnSimpanNamaPet.classList.add('hidden');
-            if (btnTutupNamaPet) btnTutupNamaPet.textContent = 'Mengerti →';
-        } else {
+        const sudahAdaNama = sudahMemberiNamaPet();
+        const kesempatan = ambilKesempatanGantiNama();
+        if (!sudahAdaNama) {
+            _modeNamaPetSaatIni = 'baru';
             if (namaPetJudul) namaPetJudul.textContent = 'Beri Nama Pet-mu';
-            if (namaPetInfoTeks) namaPetInfoTeks.innerHTML = 'Nama ini bakal dipakai di semua level evolusi pet-mu (misalnya "Telur Kobo", "Kobo Mungil", dst). <strong>Nama hanya bisa ditentukan satu kali untuk akun ini</strong>, jadi pilih baik-baik ya!';
+            if (namaPetInfoTeks) namaPetInfoTeks.innerHTML = 'Nama ini bakal dipakai di semua level evolusi pet-mu (misalnya "Telur Kobo", "Kobo Mungil", dst). Nama pertama ini <strong>gratis</strong> — nama berikutnya baru bisa diganti lagi lewat bonus Absen 7 Hari berturut-turut.';
             if (formNamaPetBaru) formNamaPetBaru.classList.remove('hidden');
-            if (btnSimpanNamaPet) btnSimpanNamaPet.classList.remove('hidden');
+            if (btnSimpanNamaPet) { btnSimpanNamaPet.classList.remove('hidden'); btnSimpanNamaPet.textContent = 'Simpan Nama'; }
             if (inputNamaPetModal) inputNamaPetModal.value = '';
             if (namaPetPeringatan) namaPetPeringatan.classList.add('hidden');
             if (btnTutupNamaPet) btnTutupNamaPet.textContent = 'Batal';
+        } else if (kesempatan > 0) {
+            _modeNamaPetSaatIni = 'ganti';
+            if (namaPetJudul) namaPetJudul.textContent = '🎁 Kesempatan Ganti Nama!';
+            if (namaPetInfoTeks) namaPetInfoTeks.innerHTML = `Kamu dapat <strong>${kesempatan} kesempatan ganti nama</strong> dari bonus Absen 7 Hari penuh berturut-turut! Nama pet-mu sekarang <strong>${ambilNamaPetDasar()}</strong> — mau diganti jadi apa?`;
+            if (formNamaPetBaru) formNamaPetBaru.classList.remove('hidden');
+            if (btnSimpanNamaPet) { btnSimpanNamaPet.classList.remove('hidden'); btnSimpanNamaPet.textContent = 'Ganti Nama'; }
+            if (inputNamaPetModal) inputNamaPetModal.value = '';
+            if (namaPetPeringatan) namaPetPeringatan.classList.add('hidden');
+            if (btnTutupNamaPet) btnTutupNamaPet.textContent = 'Nanti Saja';
+        } else {
+            _modeNamaPetSaatIni = 'terkunci';
+            if (namaPetJudul) namaPetJudul.textContent = 'Nama Pet Sedang Terkunci';
+            if (namaPetInfoTeks) namaPetInfoTeks.innerHTML = `Nama pet-mu untuk akun ini sekarang <strong>${ambilNamaPetDasar()}</strong>. Absen penuh 7 hari berturut-turut buat dapat kesempatan ganti nama lagi!`;
+            if (formNamaPetBaru) formNamaPetBaru.classList.add('hidden');
+            if (btnSimpanNamaPet) btnSimpanNamaPet.classList.add('hidden');
+            if (btnTutupNamaPet) btnTutupNamaPet.textContent = 'Mengerti →';
         }
         bukaPanelOverlay(panelNamaPetOverlay);
-        if (!sudahMemberiNamaPet() && inputNamaPetModal) setTimeout(() => inputNamaPetModal.focus(), 50);
+        if (_modeNamaPetSaatIni !== 'terkunci' && inputNamaPetModal) setTimeout(() => inputNamaPetModal.focus(), 50);
     }
     function simpanNamaPetDariModal() {
-        if (!inputNamaPetModal || sudahMemberiNamaPet()) return;
+        if (!inputNamaPetModal || _modeNamaPetSaatIni === 'terkunci') return;
         const nilai = inputNamaPetModal.value.trim().slice(0, 16);
         if (!nilai) {
             if (namaPetPeringatan) namaPetPeringatan.classList.remove('hidden');
             inputNamaPetModal.focus();
             return;
         }
+        if (_modeNamaPetSaatIni === 'ganti') gunakanKesempatanGantiNama();
         simpanNamaPetDasar(nilai);
         if (panelNamaPetOverlay) tutupPanelOverlay(panelNamaPetOverlay);
         perbaruiTampilanPet();
@@ -1762,9 +1832,18 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         if (topbarPetNama) topbarPetNama.textContent = namaStageAktif;
         if (topbarPet) topbarPet.classList.toggle('hidden', !emailAktif);
         if (btnEditNamaPet) {
-            const terkunci = sudahMemberiNamaPet();
-            btnEditNamaPet.textContent = terkunci ? '🔒' : '✏️';
-            btnEditNamaPet.title = terkunci ? 'Nama pet sudah dikunci' : 'Beri nama pet (hanya sekali)';
+            const sudahAdaNama = sudahMemberiNamaPet();
+            const kesempatan = ambilKesempatanGantiNama();
+            if (!sudahAdaNama) {
+                btnEditNamaPet.textContent = '✏️';
+                btnEditNamaPet.title = 'Beri nama pet-mu';
+            } else if (kesempatan > 0) {
+                btnEditNamaPet.textContent = '🎁';
+                btnEditNamaPet.title = `Kamu punya ${kesempatan} kesempatan ganti nama pet — klik buat pakai!`;
+            } else {
+                btnEditNamaPet.textContent = '🔒';
+                btnEditNamaPet.title = 'Nama terkunci — absen penuh 7 hari berturut-turut buat dapat kesempatan ganti nama';
+            }
         }
     }
     // ===== Popup Pencapaian (achievement) generik =====
@@ -2775,6 +2854,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
     function kumpulkanProgresGameLokal() {
         return {
             namaPet: localStorage.getItem(kunciAkunAktif(KUNCI_NAMA_PET_BASE)),
+            kesempatanGantiNamaPet: ambilKesempatanGantiNama(),
             poinSehat: Number(localStorage.getItem(kunciAkunAktif(KUNCI_POIN_SESI_BASE))) || 0,
             posisiPemain: Number(localStorage.getItem(kunciAkunAktif(KUNCI_POSISI_SESI_BASE))) || 0,
             jumlahLap: Number(localStorage.getItem(kunciAkunAktif(KUNCI_LAP_SESI_BASE))) || 0,
@@ -2834,6 +2914,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             const d = snap.data();
             const kunciUntuk = (base) => `${base}_${email}`;
             if (d.namaPet) localStorage.setItem(kunciUntuk(KUNCI_NAMA_PET_BASE), d.namaPet);
+            if (d.kesempatanGantiNamaPet !== undefined) localStorage.setItem(kunciUntuk(KUNCI_NAMA_PET_KESEMPATAN_BASE), String(d.kesempatanGantiNamaPet));
             if (d.poinSehat !== undefined) localStorage.setItem(kunciUntuk(KUNCI_POIN_SESI_BASE), String(d.poinSehat));
             if (d.posisiPemain !== undefined) localStorage.setItem(kunciUntuk(KUNCI_POSISI_SESI_BASE), String(d.posisiPemain));
             if (d.jumlahLap !== undefined) localStorage.setItem(kunciUntuk(KUNCI_LAP_SESI_BASE), String(d.jumlahLap));
@@ -2974,6 +3055,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         const dapatBonusMingguan = streakBaru > 0 && streakBaru % BONUS_ABSEN_KELIPATAN_HARI === 0;
         if (dapatBonusMingguan) {
             poinSehat += BONUS_ABSEN_POIN;
+            tambahKesempatanGantiNama();
         }
         perbaruiTampilanSkor();
         perbaruiTampilanAbsen();
@@ -2992,9 +3074,9 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             });
         }
         if (dapatBonusMingguan && rekorPecah) {
-            tampilkanToastPoin(`🏆🎁 ${streakBaru} hari penuh berturut-turut — Rekor baru + Bonus +${BONUS_ABSEN_POIN} Poin Sehat!`);
+            tampilkanToastPoin(`🏆🎁 ${streakBaru} hari penuh berturut-turut — Rekor baru + Bonus +${BONUS_ABSEN_POIN} Poin Sehat + kesempatan ganti nama pet!`);
         } else if (dapatBonusMingguan) {
-            tampilkanToastPoin(`🎁 Absen penuh ${streakBaru} hari beruntun — Bonus +${BONUS_ABSEN_POIN} Poin Sehat!`);
+            tampilkanToastPoin(`🎁 Absen penuh ${streakBaru} hari beruntun — Bonus +${BONUS_ABSEN_POIN} Poin Sehat + kesempatan ganti nama pet!`);
         } else if (rekorPecah && streakBaru > 1) {
             tampilkanToastPoin(`🏆 Rekor baru! Streak ${streakBaru} hari — terpanjang yang pernah kamu capai`);
         } else if (tierBaru.kelas !== tierSebelumnya.kelas) {
