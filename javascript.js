@@ -680,7 +680,6 @@ document.querySelectorAll('.dash-feature-card').forEach(card => {
 on('topbarPet', 'click', () => bukaMenuUtama('game'));
 on('btnMulaiBelajarDashboard', 'click', () => bukaMenuUtama('materi'));
 on('btnMulaiBelajarRefleksi', 'click', () => bukaMenuUtama('materi'));
-on('btnHitungGulaHarian', 'click', () => bukaMenuUtama('kalkulator'));
 const kalkulatorProgress = document.getElementById('kalkulatorProgress');
 const progressSteps = document.querySelectorAll('.progress-step');
 const kalkulatorStep1 = document.getElementById('kalkulatorStep1');
@@ -878,15 +877,26 @@ function resetKalkulator() {
 document.querySelectorAll('.tips-card').forEach(card => {
     card.addEventListener('click', () => bukaDetailTips(card.dataset.tip));
 });
-on('btnMulaiSekarang', 'click', () => bukaDetailTips('kebiasaan-kecil'));
+on('btnMulaiSekarang', 'click', () => bukaDetailTips('menu-sehat'));
+on('btnKembaliTipsMenuSehat', 'click', () => bukaTipsUtama());
+on('btnSelanjutnyaCekLabel', 'click', () => bukaDetailTips('cek-label'));
+on('btnKembaliTipsCekLabel', 'click', () => bukaTipsUtama());
+on('btnSelanjutnyaBatasiGula', 'click', () => bukaDetailTips('batasi-gula'));
+on('btnKembaliTipsBatasiGula', 'click', () => bukaTipsUtama());
+on('btnSelanjutnyaCamilanBekalSehat', 'click', () => bukaDetailTips('camilan-bekal-sehat'));
+on('btnKembaliTipsCamilanBekalSehat', 'click', () => bukaTipsUtama());
+on('btnSelanjutnyaAktifBergerak', 'click', () => bukaDetailTips('aktif-bergerak'));
+on('btnKembaliTipsAktifBergerak', 'click', () => bukaTipsUtama());
+on('btnSelanjutnyaKurangiScreenTime', 'click', () => bukaDetailTips('kurangi-screen-time'));
+on('btnKembaliTipsKurangiScreenTime', 'click', () => bukaTipsUtama());
 function bukaDetailTips(idTips) {
     const petaDetail = {
-        'minuman-manis': 'tipsMinumanManis',
-        'camilan-sehat': 'tipsCamilanSehat',
-        'gula-tersembunyi': 'tipsGulaTersembunyi',
-        'baca-label': 'tipsBacaLabel',
-        'kebiasaan-kecil': 'tipsKebiasaanKecil',
-        'tips-sekolah': 'tipsSekolah'
+        'menu-sehat': 'tipsMenuSehat',
+        'cek-label': 'tipsCekLabel',
+        'batasi-gula': 'tipsBatasiGula',
+        'camilan-bekal-sehat': 'tipsCamilanBekalSehat',
+        'aktif-bergerak': 'tipsAktifBergerak',
+        'kurangi-screen-time': 'tipsKurangiScreenTime'
     };
     const targetId = petaDetail[idTips];
     if (!targetId) {
@@ -929,7 +939,6 @@ setupKuisPilihan(
         ? 'Benar! Karena satu kemasan terdiri dari 2 sajian, jumlah gula dari seluruh kemasan adalah 24 gram.'
         : 'Bukan 12 gram ya. Karena satu kemasan terdiri dari 2 sajian, jumlah gula dari seluruh kemasan adalah 24 gram.'
 );
-on('btnBacaLabel', 'click', () => bukaDetailTips('baca-label'));
 document.querySelectorAll('.mitos-card').forEach(card => {
     card.addEventListener('click', () => {
         const jawabanEl = card.querySelector('.mitos-jawaban');
@@ -946,17 +955,7 @@ document.querySelectorAll('.mitos-card').forEach(card => {
     });
 });
 setupTantangan('btnChallenge', 'challengeFeedback', '✅ Saya Akan Mencoba');
-setupKuisPilihan(
-    document.querySelectorAll('#tipsMinumanManis .pilihan-list-btn'),
-    document.getElementById('aktivitasFeedback'),
-    btn => btn.dataset.benar === 'true',
-    benar => benar
-        ? 'Benar! Rata-rata 60 menit per hari aktivitas fisik sedang–berat, sesuai rekomendasi WHO untuk anak dan remaja usia 5–17 tahun.'
-        : 'Belum tepat. Rekomendasinya adalah rata-rata 60 menit per hari aktivitas fisik sedang–berat, dihitung setiap minggu.'
-);
-setupTantangan('btnChallengeAktivitas', 'challengeFeedbackAktivitas', '✅ Mantap!');
 on('btnKembaliTips', 'click', () => bukaTipsUtama());
-on('btnLanjutCamilan', 'click', () => bukaDetailTips('camilan-sehat'));
 document.querySelectorAll('.pilihan-pair').forEach(pair => {
     const tombolPasangan = pair.querySelectorAll('.pilihan-btn');
     const feedbackEl = pair.querySelector('.pilihan-feedback');
@@ -969,61 +968,6 @@ document.querySelectorAll('.pilihan-pair').forEach(pair => {
     });
 });
 setupKuisPilihan(
-    document.querySelectorAll('#tipsCamilanSehat .pilihan-list-btn'),
-    document.getElementById('skriningFeedback'),
-    btn => btn.dataset.benar === 'true',
-    benar => benar
-        ? 'Benar! Mengisi formulir skrining dengan jujur membuat hasil pemeriksaan sesuai kondisi tubuhmu yang sebenarnya, sehingga penanganan yang diberikan juga tepat.'
-        : 'Belum tepat. Formulir skrining harus diisi jujur, supaya hasil pemeriksaan sesuai kondisi tubuhmu yang sebenarnya dan penanganannya tepat.'
-);
-const dataSkriningPemeriksaan = {
-    gizi: {
-        nama: 'Status Gizi / IMT Menurut Umur',
-        frekuensi: 'Sebaiknya dicek setiap 6 bulan sekali.',
-        normal: 'Hasil termasuk kategori "gizi baik" pada grafik IMT/U, yaitu antara −2 SD sampai +1 SD.'
-    },
-    tekanan: {
-        nama: 'Tekanan Darah',
-        frekuensi: 'Sebaiknya dicek minimal 1 tahun sekali.',
-        normal: 'Untuk remaja, nilai normal sekitar di bawah 120/80 mmHg.'
-    },
-    gula: {
-        nama: 'Gula Darah',
-        frekuensi: 'Sebaiknya dicek minimal 1 tahun sekali, lebih sering jika berat badan berlebih.',
-        normal: 'Gula darah puasa di bawah 100 mg/dL, gula darah sewaktu di bawah 140 mg/dL.'
-    },
-    gigi: {
-        nama: 'Gigi & Mulut',
-        frekuensi: 'Sebaiknya dicek ke dokter gigi setiap 6 bulan sekali.',
-        normal: 'Tidak ada gigi berlubang, gusi tidak bengkak atau berdarah.'
-    },
-    mata: {
-        nama: 'Mata (Penglihatan)',
-        frekuensi: 'Sebaiknya dicek 1 tahun sekali, atau segera jika penglihatan mulai kabur.',
-        normal: 'Bisa melihat jelas jarak dekat maupun jauh, tanpa mengernyit atau mendekatkan benda.'
-    },
-    telinga: {
-        nama: 'Telinga (Pendengaran)',
-        frekuensi: 'Sebaiknya dicek 1 tahun sekali.',
-        normal: 'Bisa mendengar suara dengan jelas, tidak ada nyeri atau cairan yang keluar dari telinga.'
-    },
-    jiwa: {
-        nama: 'Kesehatan Jiwa',
-        frekuensi: 'Sebaiknya dicek 1 tahun sekali, atau kapan saja saat merasa berat.',
-        normal: 'Tidak ada stres, cemas, atau sedih berkepanjangan yang sampai mengganggu aktivitas sehari-hari.'
-    },
-    anemia: {
-        nama: 'Anemia (Khusus Remaja Putri)',
-        frekuensi: 'Sebaiknya dicek 1 tahun sekali, terutama sejak mulai menstruasi.',
-        normal: 'Kadar hemoglobin (Hb) minimal 12 g/dL.'
-    }
-};
-setupPanelChip('skriningChips', 'skriningPlaceholder', 'skriningContent', dataSkriningPemeriksaan, 'skrining', [
-    ['skriningNama', 'nama', v => v.toUpperCase()],
-    ['skriningFrekuensi', 'frekuensi'],
-    ['skriningNormal', 'normal']
-]);
-setupKuisPilihan(
     document.querySelectorAll('.quiz-sajian-btn'),
     document.getElementById('sajianFeedback'),
     btn => btn.dataset.jawaban === '2',
@@ -1031,85 +975,16 @@ setupKuisPilihan(
         ? 'Benar! Satu kemasan memiliki 2 sajian. Karena itu, penting untuk melihat jumlah sajian per kemasan, bukan hanya angka per sajian.'
         : 'Bukan itu jawabannya. Satu kemasan memiliki 2 sajian, jadi penting melihat jumlah sajian per kemasan, bukan hanya angka per sajian.'
 );
-on('btnBacaLabelCamilan', 'click', () => bukaDetailTips('baca-label'));
-setupTantangan('btnChallengeCamilan', 'challengeFeedbackCamilan', '✅ Saya Akan Mencoba');
-on('btnKembaliTipsCamilan', 'click', () => bukaTipsUtama());
-on('btnSebelumnyaMinuman', 'click', () => bukaDetailTips('minuman-manis'));
-on('btnSelanjutnyaGulaTersembunyi', 'click', () => bukaDetailTips('gula-tersembunyi'));
-const detektifCards = document.querySelectorAll('.detektif-card');
-const detektifFeedback = document.getElementById('detektifFeedback');
-detektifCards.forEach(card => {
-    card.addEventListener('click', () => {
-        detektifCards.forEach(c => c.classList.remove('dicek'));
-        card.classList.add('dicek');
-        detektifFeedback.classList.remove('hidden');
-    });
-});
-setupKuisPilihan(
-    document.querySelectorAll('.quiz-manis-btn'),
-    document.getElementById('manisFeedback'),
-    btn => btn.dataset.jawaban === 'Tidak',
-    benar => benar
-        ? 'Benar! Rasa bukan satu-satunya cara untuk mengetahui kandungan gula. Untuk produk kemasan, periksa informasi nilai gizi dan daftar bahan.'
-        : 'Bukan itu jawabannya. Rasa saja tidak cukup — periksa informasi nilai gizi dan daftar bahan pada kemasan.'
-);
-const flipCard = document.getElementById('flipCard');
-on('btnLihatBelakang', 'click', function () {
-    const sudahTerbuka = flipCard.classList.contains('terbuka');
-    flipCard.classList.toggle('terbuka');
-    this.textContent = sudahTerbuka ? '🔍 LIHAT BAGIAN BELAKANG' : '🔍 LIHAT BAGIAN DEPAN';
-});
-const chipBtns = document.querySelectorAll('.chip-btn');
-const detektifGulaFeedback = document.getElementById('detektifGulaFeedback');
-let bahanBenarDitemukan = new Set();
-const totalBahanBenar = document.querySelectorAll('.chip-btn[data-benar="true"]').length;
-chipBtns.forEach(chip => {
-    chip.addEventListener('click', () => {
-        const benar = chip.dataset.benar === 'true';
-        if (benar) {
-            chip.classList.add('chip-benar');
-            bahanBenarDitemukan.add(chip.dataset.bahan);
-            if (bahanBenarDitemukan.size >= totalBahanBenar) {
-                detektifGulaFeedback.textContent = '🎉 Hebat! Kamu menemukan bahan yang menunjukkan adanya gula tambahan.';
-            } else {
-                detektifGulaFeedback.textContent = 'Tepat! Coba cari bahan lain yang juga menunjukkan adanya gula tambahan.';
-            }
-        } else {
-            chip.classList.add('chip-salah');
-            detektifGulaFeedback.textContent = 'Belum tepat. Coba cari bahan yang merupakan sumber gula tambahan.';
-        }
-        detektifGulaFeedback.classList.remove('hidden');
-    });
-});
-setupKuisPilihan(
-    document.querySelectorAll('#tipsGulaTersembunyi .pilihan-list-btn'),
-    document.getElementById('labelFeedback'),
-    btn => btn.dataset.benar === 'true',
-    'Benar! Informasi nilai gizi dapat membantu kamu mengetahui kandungan gula pada produk.'
-);
-on('btnBacaLabelGula', 'click', () => bukaDetailTips('baca-label'));
-setupTantangan('btnChallengeGula', 'challengeFeedbackGula', '✅ Mantap!');
-on('btnKembaliTipsGula', 'click', () => bukaTipsUtama());
-on('btnSebelumnyaCamilan', 'click', () => bukaDetailTips('camilan-sehat'));
-on('btnSelanjutnyaBacaLabel', 'click', () => bukaDetailTips('baca-label'));
-on('btnKembaliTipsLabel', 'click', () => bukaTipsUtama());
-on('btnSebelumnyaGula', 'click', () => bukaDetailTips('gula-tersembunyi'));
-on('btnSelanjutnyaKebiasaan', 'click', () => bukaDetailTips('kebiasaan-kecil'));
-on('btnKembaliTipsKebiasaan', 'click', () => bukaTipsUtama());
-on('btnSebelumnyaLabel', 'click', () => bukaDetailTips('baca-label'));
-on('btnSelanjutnyaSekolah', 'click', () => bukaDetailTips('tips-sekolah'));
-on('btnKembaliTipsSekolah', 'click', () => bukaTipsUtama());
-on('btnSebelumnyaKebiasaan', 'click', () => bukaDetailTips('kebiasaan-kecil'));
 document.querySelectorAll('.materi-card').forEach(card => {
     card.addEventListener('click', () => bukaMateri(card.dataset.materi));
 });
 function bukaMateri(idMateri) {
     const petaMateri = {
-        'mengenal-diabetes-melitus': 'materiDiabetesMelitus',
+        'kenali-diabetes-melitus-tipe-2': 'materiDiabetesTipe2',
         'mengenal-gula': 'materiMengenalGula',
         'gula-dan-kesehatan': 'materiGulaKesehatan',
-        'gula-dan-gigi': 'materiGulaGigi',
-        'gula-energi-tubuh': 'materiGulaEnergiTubuh',
+        'batas-gula-label': 'materiBatasGulaLabel',
+        'aktivitas-fisik-dmt2': 'materiAktivitasFisikDMT2',
         'kebiasaan-makan-remaja': 'materiKebiasaanRemaja'
     };
     const targetId = petaMateri[idMateri];
@@ -1131,78 +1006,32 @@ document.querySelectorAll('.breadcrumb-link[data-breadcrumb-tips]').forEach(link
 on('btnCtaTipsDariMateri', 'click', () => bukaTipsUtama());
 on('btnCtaMateriDariTips', 'click', () => bukaMenuUtama('materiKebiasaanRemaja'));
 on('btnKembaliAtasMateriKesehatan', 'click', () => bukaMenuUtama('materi'));
-on('btnHitungGulaDariMateriKesehatan', 'click', () => bukaMenuUtama('kalkulator'));
-on('btnMateriKesehatanPrev', 'click', () => bukaMateri('mengenal-gula'));
-on('btnMateriKesehatanNext', 'click', () => bukaMateri('gula-dan-gigi'));
-document.querySelectorAll('.gk-disease-card').forEach(card => {
-    const header = card.querySelector('.gk-disease-header');
-    const closeBtn = card.querySelector('.gk-disease-close');
-    header.addEventListener('click', () => card.classList.toggle('open'));
-    if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
-            card.classList.remove('open');
-            header.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        });
-    }
-});
 on('btnKembaliBawahMateriKesehatan', 'click', () => bukaMenuUtama('materi'));
-on('btnKembaliAtasMateriGigi', 'click', () => bukaMenuUtama('materi'));
-on('btnKembaliBawahMateriGigi', 'click', () => bukaMenuUtama('materi'));
-const ggSelfcheckOptions = document.getElementById('ggSelfcheckOptions');
-const ggSelfcheckResult = document.getElementById('ggSelfcheckResult');
-const ggSelfcheckText = document.getElementById('ggSelfcheckText');
-if (ggSelfcheckOptions) {
-    ggSelfcheckOptions.querySelectorAll('.gg-selfcheck-btn').forEach((btn) => {
-        btn.addEventListener('click', () => {
-            ggSelfcheckOptions.querySelectorAll('.gg-selfcheck-btn').forEach((b) => b.classList.remove('selected'));
-            btn.classList.add('selected');
-            ggSelfcheckText.textContent = `Artinya, gigi kamu mendapatkan paparan makanan/minuman manis ${btn.dataset.freq} dalam sehari.`;
-            ggSelfcheckResult.classList.remove('hidden');
-        });
-    });
-}
-on('btnGgSelfcheckReset', 'click', () => {
-    ggSelfcheckOptions.querySelectorAll('.gg-selfcheck-btn').forEach((b) => b.classList.remove('selected'));
-    ggSelfcheckResult.classList.add('hidden');
-});
-on('btnMateriGigiNext', 'click', () => bukaMateri('gula-energi-tubuh'));
-on('btnMateriGigiPrev', 'click', () => bukaMateri('gula-dan-kesehatan'));
-on('btnKembaliAtasMateriEnergi', 'click', () => bukaMenuUtama('materi'));
-on('btnHitungEnergiDariMateriEnergi', 'click', () => bukaMenuUtama('kalkulator'));
-on('btnMateriEnergiPrev', 'click', () => bukaMateri('gula-dan-gigi'));
-on('btnMateriEnergiNext', 'click', () => bukaMateri('kebiasaan-makan-remaja'));
+on('btnMateriKesehatanNext', 'click', () => bukaMateri('batas-gula-label'));
+on('btnMateriKesehatanPrev', 'click', () => bukaMateri('mengenal-gula'));
+setupTantangan('btnChallengeMateriKesehatan', 'challengeFeedbackMateriKesehatan', '✅ Sudah dicoba!');
+on('btnKembaliAtasMateriGula', 'click', () => bukaMenuUtama('materi'));
+on('btnKembaliBawahMateriGula', 'click', () => bukaMenuUtama('materi'));
+on('btnMateriGulaNext', 'click', () => bukaMateri('aktivitas-fisik-dmt2'));
+on('btnMateriGulaPrev', 'click', () => bukaMateri('gula-dan-kesehatan'));
+setupTantangan('btnChallengeMateriGula', 'challengeFeedbackMateriGula', '✅ Sudah dicoba!');
+on('btnKembaliAtasMateriAktivitasFisik', 'click', () => bukaMenuUtama('materi'));
+on('btnKembaliBawahMateriAktivitasFisik', 'click', () => bukaMenuUtama('materi'));
+on('btnMateriAktivitasFisikNext', 'click', () => bukaMateri('kebiasaan-makan-remaja'));
+on('btnMateriAktivitasFisikPrev', 'click', () => bukaMateri('batas-gula-label'));
+setupTantangan('btnChallengeAktivitasFisik', 'challengeFeedbackAktivitasFisik', '✅ Mantap!');
 on('btnKembaliAtasMateriDiabetes', 'click', () => bukaMenuUtama('materi'));
-const dataDiabetesTipe = {
-    tipe1: {
-        nama: 'Diabetes Melitus Tipe 1',
-        apaItu: 'Kondisi ketika pankreas tidak dapat memproduksi insulin sama sekali, sehingga gula dari makanan tidak dapat masuk ke dalam sel tubuh dengan baik.',
-        penyebab: 'Terjadi karena sistem imun tubuh secara keliru menyerang sel-sel penghasil insulin di pankreas (gangguan autoimun) — bukan disebabkan oleh terlalu banyak makan makanan manis.',
-        berisiko: 'Umumnya mulai muncul sejak usia anak-anak atau remaja, meskipun bisa juga terjadi pada usia berapa pun.',
-        fakta: 'Penderita diabetes tipe 1 membutuhkan suntikan insulin setiap hari seumur hidup, karena tubuhnya sudah tidak bisa memproduksi insulin sendiri.'
-    },
-    tipe2: {
-        nama: 'Diabetes Melitus Tipe 2',
-        apaItu: 'Kondisi ketika tubuh masih dapat memproduksi insulin, tetapi tidak dapat menggunakannya secara efektif (resistensi insulin), atau produksi insulinnya tidak lagi mencukupi.',
-        penyebab: 'Merupakan kombinasi antara faktor keturunan (riwayat keluarga) dan gaya hidup, seperti kurang aktivitas fisik, pola makan tidak seimbang, serta kelebihan berat badan.',
-        berisiko: 'Dulu lebih sering terjadi pada orang dewasa dan lanjut usia, tetapi sekarang semakin banyak ditemukan pada remaja dan anak-anak juga.',
-        fakta: 'Lebih dari 90% kasus diabetes di dunia adalah tipe ini. Kabar baiknya, diabetes tipe 2 dapat dicegah dan dikelola dengan menerapkan pola hidup sehat sejak dini.'
-    },
-    gestasional: {
-        nama: 'Diabetes Melitus Gestasional',
-        apaItu: 'Diabetes yang baru pertama kali terdeteksi ketika seorang wanita sedang hamil, pada wanita yang sebelumnya tidak memiliki diabetes.',
-        penyebab: 'Perubahan hormon selama kehamilan dapat membuat tubuh menjadi lebih sulit menggunakan insulin secara efektif (resistensi insulin sementara).',
-        berisiko: 'Ibu hamil, dan biasanya baru terdeteksi pada trimester kedua atau ketiga masa kehamilan.',
-        fakta: 'Kondisi ini umumnya menghilang setelah melahirkan, tetapi ibu yang pernah mengalaminya memiliki risiko lebih tinggi terkena diabetes tipe 2 di kemudian hari.'
-    }
-};
-setupPanelChip('dmTipeChips', 'dmTipePlaceholder', 'dmTipeContent', dataDiabetesTipe, 'tipe', [
-    ['dmTipeNama', 'nama', v => v.toUpperCase()],
-    ['dmTipeApaItu', 'apaItu'],
-    ['dmTipePenyebab', 'penyebab'],
-    ['dmTipeBerisiko', 'berisiko'],
-    ['dmTipeFakta', 'fakta']
-]);
+on('btnKembaliBawahMateriDiabetes', 'click', () => bukaMenuUtama('materi'));
+on('btnMateriDiabetesNext', 'click', () => bukaMateri('mengenal-gula'));
+setupTantangan('btnChallengeMateriDiabetes', 'challengeFeedbackMateriDiabetes', '✅ Sudah dicoba!');
 on('btnKembaliAtasMateriMengenal', 'click', () => bukaMenuUtama('materi'));
+on('btnKembaliBawahMateriMengenal', 'click', () => bukaMenuUtama('materi'));
+on('btnMateriMengenalNext', 'click', () => bukaMateri('gula-dan-kesehatan'));
+on('btnMateriMengenalPrev', 'click', () => bukaMateri('kenali-diabetes-melitus-tipe-2'));
+setupTantangan('btnChallengeMateriMengenal', 'challengeFeedbackMateriMengenal', '✅ Sudah dicoba!');
+on('btnKembaliBawahMateriRemaja', 'click', () => bukaMenuUtama('materi'));
+on('btnMateriRemajaPrev', 'click', () => bukaMateri('aktivitas-fisik-dmt2'));
+setupTantangan('btnChallengeMateriRemaja', 'challengeFeedbackMateriRemaja', '✅ Sudah dicoba!');
 function setupPanelChip(chipsId, placeholderId, contentId, dataMap, datasetKey, fields) {
     const chipsEl = document.getElementById(chipsId);
     if (!chipsEl) return;
@@ -1228,59 +1057,6 @@ function setupPanelChip(chipsId, placeholderId, contentId, dataMap, datasetKey, 
         });
     });
 }
-const dataJenisGula = {
-    glukosa: {
-        nama: 'Glukosa',
-        apaItu: 'Glukosa merupakan salah satu jenis gula sederhana yang dapat digunakan tubuh sebagai sumber energi.',
-        sumber: 'Beberapa buah, madu, dan makanan yang mengandung karbohidrat setelah dicerna.',
-        proses: 'Glukosa dapat diserap tubuh dan digunakan oleh sel sebagai salah satu sumber energi.',
-        perhatian: 'Glukosa merupakan bagian normal dari metabolisme tubuh. Yang perlu diperhatikan adalah jumlah dan sumber makanan secara keseluruhan.'
-    },
-    fruktosa: {
-        nama: 'Fruktosa',
-        apaItu: 'Fruktosa merupakan salah satu jenis gula sederhana.',
-        sumber: 'Buah, madu, dan berbagai produk makanan/minuman yang menggunakan bahan pemanis berbasis fruktosa.',
-        proses: 'Fruktosa terutama diproses di hati setelah diserap tubuh.',
-        perhatian: 'Fruktosa yang terdapat secara alami dalam buah dikonsumsi bersama komponen lain seperti serat, air, vitamin, dan mineral. Fruktosa juga dapat ditemukan pada produk dengan gula tambahan. Karena itu, sumber dan jumlah konsumsinya perlu diperhatikan.'
-    },
-    galaktosa: {
-        nama: 'Galaktosa',
-        apaItu: 'Galaktosa merupakan gula sederhana yang menjadi salah satu komponen penyusun laktosa.',
-        sumber: 'Terutama berasal dari makanan/minuman yang mengandung laktosa, seperti susu.',
-        proses: 'Galaktosa diperoleh ketika laktosa dipecah selama proses pencernaan.',
-        perhatian: 'Galaktosa umumnya diperoleh sebagai bagian dari laktosa dalam makanan berbahan susu.'
-    },
-    sukrosa: {
-        nama: 'Sukrosa',
-        apaItu: 'Sukrosa merupakan gula yang umum dikenal sebagai gula meja atau gula pasir.',
-        sumber: 'Gula pasir, makanan manis, minuman manis, serta makanan dan minuman yang diberi gula tambahan.',
-        proses: 'Sukrosa dipecah menjadi glukosa dan fruktosa sebelum diserap tubuh.',
-        perhatian: 'Sukrosa banyak digunakan sebagai gula tambahan dalam makanan dan minuman, sehingga jumlah konsumsinya perlu diperhatikan.'
-    },
-    laktosa: {
-        nama: 'Laktosa',
-        apaItu: 'Laktosa merupakan gula alami yang terdapat pada susu.',
-        sumber: 'Susu dan produk olahan susu tertentu.',
-        proses: 'Laktosa dipecah menjadi glukosa dan galaktosa agar dapat diserap tubuh.',
-        perhatian: 'Pada orang yang memiliki kekurangan enzim laktase, konsumsi laktosa dalam jumlah tertentu dapat menimbulkan keluhan seperti kembung, gas, atau diare. Namun, tidak semua orang mengalami keluhan tersebut.'
-    },
-    maltosa: {
-        nama: 'Maltosa',
-        apaItu: 'Maltosa merupakan gula yang tersusun dari dua molekul glukosa.',
-        sumber: 'Dapat terbentuk ketika pati dipecah, dan terdapat pada beberapa bahan pangan tertentu.',
-        proses: 'Maltosa dapat dipecah menjadi glukosa sebelum digunakan tubuh.',
-        perhatian: 'Maltosa merupakan salah satu bentuk gula yang dapat berasal dari proses pemecahan karbohidrat.'
-    }
-};
-setupPanelChip('smJenisGulaChips', 'smJenisGulaPlaceholder', 'smJenisGulaContent', dataJenisGula, 'gula', [
-    ['smGulaNama', 'nama', v => v.toUpperCase()],
-    ['smGulaApaItu', 'apaItu'],
-    ['smGulaSumber', 'sumber'],
-    ['smGulaProses', 'proses'],
-    ['smGulaPerhatian', 'perhatian']
-]);
-on('btnLanjutMateriKesehatanDariSumber', 'click', () => bukaMateri('gula-dan-kesehatan'));
-on('btnMateriSumberNext', 'click', () => bukaMateri('gula-dan-kesehatan'));
 on('btnKembaliDashboardGame', 'click', () => bukaMenuUtama('dashboard'));
 on('btnKembaliDashboardMateri', 'click', () => bukaMenuUtama('dashboard'));
 on('btnKembaliDashboardKalkulator', 'click', () => bukaMenuUtama('dashboard'));
@@ -1637,9 +1413,9 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         { min: 250, emoji: '🐤', gambar: 'pet-evo-3.png', pola: n => `${n} Muda`, aura: 'rgba(255, 170, 60, 0.55)', desc: 'Bulunya mulai berpijar, makin lincah menemanimu belajar.' },
         { min: 500, emoji: '🦜', gambar: 'pet-evo-4.png', pola: n => `${n} Terampil`, aura: 'rgba(255, 140, 66, 0.58)', desc: 'Makin gesit dan paham banyak fakta gula & kesehatan.' },
         { min: 1000, emoji: '🦉', gambar: 'pet-evo-5.png', pola: n => `${n} Bijak`, aura: 'rgba(255, 111, 74, 0.6)', desc: 'Bijak menemani setiap pilihan makanan & minumanmu.' },
-        { min: 2000, emoji: '🦅', gambar: 'pet-evo-6.png', pola: n => `${n} Perkasa`, aura: 'rgba(255, 87, 51, 0.62)', desc: 'Sayapnya membara gagah — konsistensimu luar biasa!' },
+        { min: 2000, emoji: '🦅', gambar: 'pet-evo-6.png', pola: n => `${n} Perkasa`, aura: 'rgba(255, 87, 51, 0.62)', desc: 'Sayapnya membara gagah, konsistensimu luar biasa!' },
         { min: 4000, emoji: '🐦\u200d🔥', gambar: 'pet-evo-7.png', pola: n => `${n} Sejati`, aura: 'rgba(255, 61, 0, 0.7)', desc: 'Bertransformasi penuh jadi burung Phoenix legendaris, gagah dan membara sepenuhnya.' },
-        { min: 8000, emoji: '🌌', gambar: 'pet-evo-8.png', pola: n => `${n} Semesta`, aura: 'rgba(147, 51, 234, 0.65)', desc: 'Wujud puncak lintas galaksi — level tertinggi, legenda hidup Sobat Sehat!' }
+        { min: 8000, emoji: '🌌', gambar: 'pet-evo-8.png', pola: n => `${n} Semesta`, aura: 'rgba(147, 51, 234, 0.65)', desc: 'Wujud puncak lintas galaksi, level tertinggi, legenda hidup Sobat Sehat!' }
     ];
     function kunciAkunAktif(base) {
         return `${base}_${(typeof emailAktif !== 'undefined' && emailAktif) ? emailAktif : 'tamu'}`;
@@ -1699,7 +1475,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         if (!sudahAdaNama) {
             _modeNamaPetSaatIni = 'baru';
             if (namaPetJudul) namaPetJudul.textContent = 'Beri Nama Pet-mu';
-            if (namaPetInfoTeks) namaPetInfoTeks.innerHTML = 'Nama ini bakal dipakai di semua level evolusi pet-mu (misalnya "Telur Kobo", "Kobo Mungil", dst). Nama pertama ini <strong>gratis</strong> — nama berikutnya baru bisa diganti lagi lewat bonus Absen 7 Hari berturut-turut.';
+            if (namaPetInfoTeks) namaPetInfoTeks.innerHTML = 'Nama ini bakal dipakai di semua level evolusi pet-mu (misalnya "Telur Kobo", "Kobo Mungil", dst). Nama pertama ini <strong>gratis</strong>, sedangkan nama berikutnya baru bisa diganti lagi lewat bonus Absen 7 Hari berturut-turut.';
             if (formNamaPetBaru) formNamaPetBaru.classList.remove('hidden');
             if (btnSimpanNamaPet) { btnSimpanNamaPet.classList.remove('hidden'); btnSimpanNamaPet.textContent = 'Simpan Nama'; }
             if (inputNamaPetModal) inputNamaPetModal.value = '';
@@ -1708,7 +1484,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         } else if (kesempatan > 0) {
             _modeNamaPetSaatIni = 'ganti';
             if (namaPetJudul) namaPetJudul.textContent = '🎁 Kesempatan Ganti Nama!';
-            if (namaPetInfoTeks) namaPetInfoTeks.innerHTML = `Kamu dapat <strong>${kesempatan} kesempatan ganti nama</strong> dari bonus Absen 7 Hari penuh berturut-turut! Nama pet-mu sekarang <strong>${ambilNamaPetDasar()}</strong> — mau diganti jadi apa?`;
+            if (namaPetInfoTeks) namaPetInfoTeks.innerHTML = `Kamu dapat <strong>${kesempatan} kesempatan ganti nama</strong> dari bonus Absen 7 Hari penuh berturut-turut! Nama pet-mu sekarang <strong>${ambilNamaPetDasar()}</strong>, mau diganti jadi apa?`;
             if (formNamaPetBaru) formNamaPetBaru.classList.remove('hidden');
             if (btnSimpanNamaPet) { btnSimpanNamaPet.classList.remove('hidden'); btnSimpanNamaPet.textContent = 'Ganti Nama'; }
             if (inputNamaPetModal) inputNamaPetModal.value = '';
@@ -1826,7 +1602,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         if (petProgressText) {
             petProgressText.textContent = next
                 ? `${total} / ${next.min} Poin menuju ${next.pola(namaDasar)}`
-                : `${total} Poin — Level maksimal tercapai! 🎉`;
+                : `${total} Poin, Level maksimal tercapai! 🎉`;
         }
         if (topbarPetEmoji) { topbarPetEmoji.innerHTML = markupIkonPet(stage, namaStageAktif); topbarPetEmoji.style.setProperty('--aura-color', stage.aura); pasangFallbackGambarPet(topbarPetEmoji); }
         if (topbarPetNama) topbarPetNama.textContent = namaStageAktif;
@@ -1839,10 +1615,10 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
                 btnEditNamaPet.title = 'Beri nama pet-mu';
             } else if (kesempatan > 0) {
                 btnEditNamaPet.textContent = '🎁';
-                btnEditNamaPet.title = `Kamu punya ${kesempatan} kesempatan ganti nama pet — klik buat pakai!`;
+                btnEditNamaPet.title = `Kamu punya ${kesempatan} kesempatan ganti nama pet, klik buat pakai!`;
             } else {
                 btnEditNamaPet.textContent = '🔒';
-                btnEditNamaPet.title = 'Nama terkunci — absen penuh 7 hari berturut-turut buat dapat kesempatan ganti nama';
+                btnEditNamaPet.title = 'Nama terkunci, absen penuh 7 hari berturut-turut buat dapat kesempatan ganti nama';
             }
         }
     }
@@ -1875,7 +1651,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             ikonHtml: markupIkonPet(stage, namaStageIni),
             aura: stage.aura,
             badge: '🎉 Pet Naik Level!',
-            judul: `Level ${idx + 1} — ${namaStageIni}`,
+            judul: `Level ${idx + 1}: ${namaStageIni}`,
             subjudul: stage.desc,
             adaGambarImg: true
         });
@@ -1891,7 +1667,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             <li class="pet-evolusi-item${i === idxAktif ? ' pet-evolusi-aktif' : ''}">
                 <span class="pet-evolusi-emoji pet-evolusi-emoji--pet" style="--aura-color:${s.aura}">${markupIkonPet(s, namaStageIni)}</span>
                 <span class="pet-evolusi-teks">
-                    <span class="pet-evolusi-nama">Level ${i + 1} — ${namaStageIni}${i === idxAktif ? ' (sekarang)' : ''}</span>
+                    <span class="pet-evolusi-nama">Level ${i + 1}: ${namaStageIni}${i === idxAktif ? ' (sekarang)' : ''}</span>
                     <span class="pet-evolusi-syarat">${s.min === 0 ? 'Mulai dari 0 Poin' : `Mulai dari ${s.min} Poin kumulatif`}</span>
                 </span>
             </li>
@@ -1941,107 +1717,143 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         { kol: 1, baris: 5 }, { kol: 1, baris: 4 }, { kol: 1, baris: 3 }, { kol: 1, baris: 2 }
     ];
     // ===== Bank Soal Kuis — mencakup seluruh materi edukasi & tips sehat =====
+    // Diisi bertahap per materi. Tambahkan soal baru di sini nanti, satu per
+    // satu, dengan format:
+    // { topik: 'Nama Topik', pertanyaan: '...', opsi: ['jawaban benar', 'opsi 2', 'opsi 3'], benar: 0, penjelasan: '...' }
+    // Catatan: "benar" adalah INDEX opsi yang benar di array "opsi" (0 = opsi pertama).
     const QUESTION_BANK = [
-        // 1. Mengenal Diabetes Melitus
-        { topik: 'Diabetes', pertanyaan: 'Apa penyebab utama diabetes melitus tipe 1?', opsi: ['Gangguan sistem imun (autoimun)', 'Terlalu banyak makan manis', 'Kurang tidur'], benar: 0, penjelasan: 'Diabetes tipe 1 disebabkan oleh gangguan sistem imun (autoimun), bukan karena makan manis, sehingga penderitanya butuh suntik insulin seumur hidup.' },
-        { topik: 'Diabetes', pertanyaan: 'Tipe diabetes melitus mana yang menyumbang lebih dari 90% kasus diabetes di dunia dan bisa dicegah?', opsi: ['Diabetes tipe 1', 'Diabetes tipe 2', 'Diabetes gestasional'], benar: 1, penjelasan: 'Diabetes tipe 2 menyumbang lebih dari 90% kasus diabetes di dunia, dan bisa dicegah dengan gaya hidup sehat.' },
-        { topik: 'Diabetes', pertanyaan: 'Diabetes gestasional adalah diabetes yang muncul pada kondisi apa?', opsi: ['Saat kehamilan', 'Sejak lahir', 'Setelah olahraga berat'], benar: 0, penjelasan: 'Diabetes gestasional adalah diabetes yang baru muncul saat hamil akibat perubahan hormon kehamilan, dan biasanya hilang setelah melahirkan.' },
-        { topik: 'Diabetes', pertanyaan: 'Kenapa gejala diabetes tipe 2 sering tidak disadari?', opsi: ['Karena berkembang perlahan dalam waktu lama', 'Karena muncul mendadak dalam hitungan hari', 'Karena hanya terjadi pada lansia'], benar: 0, penjelasan: 'Gejala diabetes tipe 2 berkembang perlahan dan sering tidak disadari, sehingga skrining rutin penting meski merasa sehat.' },
-        { topik: 'Diabetes', pertanyaan: 'Dibandingkan diabetes tipe 2, bagaimana gejala diabetes tipe 1 biasanya muncul?', opsi: ['Muncul mendadak dalam hitungan hari sampai minggu', 'Muncul perlahan dalam hitungan tahun', 'Tidak pernah menimbulkan gejala'], benar: 0, penjelasan: 'Gejala diabetes tipe 1 biasanya muncul mendadak dan cukup terasa dalam hitungan hari sampai minggu, berbeda dengan tipe 2 yang berkembang perlahan.' },
-        { topik: 'Diabetes', pertanyaan: 'Jika kadar gula darah tinggi dibiarkan dalam waktu lama tanpa penanganan, berapa kali lipat risiko serangan jantung dan stroke dapat meningkat?', opsi: ['2–3 kali lipat', '10 kali lipat', 'Tidak meningkat sama sekali'], benar: 0, penjelasan: 'Diabetes yang tidak ditangani dalam waktu lama dapat meningkatkan risiko serangan jantung dan stroke hingga 2–3 kali lipat.' },
-        // 1b. Konsumsi Makanan Bergizi
-        { topik: 'Makanan Bergizi', pertanyaan: 'Ada berapa prinsip utama gizi seimbang yang perlu diperhatikan bersamaan?', opsi: ['4 prinsip', '2 prinsip', '10 prinsip'], benar: 0, penjelasan: '4 prinsip utama gizi seimbang: aneka ragam pangan, perilaku hidup bersih, aktivitas fisik, dan pantau berat badan.' },
-        { topik: 'Makanan Bergizi', pertanyaan: 'Kenapa dianjurkan makan aneka ragam pangan (makanan pokok, lauk, sayur, buah) setiap hari?', opsi: ['Karena tidak ada satu jenis makanan yang mengandung semua zat gizi', 'Karena harus mencoba semua rasa', 'Karena harganya lebih murah'], benar: 0, penjelasan: 'Tidak ada satu jenis makanan yang mengandung semua zat gizi, sehingga perlu variasi makanan pokok, lauk pauk, sayur, dan buah setiap hari.' },
-        { topik: 'Makanan Bergizi', pertanyaan: 'Menurut panduan "Isi Piringku" dari Kemenkes RI, bagaimana pembagian porsi sekali makan?', opsi: ['Separuh piring diisi sayur & buah, separuh lagi makanan pokok & lauk pauk', 'Seluruh piring diisi nasi', 'Separuh piring diisi lauk pauk saja'], benar: 0, penjelasan: 'Isi Piringku membagi piring menjadi separuh untuk sayur & buah, dan separuh lagi untuk makanan pokok & lauk pauk, dilengkapi air putih yang cukup.' },
-        { topik: 'Makanan Bergizi', pertanyaan: 'Pada panduan Isi Piringku, dari setengah bagian piring untuk makanan pokok & lauk pauk, berapa porsi makanan pokok dibanding lauk pauk?', opsi: ['Makanan pokok sekitar 2/3, lauk pauk sekitar 1/3', 'Makanan pokok dan lauk pauk sama besar 1/2 - 1/2', 'Lauk pauk sekitar 2/3, makanan pokok sekitar 1/3'], benar: 0, penjelasan: 'Dari setengah piring untuk makanan pokok & lauk pauk, porsi makanan pokok sekitar 2/3 dan lauk pauk sekitar 1/3.' },
-        { topik: 'Makanan Bergizi', pertanyaan: 'Kenapa remaja membutuhkan energi dan zat gizi lebih banyak dibanding masa anak-anak?', opsi: ['Karena masa remaja adalah masa pertumbuhan cepat (growth spurt)', 'Karena remaja lebih sering sakit', 'Karena remaja tidur lebih sedikit'], benar: 0, penjelasan: 'Masa remaja adalah masa pertumbuhan cepat (growth spurt) — tinggi badan, otot, tulang, dan otak berkembang pesat, sehingga kebutuhan gizi meningkat.' },
-        { topik: 'Makanan Bergizi', pertanyaan: 'Kenapa remaja putri dianjurkan mengonsumsi lebih banyak zat besi dibanding remaja putra?', opsi: ['Untuk mengganti zat besi yang hilang saat menstruasi dan mencegah anemia', 'Karena remaja putri lebih banyak berolahraga', 'Karena zat besi membuat tinggi badan bertambah'], benar: 0, penjelasan: 'Remaja putri butuh zat besi lebih banyak (±15 mg/hari) dibanding remaja putra (±11 mg/hari) untuk mengganti zat besi yang hilang saat menstruasi dan mencegah anemia.' },
-        { topik: 'Makanan Bergizi', pertanyaan: 'Zat gizi apa yang dibutuhkan sekitar 1.200 mg/hari untuk pembentukan tulang dan gigi remaja?', opsi: ['Kalsium', 'Zat besi', 'Protein'], benar: 0, penjelasan: 'Kalsium dibutuhkan sekitar 1.200 mg/hari untuk pembentukan tulang dan gigi, dengan sumber seperti susu, ikan (termasuk tulang lunaknya), dan sayuran hijau.' },
-        { topik: 'Makanan Bergizi', pertanyaan: 'Sebagai bagian dari program pemerintah mencegah anemia, apa yang dianjurkan dikonsumsi rutin oleh remaja putri di Indonesia?', opsi: ['Tablet Tambah Darah (TTD)', 'Suplemen kalsium', 'Vitamin C dosis tinggi'], benar: 0, penjelasan: 'Remaja putri di Indonesia dianjurkan mengonsumsi Tablet Tambah Darah (TTD) secara rutin sebagai bagian dari program pemerintah untuk mencegah anemia.' },
-        { topik: 'Makanan Bergizi', pertanyaan: 'Berapa batas maksimal konsumsi gula, garam, dan lemak per hari menurut anjuran gizi seimbang?', opsi: ['Gula ±50 g, garam ±5 g, lemak ±67 g', 'Gula ±500 g, garam ±50 g, lemak ±670 g', 'Tidak ada batasan sama sekali'], benar: 0, penjelasan: 'Anjurannya adalah gula maksimal ±50 gram (4 sdm), garam maksimal ±5 gram (1 sdt), dan lemak maksimal ±67 gram (5 sdm) per hari.' },
-        { topik: 'Makanan Bergizi', pertanyaan: 'Kira-kira berapa kebutuhan energi harian remaja laki-laki usia 16-18 tahun menurut AKG Kemenkes RI?', opsi: ['Sekitar 2.650 kkal', 'Sekitar 1.000 kkal', 'Sekitar 5.000 kkal'], benar: 0, penjelasan: 'Menurut Angka Kecukupan Gizi (AKG) Kemenkes RI, laki-laki usia 16-18 tahun membutuhkan energi sekitar 2.650 kkal dan protein sekitar 75 g per hari.' },
-        // 2. Mengenal Gula & Sumbernya
-        { topik: 'Gula & Sumbernya', pertanyaan: 'Kira-kira berapa batas gula tambahan yang disarankan per hari untuk remaja?', opsi: ['Sekitar 4 sendok teh', 'Sekitar 15 sendok teh', 'Tidak ada batasnya'], benar: 0, penjelasan: 'Batas gula tambahan yang disarankan sekitar 4 sendok teh (±50g) per hari — idealnya lebih sedikit dari itu.' },
-        { topik: 'Gula & Sumbernya', pertanyaan: 'Gula termasuk dalam kelompok zat gizi apa?', opsi: ['Karbohidrat sederhana', 'Protein', 'Vitamin'], benar: 0, penjelasan: 'Gula merupakan salah satu bentuk karbohidrat sederhana yang bisa ditemukan alami maupun ditambahkan ke makanan/minuman.' },
-        { topik: 'Gula & Sumbernya', pertanyaan: 'Kalau makanan tidak terasa manis, apakah berarti pasti tidak mengandung gula?', opsi: ['Tidak, tetap bisa mengandung gula', 'Ya, pasti tidak ada gula', 'Hanya berlaku untuk minuman'], benar: 0, penjelasan: 'Beberapa produk bisa mengandung gula meskipun rasa manisnya tidak terlalu kuat, jadi jangan hanya andalkan rasa.' },
-        { topik: 'Gula & Sumbernya', pertanyaan: 'Manakah yang termasuk gula alami, bukan gula tambahan?', opsi: ['Gula dalam buah dan susu', 'Gula yang ditambahkan ke minuman kemasan', 'Sirup yang dituang ke makanan'], benar: 0, penjelasan: 'Gula alami secara alami ada dalam bahan makanan seperti buah dan susu, berbeda dari gula tambahan yang ditambahkan saat pembuatan/penyajian.' },
-        { topik: 'Gula & Sumbernya', pertanyaan: 'Selain gula, apa saja yang termasuk kelompok karbohidrat?', opsi: ['Pati dan serat', 'Protein dan lemak', 'Vitamin dan mineral'], benar: 0, penjelasan: 'Karbohidrat tidak hanya terdiri dari gula — gula, pati, dan serat merupakan bagian dari kelompok karbohidrat dengan karakteristik yang berbeda.' },
-        { topik: 'Gula & Sumbernya', pertanyaan: 'Apa yang terjadi pada karbohidrat dari makanan setelah dicerna tubuh?', opsi: ['Diubah menjadi gula sederhana yang diserap dan digunakan sebagai energi', 'Langsung dibuang tanpa diserap', 'Berubah menjadi protein'], benar: 0, penjelasan: 'Karbohidrat dari makanan dicerna menjadi bentuk gula sederhana yang kemudian diserap tubuh dan dapat digunakan sebagai sumber energi.' },
-        // 3. Gula dan Kesehatan Tubuh
-        { topik: 'Gula & Kesehatan', pertanyaan: 'Hormon apa yang bertugas membantu gula darah masuk ke dalam sel tubuh?', opsi: ['Insulin', 'Enzim pencernaan', 'Hemoglobin'], benar: 0, penjelasan: 'Insulin adalah hormon yang membantu gula darah (glukosa) masuk ke dalam sel untuk dijadikan energi.' },
-        { topik: 'Gula & Kesehatan', pertanyaan: 'Apa risiko jangka panjang dari konsumsi gula berlebih?', opsi: ['Risiko diabetes tipe 2', 'Tulang jadi lebih kuat', 'Tinggi badan bertambah'], benar: 0, penjelasan: 'Konsumsi gula berlebih dalam jangka panjang meningkatkan risiko diabetes tipe 2 dan berbagai penyakit lain.' },
-        { topik: 'Gula & Kesehatan', pertanyaan: 'Apa yang dimaksud dengan resistensi insulin?', opsi: ['Sel tubuh kurang merespons sinyal insulin', 'Tubuh memproduksi insulin berlebihan', 'Insulin berubah jadi glukosa'], benar: 0, penjelasan: 'Resistensi insulin terjadi ketika sel tubuh kurang "mendengar" sinyal insulin akibat kebiasaan tinggi gula terus-menerus, sehingga glukosa lebih sulit masuk ke sel.' },
-        { topik: 'Gula & Kesehatan', pertanyaan: 'Berapa batas maksimal konsumsi gula tambahan menurut WHO, dari total energi harian?', opsi: ['Tidak lebih dari 10%', 'Tidak lebih dari 50%', 'Tidak ada batasan'], benar: 0, penjelasan: 'WHO menyarankan konsumsi gula tambahan tidak lebih dari 10% total energi harian — makin sedikit makin baik.' },
-        { topik: 'Gula & Kesehatan', pertanyaan: 'Jika gula darah tinggi dibiarkan dalam waktu lama, organ apa saja yang berisiko mengalami gangguan?', opsi: ['Ginjal, mata, saraf, dan jantung', 'Hanya kulit', 'Hanya rambut'], benar: 0, penjelasan: 'Gula darah tinggi jangka panjang dapat merusak ginjal (nefropati), mata (retinopati), saraf (neuropati), serta jantung dan pembuluh darah.' },
-        { topik: 'Gula & Kesehatan', pertanyaan: 'Bagaimana urutan proses tubuh mengatur gula darah setelah makan?', opsi: ['Glukosa darah naik → pankreas melepaskan insulin → glukosa masuk sel → digunakan sebagai energi', 'Insulin naik duluan sebelum makan', 'Glukosa langsung menjadi lemak tanpa insulin'], benar: 0, penjelasan: 'Setelah makan, kadar glukosa darah meningkat, pankreas melepaskan insulin, insulin membantu glukosa masuk ke sel, lalu digunakan sebagai energi.' },
-        // 4. Gula dan Kesehatan Gigi
-        { topik: 'Gula & Gigi', pertanyaan: 'Apa yang dihasilkan ketika bakteri di mulut bertemu dengan gula?', opsi: ['Asam yang bisa merusak gigi', 'Enzim pencernaan', 'Vitamin C'], benar: 0, penjelasan: 'Bakteri di mulut mengolah gula menjadi asam, dan asam inilah yang dapat merusak lapisan gigi.' },
-        { topik: 'Gula & Gigi', pertanyaan: 'Mana yang lebih berisiko bagi gigi: ngemil manis sedikit tapi berkali-kali sehari, atau makan manis sekali dalam jumlah banyak?', opsi: ['Ngemil manis berkali-kali dalam sehari', 'Makan manis sekali dalam jumlah banyak', 'Keduanya sama sekali tidak berisiko'], benar: 0, penjelasan: 'Semakin sering gigi terpapar gula, semakin sering pula gigi menghadapi kondisi asam — frekuensi paparan lebih berpengaruh daripada sekadar jumlah sekali makan.' },
-        { topik: 'Gula & Gigi', pertanyaan: 'Kenapa minuman manis perlu diperhatikan untuk kesehatan gigi?', opsi: ['Sering dikonsumsi berulang sehingga gigi lebih sering terpapar', 'Karena warnanya mencolok', 'Karena harganya mahal'], benar: 0, penjelasan: 'Minuman manis sering dikonsumsi berulang sepanjang hari, membuat gigi lebih sering menghadapi kondisi yang mendukung pembentukan asam.' },
-        { topik: 'Gula & Gigi', pertanyaan: 'Manakah camilan yang perlu diperhatikan frekuensinya untuk kesehatan gigi?', opsi: ['Biskuit manis, kue, dan dessert', 'Buah utuh', 'Susu tanpa tambahan gula'], benar: 0, penjelasan: 'Biskuit manis, kue, dan dessert termasuk kelompok yang perlu diperhatikan frekuensinya, berbeda dengan buah utuh atau susu tanpa tambahan gula.' },
-        { topik: 'Gula & Gigi', pertanyaan: 'Apa yang terjadi pada gigi jika sering mengalami paparan asam akibat gula secara berulang?', opsi: ['Risiko gigi berlubang (karies) meningkat', 'Gigi menjadi lebih putih', 'Gigi menjadi lebih kuat'], benar: 0, penjelasan: 'Paparan asam yang berulang pada permukaan gigi dapat menyebabkan kerusakan gigi dan meningkatkan risiko karies.' },
-        { topik: 'Gula & Gigi', pertanyaan: 'Selain jumlah dan frekuensi gula, apa faktor lain yang memengaruhi risiko karies gigi?', opsi: ['Kebersihan gigi dan mulut', 'Warna makanan', 'Harga makanan'], benar: 0, penjelasan: 'Risiko karies dipengaruhi kombinasi beberapa faktor: gula yang dikonsumsi, frekuensi konsumsi, pola konsumsi, dan kebersihan gigi dan mulut.' },
-        // 5. Gula, Energi, dan Tubuh
-        { topik: 'Gula & Energi', pertanyaan: 'Apa itu kalori?', opsi: ['Satuan jumlah energi dari makanan dan minuman', 'Satuan berat badan', 'Jenis vitamin dalam tubuh'], benar: 0, penjelasan: 'Kalori merupakan satuan yang digunakan untuk menyatakan jumlah energi yang diperoleh dari makanan dan minuman.' },
-        { topik: 'Gula & Energi', pertanyaan: 'Apa yang cenderung terjadi jika energi masuk lebih banyak dan lebih lama dibanding energi yang digunakan tubuh?', opsi: ['Berat badan cenderung bertambah', 'Berat badan otomatis stabil', 'Tubuh kehilangan energi'], benar: 0, penjelasan: 'Energi masuk yang lebih banyak dan lebih lama dibanding yang digunakan cenderung membuat berat badan bertambah.' },
-        { topik: 'Gula & Energi', pertanyaan: 'Kenapa minuman manis perlu diperhatikan sebagai sumber energi?', opsi: ['Menyumbang energi tapi kurang memberi rasa kenyang', 'Tidak menyumbang energi sama sekali', 'Selalu lebih mengenyangkan dari makanan padat'], benar: 0, penjelasan: 'Minuman manis menyumbang energi, tetapi seringkali tidak memberi rasa kenyang seperti makanan padat, sehingga mudah dikonsumsi berlebih tanpa disadari.' },
-        { topik: 'Gula & Energi', pertanyaan: 'Apakah kebutuhan energi setiap orang sama?', opsi: ['Tidak, berbeda tergantung karakteristik tubuh & aktivitas', 'Ya, semua orang butuh jumlah energi yang sama', 'Hanya berbeda berdasarkan warna favorit'], benar: 0, penjelasan: 'Kebutuhan energi setiap orang berbeda karena dipengaruhi karakteristik tubuh dan tingkat aktivitas masing-masing.' },
-        { topik: 'Gula & Energi', pertanyaan: 'Apa yang cenderung terjadi jika energi yang masuk secara terus-menerus lebih besar dari energi yang digunakan tubuh?', opsi: ['Kelebihan energi dapat disimpan dan berat badan bisa bertambah', 'Tubuh otomatis membuang kelebihan energi', 'Tidak ada pengaruh apa pun'], benar: 0, penjelasan: 'Jika energi masuk terus-menerus lebih besar dari yang digunakan, kelebihan energi dapat disimpan tubuh dan dalam jangka panjang berkontribusi pada peningkatan berat badan.' },
-        { topik: 'Gula & Energi', pertanyaan: 'Selain berat badan dan tinggi badan, faktor apa yang memengaruhi kebutuhan energi harian seseorang?', opsi: ['Usia dan tingkat aktivitas', 'Warna kulit', 'Golongan darah'], benar: 0, penjelasan: 'Kebutuhan energi harian dipengaruhi oleh usia, berat badan, tinggi badan, dan tingkat aktivitas seseorang.' },
-        // 6. Kebiasaan Remaja
-        { topik: 'Kebiasaan Remaja', pertanyaan: 'Apa penyumbang gula tersembunyi terbesar pada remaja?', opsi: ['Air putih', 'Minuman manis kemasan/bersoda', 'Susu tawar'], benar: 1, penjelasan: 'Minuman manis kemasan dan bersoda adalah penyumbang terbesar gula tambahan pada remaja.' },
-        { topik: 'Kebiasaan Remaja', pertanyaan: 'Apa yang sering mendorong remaja ikut membeli makanan/minuman viral tanpa memeriksa kandungan gulanya dulu?', opsi: ['FOMO (takut ketinggalan tren)', 'Anjuran dokter', 'Instruksi dari sekolah'], benar: 0, penjelasan: 'Tren viral di media sosial memicu rasa penasaran dan FOMO, membuat kita fokus pada rasa/tampilan tanpa memeriksa kandungan gulanya dulu.' },
-        { topik: 'Kebiasaan Remaja', pertanyaan: 'Kenapa penting memperhatikan total konsumsi gula sepanjang hari, bukan cuma dari satu produk?', opsi: ['Karena gula dari beberapa produk kecil bisa terkumpul jadi jumlah besar', 'Karena satu produk pasti tidak mengandung gula', 'Karena total sehari tidak berpengaruh'], benar: 0, penjelasan: 'Satu per satu terlihat kecil, tapi minuman manis, camilan, dan makanan penutup sepanjang hari bisa bertambah jadi jumlah yang besar.' },
-        { topik: 'Kebiasaan Remaja', pertanyaan: 'Kapan saja jam-jam yang rawan jadi waktu ngemil bagi remaja?', opsi: ['Istirahat sekolah, pulang sekolah, dan saat belajar/main HP', 'Hanya saat sarapan', 'Hanya tengah malam'], benar: 0, penjelasan: 'Jam istirahat, pulang sekolah, sore santai, dan saat belajar/main HP sering menjadi momen ngemil yang tidak disadari.' },
-        { topik: 'Kebiasaan Remaja', pertanyaan: 'Apa yang dimaksud dengan pola "sedikit tapi sering" terkait konsumsi gula pada remaja?', opsi: ['Beberapa produk kecil sepanjang hari yang totalnya bisa jadi besar', 'Selalu makan dalam porsi besar sekali sehari', 'Tidak makan apa pun sepanjang hari'], benar: 0, penjelasan: 'Minuman manis, camilan, dan makanan penutup yang terlihat kecil satu per satu dapat bertambah menjadi jumlah besar jika dijumlahkan sepanjang hari.' },
-        { topik: 'Kebiasaan Remaja', pertanyaan: 'Kenapa mengetahui informasi tentang gula belum tentu membuat seseorang otomatis menerapkannya sehari-hari?', opsi: ['Karena pengetahuan perlu diikuti kesadaran sebelum menjadi perilaku', 'Karena informasi tentang gula selalu salah', 'Karena remaja tidak bisa membaca label'], benar: 0, penjelasan: 'Perubahan kebiasaan biasanya melalui proses bertahap: pengetahuan → kesadaran → perilaku, jadi tahu saja belum tentu sama dengan menerapkannya.' },
-        // 7. Aktivitas Fisik yang Cukup
-        { topik: 'Aktivitas Fisik', pertanyaan: 'Menurut WHO, berapa lama sebaiknya remaja usia 5–17 tahun beraktivitas fisik sedang–berat setiap hari (rata-rata per minggu)?', opsi: ['Rata-rata 60 menit sehari', 'Cukup 10 menit sehari', 'Cukup sekali seminggu'], benar: 0, penjelasan: 'WHO menyarankan rata-rata 60 menit per hari aktivitas fisik sedang–berat, dihitung total dalam seminggu.' },
-        { topik: 'Aktivitas Fisik', pertanyaan: 'Selain aktivitas harian, berapa kali seminggu minimal dianjurkan melakukan penguatan otot & tulang?', opsi: ['Minimal 3 hari per minggu', 'Setiap hari tanpa jeda', 'Tidak perlu sama sekali'], benar: 0, penjelasan: 'Selain aktivitas fisik harian, dianjurkan juga aktivitas penguatan otot dan tulang minimal 3 hari per minggu.' },
-        { topik: 'Aktivitas Fisik', pertanyaan: 'Bagaimana rumus menghitung Indeks Massa Tubuh (IMT)?', opsi: ['Berat badan (kg) ÷ [tinggi badan (m)]²', 'Tinggi badan (cm) − berat badan (kg)', 'Berat badan (kg) × tinggi badan (m)'], benar: 0, penjelasan: 'IMT dihitung dengan rumus berat badan (kg) dibagi kuadrat tinggi badan dalam meter.' },
-        { topik: 'Aktivitas Fisik', pertanyaan: 'Apa dampak jangka panjang jika remaja kurang bergerak dan banyak duduk (sedentari)?', opsi: ['Risiko kenaikan IMT dan gangguan gula darah meningkat', 'Otomatis menjadi lebih tinggi', 'Tidak berpengaruh pada kesehatan'], benar: 0, penjelasan: 'Semakin sedikit aktivitas fisik dan semakin banyak waktu duduk, semakin besar risiko kenaikan IMT dan gangguan gula darah.' },
-        { topik: 'Aktivitas Fisik', pertanyaan: 'Berapa persen kebutuhan energi harian yang sebaiknya berasal dari karbohidrat, menurut AMDR WHO/AKG Kemenkes RI?', opsi: ['45–65% dari kebutuhan energi harian', 'Hanya 5–10%', 'Hampir 100%'], benar: 0, penjelasan: 'Kebutuhan karbohidrat harian dihitung sebesar 45–65% dari kebutuhan energi harian, sesuai AMDR WHO/AKG Kemenkes RI.' },
-        { topik: 'Aktivitas Fisik', pertanyaan: 'Semakin tinggi tingkat aktivitas fisik seseorang (misalnya berolahraga lebih sering), apa yang terjadi pada perkiraan kebutuhan energi hariannya?', opsi: ['Perkiraan kebutuhan energi harian menjadi lebih besar', 'Perkiraan kebutuhan energi harian menjadi lebih kecil', 'Tidak berpengaruh sama sekali'], benar: 0, penjelasan: 'Semakin tinggi faktor aktivitas seseorang, semakin besar pula perkiraan kebutuhan energi harian yang dihitung.' },
-        // 8. Skrining Kesehatan
-        { topik: 'Skrining Kesehatan', pertanyaan: 'Apa tujuan utama skrining kesehatan bagi remaja?', opsi: ['Mengenali risiko kesehatan sejak dini, meski merasa sehat', 'Mencari-cari penyakit agar terlihat sakit', 'Hanya formalitas sekolah'], benar: 0, penjelasan: 'Skrining bertujuan mengenali risiko kesehatan sejak dini — bukan mencari-cari penyakit — sebelum berkembang jadi masalah serius.' },
-        { topik: 'Skrining Kesehatan', pertanyaan: 'Program Cek Kesehatan Gratis (CKG) dari Kemenkes berlaku untuk usia berapa saja?', opsi: ['Semua usia, dari bayi baru lahir hingga lansia', 'Hanya untuk lansia', 'Hanya untuk balita'], benar: 0, penjelasan: 'CKG adalah program nasional untuk seluruh warga Indonesia, mulai dari bayi baru lahir sampai lansia, termasuk usia remaja.' },
-        { topik: 'Skrining Kesehatan', pertanyaan: 'Kenapa penting mengisi formulir skrining kesehatan dengan jujur sebelum pemeriksaan CKG?', opsi: ['Supaya hasil pemeriksaan sesuai kondisi tubuh sebenarnya', 'Supaya cepat selesai saja', 'Supaya nilai skrining terlihat lebih baik'], benar: 0, penjelasan: 'Formulir yang diisi jujur membantu hasil pemeriksaan benar-benar sesuai dengan kondisi tubuh sebenarnya.' },
-        { topik: 'Skrining Kesehatan', pertanyaan: 'Kenapa pemeriksaan gula darah penting dilakukan sejak remaja, bukan cuma orang dewasa?', opsi: ['Karena diabetes tipe 2 pada remaja sering tidak bergejala di awal', 'Karena semua remaja pasti mengidap diabetes', 'Karena hanya berlaku untuk remaja yang kurus'], benar: 0, penjelasan: 'Diabetes tipe 2 pada remaja seringkali tidak bergejala di tahap awal, sehingga pemeriksaan gula darah berkala penting untuk deteksi dini.' },
-        { topik: 'Skrining Kesehatan', pertanyaan: 'Seberapa sering sebaiknya remaja memeriksakan kesehatan gigi ke dokter gigi?', opsi: ['Setiap 6 bulan sekali', 'Setiap 5 tahun sekali', 'Hanya jika sudah sakit parah'], benar: 0, penjelasan: 'Pemeriksaan gigi ke dokter gigi sebaiknya dilakukan setiap 6 bulan sekali agar masalah bisa terdeteksi lebih awal.' },
-        { topik: 'Skrining Kesehatan', pertanyaan: 'Gula darah puasa pada skrining dianggap normal jika berada di bawah angka berapa?', opsi: ['100 mg/dL', '250 mg/dL', '50 mg/dL'], benar: 0, penjelasan: 'Gula darah puasa dianggap normal jika berada di bawah 100 mg/dL, dan gula darah sewaktu di bawah 140 mg/dL.' },
-        // 9. Kenali Gula Tersembunyi
-        { topik: 'Gula Tersembunyi', pertanyaan: "Kenapa disebut 'gula tersembunyi' pada beberapa produk?", opsi: ['Karena ada gula meski rasanya tidak terlalu manis', 'Karena gula itu ilegal ditambahkan', 'Karena hanya ada di produk luar negeri'], benar: 0, penjelasan: "Istilah 'gula tersembunyi' menggambarkan gula yang tidak langsung disadari karena terdapat dalam produk yang tidak selalu terasa sangat manis." },
-        { topik: 'Gula Tersembunyi', pertanyaan: 'Menurut definisi WHO, apakah gula dalam buah utuh termasuk free sugars?', opsi: ['Tidak, gula dalam makanan utuh tidak otomatis termasuk free sugars', 'Ya, semua gula pada buah termasuk free sugars', 'Hanya buah impor yang termasuk free sugars'], benar: 0, penjelasan: 'Buah utuh tetap mengandung gula alami, tetapi gula tersebut tidak termasuk free sugars menurut definisi WHO.' },
-        { topik: 'Gula Tersembunyi', pertanyaan: 'Manakah yang termasuk free sugars menurut WHO?', opsi: ['Madu, sirup, dan jus buah/konsentrat jus', 'Buah utuh yang dimakan langsung', 'Sayuran segar'], benar: 0, penjelasan: 'WHO memasukkan gula tambahan serta gula alami dalam madu, sirup, jus buah, dan konsentrat jus buah sebagai free sugars.' },
-        { topik: 'Gula Tersembunyi', pertanyaan: 'Cara terbaik untuk mengetahui kandungan gula sebuah produk kemasan adalah?', opsi: ['Membaca informasi pada label pangan', 'Mencicipi rasa manisnya saja', 'Melihat warna kemasan'], benar: 0, penjelasan: 'Rasa membantu kita menikmati makanan, tetapi label membantu mengetahui informasi kandungan produk yang sebenarnya.' },
-        { topik: 'Gula Tersembunyi', pertanyaan: 'Menurut definisi WHO, apakah gula dalam susu segar termasuk free sugars?', opsi: ['Tidak, karena gula tersebut alami dalam makanan utuh', 'Ya, semua gula dalam susu adalah free sugars', 'Hanya berlaku untuk susu kemasan'], benar: 0, penjelasan: 'Gula yang secara alami terdapat dalam makanan utuh seperti susu tidak otomatis termasuk free sugars menurut definisi WHO.' },
-        { topik: 'Gula Tersembunyi', pertanyaan: 'Kalau ingin tahu kandungan gula sebenarnya dari sebuah produk kemasan, sebaiknya periksa bagian mana dari kemasan?', opsi: ['Informasi nilai gizi dan daftar bahan', 'Klaim dan gambar di bagian depan kemasan saja', 'Warna kemasan'], benar: 0, penjelasan: 'Bagian depan kemasan bisa menarik perhatian dengan klaim atau gambar, tetapi informasi nilai gizi dan daftar bahan lebih akurat untuk mengetahui kandungan produk.' },
-        // 10. Cara Membaca Label Pangan
-        { topik: 'Baca Label', pertanyaan: 'Kenapa membaca label kemasan makanan itu penting?', opsi: ['Untuk tahu kandungan gula & nutrisi', 'Untuk tahu warna kemasan', 'Untuk tahu harga produk'], benar: 0, penjelasan: 'Label kemasan menunjukkan kandungan gula, nutrisi, dan bahan lain di dalam produk.' },
-        { topik: 'Baca Label', pertanyaan: 'Kalau satu kemasan berisi 2 takaran saji dan kamu menghabiskan seluruh kemasan, berapa kali jumlah gula per sajian yang kamu konsumsi?', opsi: ['2 kali jumlah gula per sajian', 'Setengah dari jumlah gula per sajian', 'Sama seperti 1 sajian saja'], benar: 0, penjelasan: 'Jika satu kemasan punya 2 sajian dan kamu menghabiskan semuanya, berarti kamu mengonsumsi dua kali jumlah gula per sajian.' },
-        { topik: 'Baca Label', pertanyaan: 'Selain takaran saji dan kandungan gula, apa lagi yang penting dilihat pada label pangan?', opsi: ['Jumlah sajian per kemasan dan daftar bahan', 'Warna kemasan', 'Ukuran font pada label'], benar: 0, penjelasan: '4 hal penting pada label: takaran saji, jumlah sajian per kemasan, kandungan gula, dan daftar bahan.' },
-        { topik: 'Baca Label', pertanyaan: 'Apa fungsi daftar bahan pada label pangan?', opsi: ['Menunjukkan bahan yang digunakan, termasuk berbagai nama gula', 'Menunjukkan tanggal produksi saja', 'Menunjukkan negara asal produk'], benar: 0, penjelasan: 'Daftar bahan membantu mengenali bahan dalam produk — gula tambahan bisa punya nama berbeda seperti gula, sirup, atau madu.' },
-        { topik: 'Baca Label', pertanyaan: 'Dalam contoh label pangan, jika gula per sajian adalah 8 gram dan ada 2 sajian per kemasan, berapa total gula jika seluruh kemasan dihabiskan?', opsi: ['16 gram', '8 gram', '4 gram'], benar: 0, penjelasan: 'Jika satu kemasan memiliki 2 sajian dengan 8 gram gula per sajian, menghabiskan seluruh kemasan berarti mengonsumsi 16 gram gula (2 × 8 gram).' },
-        { topik: 'Baca Label', pertanyaan: 'Apa langkah pertama yang disarankan saat membeli produk kemasan agar bisa memilih dengan lebih sadar?', opsi: ['Melihat informasi nilai gizi dan daftar bahan', 'Langsung membeli tanpa melihat apa pun', 'Memilih berdasarkan warna kemasan'], benar: 0, penjelasan: 'Langkah pertama adalah melihat informasi nilai gizi dan daftar bahan, sebelum memahami dan mempertimbangkan pilihan.' },
-        // 10b. Label Minuman Manis (contoh nyata di kemasan)
-        { topik: 'Label Minuman Manis', pertanyaan: 'Satu botol Teh Botol Sosro (350 ml) punya 28 gram karbohidrat total, sementara protein dan lemaknya 0 gram. Artinya karbohidrat itu hampir seluruhnya berasal dari apa?', opsi: ['Gula', 'Serat pangan', 'Lemak jenuh'], benar: 0, penjelasan: 'Kalau protein dan lemak pada label 0 gram, karbohidrat total pada minuman hampir seluruhnya adalah gula — bukan pati atau serat.' },
-        { topik: 'Label Minuman Manis', pertanyaan: 'Pada label Pocari Sweat, satu sajian (350 ml) mengandung 21 gram gula. Kira-kira berapa persen ini dari batas gula tambahan harian (50 gram)?', opsi: ['Sekitar 42%', 'Sekitar 5%', 'Sekitar 90%'], benar: 0, penjelasan: '21 gram dari 50 gram batas harian setara sekitar 42% — cukup besar untuk satu botol saja, meskipun rasanya tidak terlalu manis.' },
-        { topik: 'Label Minuman Manis', pertanyaan: 'Minuman isotonik seperti Pocari Sweat sering dianggap "minuman kesehatan". Kapan sebenarnya fungsi penggantian elektrolitnya paling relevan?', opsi: ['Setelah aktivitas fisik berat yang memicu banyak keringat', 'Setiap saat, termasuk saat duduk santai', 'Hanya saat sedang sakit flu'], benar: 0, penjelasan: 'Fungsi isotonik untuk mengganti elektrolit paling relevan setelah aktivitas berat berkeringat banyak — bukan sebagai minuman harian biasa, karena tetap mengandung gula cukup tinggi.' },
-        { topik: 'Label Minuman Manis', pertanyaan: 'Frestea Green Tea 500 ml punya 2 takaran saji (masing-masing 250 ml). Kalau kamu habiskan satu botol penuh, berapa kali nilai gizi yang tertulis di label yang sebenarnya kamu konsumsi?', opsi: ['2 kali', '1 kali', 'Setengah kali'], benar: 0, penjelasan: 'Karena satu botol berisi 2 sajian, menghabiskan sebotol penuh berarti mengonsumsi dua kali nilai energi dan karbohidrat yang tertulis per sajian di label.' },
-        { topik: 'Label Minuman Manis', pertanyaan: 'Satu kaleng Coca-Cola (250 ml) mengandung sekitar 27 gram gula, sedangkan Sprite kaleng (250 ml) sekitar 25 gram. Apa yang bisa disimpulkan?', opsi: ['Kadar gula soda rasa cola dan rasa lemon-lime pada takaran sama ternyata tidak jauh berbeda', 'Sprite jauh lebih rendah gula daripada Coca-Cola', 'Soda tanpa kafein pasti bebas gula'], benar: 0, penjelasan: 'Selisih 27 g dan 25 g relatif kecil — menunjukkan bahwa citra "lebih ringan" pada salah satu produk tidak selalu terbukti dari angka gula di labelnya.' },
-        { topik: 'Label Minuman Manis', pertanyaan: 'Kalau dalam sehari kamu minum satu botol Teh Botol Sosro (28 g gula) dan satu kaleng Coca-Cola 250 ml (27 g gula), total gula dari dua minuman itu saja sudah berapa gram, dan bagaimana posisinya terhadap batas 50 g/hari?', opsi: ['55 g — sudah melebihi batas harian', '10 g — masih jauh di bawah batas', '30 g — pas separuh batas'], benar: 0, penjelasan: '28 g + 27 g = 55 g, sudah melampaui batas gula tambahan harian (50 g) hanya dari dua minuman, belum termasuk gula dari makanan lain.' },
-        // 11. Ganti Kebiasaan Kecil
-        { topik: 'Kebiasaan Kecil', pertanyaan: 'Camilan mana yang lebih sehat?', opsi: ['Buah potong segar', 'Donat', 'Es krim'], benar: 0, penjelasan: 'Buah potong segar mengandung gula alami beserta serat, vitamin, dan mineral yang menyehatkan.' },
-        { topik: 'Kebiasaan Kecil', pertanyaan: 'Bagaimana cara yang disarankan untuk mengurangi minuman manis?', opsi: ['Bertahap, misalnya dari tiap hari jadi beberapa kali seminggu', 'Langsung berhenti total dalam 1 hari', 'Menggantinya dengan minuman manis jenis lain'], benar: 0, penjelasan: 'Perubahan kebiasaan lebih mudah bertahan kalau dilakukan bertahap, bukan langsung drastis.' },
-        { topik: 'Kebiasaan Kecil', pertanyaan: 'Kalau suatu hari belum berhasil menerapkan kebiasaan sehat, apa yang sebaiknya dilakukan?', opsi: ['Tidak perlu merasa bersalah, coba lagi di kesempatan berikutnya', 'Menyerah dan tidak mencoba lagi', 'Menghukum diri sendiri dengan tidak makan'], benar: 0, penjelasan: 'Satu hari yang berbeda tidak berarti semua usaha jadi sia-sia — coba lagi di kesempatan berikutnya.' },
-        { topik: 'Kebiasaan Kecil', pertanyaan: 'Apa saran utama saat memulai kebiasaan sehat terkait gula?', opsi: ['Mulai dari satu kebiasaan kecil yang paling mudah', 'Harus mengubah semua kebiasaan sekaligus', 'Menunggu sampai benar-benar siap 100%'], benar: 0, penjelasan: 'Kamu tidak perlu melakukan semuanya sekaligus — pilih satu kebiasaan yang paling mudah untuk dimulai.' },
-        { topik: 'Kebiasaan Kecil', pertanyaan: 'Saat haus, minuman apa yang sebaiknya menjadi pilihan pertama dibandingkan minuman manis?', opsi: ['Air putih', 'Soda', 'Teh manis kemasan'], benar: 0, penjelasan: 'Air putih sebaiknya menjadi pilihan pertama saat haus, sebagai alternatif sederhana tanpa tambahan gula dibandingkan minuman manis.' },
-        // 12. Tips Sehat di Sekolah
-        { topik: 'Tips Sekolah', pertanyaan: 'Kebiasaan sederhana apa yang bisa dilakukan sebelum berangkat sekolah untuk mengurangi minuman manis?', opsi: ['Membawa botol air putih dari rumah', 'Membeli minuman manis di jalan', 'Melewatkan sarapan'], benar: 0, penjelasan: 'Membawa air putih dari rumah adalah salah satu kebiasaan sederhana yang bisa dimulai sebelum berangkat sekolah.' },
-        { topik: 'Tips Sekolah', pertanyaan: 'Saat jam istirahat dan ingin membeli produk kemasan di kantin, apa yang sebaiknya dilakukan?', opsi: ['Melihat informasi nilai gizi jika tersedia labelnya', 'Langsung membeli tanpa melihat apa pun', 'Membeli produk paling manis'], benar: 0, penjelasan: 'Jika produk kemasan tersedia labelnya, luangkan waktu untuk melihat informasi nilai gizinya dulu.' },
-        { topik: 'Tips Sekolah', pertanyaan: 'Kalau temanmu membeli minuman manis, apa sikap yang tepat?', opsi: ['Tetap boleh memilih sesuai kebutuhanmu sendiri, tanpa harus menghakimi', 'Harus ikut membeli yang sama', 'Menyuruh teman berhenti membeli'], benar: 0, penjelasan: 'Kamu boleh membuat pilihan sendiri, dan temanmu juga punya pilihannya masing-masing — tidak perlu saling menghakimi.' },
-        { topik: 'Tips Sekolah', pertanyaan: 'Saat ada acara/perayaan di sekolah dengan banyak makanan manis, apa sikap yang disarankan?', opsi: ['Tetap boleh menikmati, tapi perhatikan jumlah dan seimbangi pilihan', 'Sama sekali tidak boleh makan apa pun', 'Harus menghabiskan semua yang tersedia'], benar: 0, penjelasan: 'Makan sehat bukan berarti tidak boleh menikmati makanan — cukup perhatikan jumlahnya dan seimbangi dengan air putih.' },
-        { topik: 'Tips Sekolah', pertanyaan: 'Kalau temanmu memilih membeli minuman manis dan kamu tidak ikut membelinya, sikap apa yang tepat?', opsi: ['Tetap pada pilihanmu tanpa perlu menghakimi pilihan temanmu', 'Memaksa teman ikut memilih air putih', 'Ikut membeli meskipun sebenarnya tidak ingin'], benar: 0, penjelasan: 'Kamu boleh tetap pada pilihanmu sendiri, dan temanmu juga punya pilihannya masing-masing — tidak perlu saling menghakimi.' }
+        // ===== Materi 1: Kenali Diabetes Melitus Tipe 2 (DMT2) =====
+        { topik: 'Kenali Diabetes Melitus Tipe 2', pertanyaan: 'Apa itu Diabetes Melitus Tipe 2 (DMT2)?', opsi: ['Kondisi kadar gula darah tinggi terus-menerus (hiperglikemia)', 'Penyakit menular lewat udara', 'Kekurangan cairan tubuh kronis'], benar: 0, penjelasan: 'DMT2 adalah kondisi ketika kadar gula (glukosa) di dalam darah lebih tinggi dari batas normal dan berlangsung terus-menerus, disebut hiperglikemia.' },
+        { topik: 'Kenali Diabetes Melitus Tipe 2', pertanyaan: 'Dari mana asal glukosa yang beredar di dalam darah?', opsi: ['Dari makanan dan minuman berkarbohidrat/manis', 'Diproduksi otot saat berolahraga', 'Dihasilkan oleh sel darah putih'], benar: 0, penjelasan: 'Glukosa berasal dari makanan dan minuman berkarbohidrat/manis yang kita konsumsi sehari-hari.' },
+        { topik: 'Kenali Diabetes Melitus Tipe 2', pertanyaan: 'Apa fungsi hormon insulin dalam tubuh?', opsi: ['Membantu mengantarkan glukosa dari darah masuk ke sel tubuh', 'Menghancurkan sel-sel yang sudah rusak', 'Mengatur detak jantung'], benar: 0, penjelasan: 'Insulin dihasilkan oleh pankreas dan bertugas mengantarkan glukosa dari darah masuk ke dalam sel, supaya bisa diubah menjadi energi.' },
+        { topik: 'Kenali Diabetes Melitus Tipe 2', pertanyaan: 'Insulin sering diibaratkan seperti kunci yang membuka pintu sel. Nah, sel tubuh sendiri diibaratkan sebagai apa?', opsi: ['Gembok', 'Kunci', 'Jendela'], benar: 0, penjelasan: 'Insulin diibaratkan sebagai kunci, sedangkan sel tubuh diibaratkan sebagai gembok tempat glukosa masuk.' },
+        { topik: 'Kenali Diabetes Melitus Tipe 2', pertanyaan: 'Apa yang dimaksud dengan "resistensi insulin"?', opsi: ['Sel tubuh menjadi kurang peka terhadap insulin, sehingga glukosa sulit masuk ke sel', 'Tubuh berhenti memproduksi insulin sejak lahir', 'Insulin berubah menjadi racun bagi sel tubuh'], benar: 0, penjelasan: 'Pada DMT2, sel-sel tubuh menjadi kurang peka terhadap insulin. Kondisi ini disebut resistensi insulin. Akibatnya, glukosa tetap menumpuk di darah walau insulin sudah "mengetuk pintu".' },
+        { topik: 'Kenali Diabetes Melitus Tipe 2', pertanyaan: 'Benarkah DMT2 bisa "sembuh total" seperti flu atau demam?', opsi: ['Tidak, DMT2 bersifat kronis dan umumnya perlu dikendalikan terus-menerus', 'Ya, cukup istirahat beberapa hari saja', 'Ya, asal minum obat satu kali'], benar: 0, penjelasan: 'DMT2 termasuk penyakit kronis (berlangsung lama) yang umumnya tidak sembuh total, tapi bisa dikendalikan dan risikonya bisa dicegah atau diperlambat.' },
+        { topik: 'Kenali Diabetes Melitus Tipe 2', pertanyaan: 'Jika dibiarkan, DMT2 berisiko memicu gangguan pada organ apa saja?', opsi: ['Mata, ginjal, jantung, dan saraf', 'Rambut, kuku, dan kulit', 'Tulang rawan telinga'], benar: 0, penjelasan: 'DMT2 yang dibiarkan bisa memicu gangguan pada mata, ginjal, jantung, dan saraf.' },
+        { topik: 'Kenali Diabetes Melitus Tipe 2', pertanyaan: 'Bagaimana tren kasus DMT2 pada remaja belakangan ini?', opsi: ['Terus meningkat di berbagai negara', 'Terus menurun drastis', 'Tidak pernah ditemukan pada remaja'], benar: 0, penjelasan: 'Kasus DMT2 pada usia muda, termasuk remaja, terus meningkat 2–3 kali lipat dibanding sekitar 30 tahun lalu.' },
+        { topik: 'Kenali Diabetes Melitus Tipe 2', pertanyaan: 'Kebiasaan apa yang berhubungan dengan meningkatnya risiko DMT2 di masa depan?', opsi: ['Pola makan tinggi gula/kalori, kurang aktivitas fisik, dan terlalu banyak duduk', 'Terlalu sering minum air putih', 'Terlalu banyak tidur malam hari'], benar: 0, penjelasan: 'Pola makan tinggi gula/kalori, kurang aktivitas fisik, dan perilaku sedentari (terlalu banyak duduk) berhubungan dengan meningkatnya risiko DMT2 di masa depan.' },
+        { topik: 'Kenali Diabetes Melitus Tipe 2', pertanyaan: 'Kenapa pencegahan DMT2 sebaiknya dimulai sejak remaja?', opsi: ['Karena masa remaja adalah masa pembentukan kebiasaan yang cenderung terbawa sampai dewasa', 'Karena remaja lebih kebal terhadap segala penyakit', 'Karena DMT2 hanya bisa menyerang usia di atas 60 tahun'], benar: 0, penjelasan: 'Masa remaja adalah masa pembentukan kebiasaan yang cenderung terbawa hingga dewasa, jadi makin awal mengenali dan mencegah, makin besar peluang menunda atau mencegah risiko DMT2.' },
+        // ===== Materi 2: Kenali Gejala dan Bahaya Diabetes =====
+        { topik: 'Kenali Gejala dan Bahaya Diabetes', pertanyaan: 'Apa saja tiga gejala khas yang sering muncul pada penderita DMT2?', opsi: ['Sering haus, sering buang air kecil, dan sering lapar berlebihan', 'Sering pusing, sering demam, dan sering batuk', 'Sering mimisan, sering pegal, dan sering pilek'], benar: 0, penjelasan: 'Tiga gejala khas DMT2 adalah sering merasa haus, sering buang air kecil (bahkan di malam hari), dan sering merasa lapar/banyak makan tapi badan tetap lemas.' },
+        { topik: 'Kenali Gejala dan Bahaya Diabetes', pertanyaan: 'Apa istilah medis untuk gejala "sering buang air kecil"?', opsi: ['Poliuria', 'Polidipsia', 'Polifagia'], benar: 0, penjelasan: 'Poliuria adalah istilah medis untuk gejala sering buang air kecil.' },
+        { topik: 'Kenali Gejala dan Bahaya Diabetes', pertanyaan: 'Apa istilah medis untuk gejala "sering merasa haus"?', opsi: ['Polidipsia', 'Poliuria', 'Polifagia'], benar: 0, penjelasan: 'Polidipsia adalah istilah medis untuk gejala sering merasa haus.' },
+        { topik: 'Kenali Gejala dan Bahaya Diabetes', pertanyaan: 'Apa istilah medis untuk gejala "sering merasa lapar atau banyak makan"?', opsi: ['Polifagia', 'Poliuria', 'Polidipsia'], benar: 0, penjelasan: 'Polifagia adalah istilah medis untuk gejala sering merasa lapar atau banyak makan.' },
+        { topik: 'Kenali Gejala dan Bahaya Diabetes', pertanyaan: 'Kenapa penderita DMT2 bisa mengalami poliuria (sering buang air kecil)?', opsi: ['Ginjal berusaha membuang kelebihan glukosa lewat urine', 'Tubuh kelebihan cairan karena terlalu banyak minum', 'Kandung kemih membesar akibat olahraga'], benar: 0, penjelasan: 'Ginjal berusaha membuang kelebihan glukosa lewat urine, sehingga produksi urine ikut meningkat dan muncul gejala poliuria.' },
+        { topik: 'Kenali Gejala dan Bahaya Diabetes', pertanyaan: 'Kenapa penderita DMT2 bisa merasa lapar berlebihan (polifagia) walau glukosa di darah melimpah?', opsi: ['Karena resistensi insulin membuat sel-sel tubuh tetap kekurangan energi', 'Karena lambungnya menyusut', 'Karena tubuh kelebihan produksi insulin'], benar: 0, penjelasan: 'Sel-sel tubuh tetap kekurangan energi walau glukosa di darah melimpah, akibat resistensi insulin, sehingga tubuh merespons dengan rasa lapar berlebih.' },
+        { topik: 'Kenali Gejala dan Bahaya Diabetes', pertanyaan: 'Jika gejala 3P muncul berlebihan atau terus-menerus, apa yang sebaiknya dilakukan?', opsi: ['Segera ceritakan ke orang tua/guru atau periksa ke tenaga kesehatan', 'Dibiarkan saja karena pasti hilang sendiri', 'Cukup minum obat warung tanpa periksa lebih lanjut'], benar: 0, penjelasan: 'Kalau gejala 3P muncul berlebihan atau menetap, sebaiknya segera ceritakan ke orang tua, guru, atau periksakan diri ke tenaga kesehatan.' },
+        { topik: 'Kenali Gejala dan Bahaya Diabetes', pertanyaan: 'Apa dampak jangka panjang diabetes yang tidak terkontrol terhadap saraf dan pembuluh darah?', opsi: ['Bisa menyebabkan kesemutan, mati rasa, hingga gangguan sirkulasi di tangan dan kaki', 'Membuat tulang menjadi lebih kuat', 'Membuat rambut tumbuh lebih cepat'], benar: 0, penjelasan: 'Kadar gula darah yang terus-menerus tinggi bisa merusak saraf dan pembuluh darah, menyebabkan kesemutan, mati rasa, hingga gangguan sirkulasi di tangan dan kaki.' },
+        { topik: 'Kenali Gejala dan Bahaya Diabetes', pertanyaan: 'Apa risiko yang bisa terjadi kalau luka di kaki penderita diabetes sulit sembuh dan infeksinya memburuk?', opsi: ['Risiko amputasi meningkat', 'Luka akan sembuh lebih cepat dari biasanya', 'Tidak ada risiko tambahan'], benar: 0, penjelasan: 'Akibat aliran darah dan saraf yang terganggu, luka di kaki bisa sulit sembuh, bahkan meningkatkan risiko amputasi jika infeksi memburuk.' },
+        { topik: 'Kenali Gejala dan Bahaya Diabetes', pertanyaan: 'Selain kerusakan ginjal dan jantung, komplikasi serius apa lagi yang bisa muncul akibat diabetes tidak terkontrol?', opsi: ['Stroke, akibat gangguan pembuluh darah menuju otak', 'Rambut rontok permanen', 'Gangguan pendengaran total'], benar: 0, penjelasan: 'Stroke bisa terjadi jika pembuluh darah menuju otak mengalami gangguan atau tersumbat. Ini termasuk salah satu dampak serius diabetes yang tidak terkontrol.' },
+        // ===== Materi 3: Gula, Makanan, dan Minuman yang Perlu Dibatasi =====
+        { topik: 'Gula, Makanan, dan Minuman yang Perlu Dibatasi', pertanyaan: 'Apa itu gula tambahan?', opsi: ['Gula yang sengaja ditambahkan ke makanan/minuman saat diolah, dimasak, atau disajikan', 'Gula yang secara alami ada di dalam buah utuh', 'Gula yang dihasilkan tubuh sendiri'], benar: 0, penjelasan: 'Gula tambahan adalah gula yang sengaja ditambahkan ke dalam makanan atau minuman saat diolah, dimasak, atau disajikan, baik oleh pabrik, penjual, maupun diri sendiri.' },
+        { topik: 'Gula, Makanan, dan Minuman yang Perlu Dibatasi', pertanyaan: 'Apa yang dimaksud dengan "gula bebas"?', opsi: ['Gula tambahan ditambah gula alami dalam madu, sirup, dan jus buah', 'Semua jenis gula termasuk gula dalam buah utuh', 'Hanya gula pasir yang dijual di pasaran'], benar: 0, penjelasan: 'Gula bebas mencakup semua gula tambahan, ditambah gula alami yang ada di dalam madu, sirup, serta jus buah.' },
+        { topik: 'Gula, Makanan, dan Minuman yang Perlu Dibatasi', pertanyaan: 'Kenapa jus buah termasuk kategori gula bebas, padahal berasal dari buah?', opsi: ['Karena proses pengolahan menghilangkan sebagian besar serat, sehingga gula lebih cepat diserap tubuh', 'Karena jus buah mengandung pengawet kimia', 'Karena jus buah tidak mengandung gula sama sekali'], benar: 0, penjelasan: 'Saat buah diperas atau diolah menjadi jus, sebagian besar seratnya hilang, sehingga gula di dalamnya jadi lebih mudah dan cepat diserap tubuh, mirip gula tambahan.' },
+        { topik: 'Gula, Makanan, dan Minuman yang Perlu Dibatasi', pertanyaan: 'Apa yang membedakan gula alami dalam buah utuh dengan gula tambahan pada camilan manis?', opsi: ['Gula dalam buah utuh disertai serat yang memperlambat penyerapan gula', 'Gula dalam buah utuh diserap lebih cepat daripada gula tambahan', 'Buah utuh tidak mengandung gula sama sekali'], benar: 0, penjelasan: 'Di dalam buah utuh, gula alami ditemani serat, air, vitamin, dan mineral. Serat ini membuat penyerapan gula lebih lambat, sehingga bisa membuat kenyang lebih lama.' },
+        { topik: 'Gula, Makanan, dan Minuman yang Perlu Dibatasi', pertanyaan: 'Sebutkan salah satu contoh minuman yang perlu dibatasi konsumsinya karena tinggi gula.', opsi: ['Soda', 'Air putih', 'Susu tawar tanpa gula'], benar: 0, penjelasan: 'Soda, teh manis, boba, dan minuman kemasan manis adalah contoh minuman tinggi gula yang perlu dibatasi konsumsinya.' },
+        { topik: 'Gula, Makanan, dan Minuman yang Perlu Dibatasi', pertanyaan: 'Kenapa minuman manis sering jadi "penyumbang" gula yang tidak disadari?', opsi: ['Karena mudah dihabiskan dan tidak terlalu membuat kenyang, sehingga tetap makan seperti biasa', 'Karena minuman manis selalu lebih mahal dari makanan', 'Karena minuman manis tidak mengandung kalori'], benar: 0, penjelasan: 'Minuman manis mudah dihabiskan dan tidak terlalu membuat kenyang, sehingga seseorang cenderung tetap makan seperti biasa meski sudah minum minuman manis.' },
+        { topik: 'Gula, Makanan, dan Minuman yang Perlu Dibatasi', pertanyaan: 'Kalau gula/kalori yang masuk ke tubuh lebih banyak dari yang dibutuhkan, apa yang terjadi?', opsi: ['Kelebihan tersebut disimpan tubuh sebagai lemak', 'Kelebihan tersebut otomatis dibuang lewat keringat', 'Tubuh berhenti memproduksi energi'], benar: 0, penjelasan: 'Kalau gula/kalori yang masuk lebih banyak dari yang dibutuhkan atau digunakan untuk beraktivitas, kelebihan ini akan disimpan tubuh sebagai lemak.' },
+        { topik: 'Gula, Makanan, dan Minuman yang Perlu Dibatasi', pertanyaan: 'Apa hubungan antara pola makan tinggi gula yang terus-menerus dengan risiko DMT2?', opsi: ['Berhubungan dengan meningkatnya risiko resistensi insulin dari waktu ke waktu', 'Justru menurunkan risiko resistensi insulin', 'Tidak ada hubungan sama sekali'], benar: 0, penjelasan: 'Pola makan tinggi gula yang berlangsung terus-menerus, apalagi disertai kelebihan berat badan, berhubungan dengan meningkatnya risiko resistensi insulin, yang bisa berujung pada DMT2.' },
+        { topik: 'Gula, Makanan, dan Minuman yang Perlu Dibatasi', pertanyaan: 'Apakah semua makanan/minuman manis harus dihindari total?', opsi: ['Tidak, tapi sebaiknya dibatasi jumlah dan frekuensinya', 'Ya, harus dihindari 100% seumur hidup', 'Tidak masalah dikonsumsi setiap hari sebanyak apapun'], benar: 0, penjelasan: 'Bukan berarti semua makanan/minuman manis harus dihindari total, tapi sebaiknya dibatasi jumlah dan frekuensinya, apalagi kalau dikonsumsi hampir setiap hari.' },
+        { topik: 'Gula, Makanan, dan Minuman yang Perlu Dibatasi', pertanyaan: 'Selain gula pasir di dapur, dari mana lagi gula bisa ditemukan?', opsi: ['Secara alami di dalam buah, sayur, dan susu, serta ditambahkan ke makanan/minuman saat diproses', 'Hanya dari gula pasir yang dijual di toko', 'Hanya dari gula sintetis buatan pabrik'], benar: 0, penjelasan: 'Gula juga bisa ditemukan secara alami di dalam buah, sayur, dan susu, atau sengaja ditambahkan ke dalam makanan dan minuman saat proses pembuatannya.' },
+        // ===== Materi 4: Batas Konsumsi Gula dan Cara Membaca Label =====
+        { topik: 'Batas Konsumsi Gula dan Cara Membaca Label', pertanyaan: 'Berapa batas konsumsi gula tambahan yang dianjurkan Kemenkes RI setiap hari?', opsi: ['Maksimal 50 gram atau 4 sendok makan', 'Maksimal 100 gram atau 8 sendok makan', 'Tidak ada batasnya sama sekali'], benar: 0, penjelasan: 'Kementerian Kesehatan RI menganjurkan konsumsi gula tambahan tidak lebih dari 50 gram atau setara 4 sendok makan per hari.' },
+        { topik: 'Batas Konsumsi Gula dan Cara Membaca Label', pertanyaan: 'Menurut WHO, gula bebas sebaiknya tidak lebih dari berapa persen total energi harian?', opsi: ['10%', '50%', '90%'], benar: 0, penjelasan: 'WHO menganjurkan membatasi gula bebas tidak lebih dari 10% dari total energi harian. Kalau bisa di bawah 5%, manfaatnya untuk kesehatan makin besar.' },
+        { topik: 'Batas Konsumsi Gula dan Cara Membaca Label', pertanyaan: 'Apakah batas 50 gram gula per hari itu artinya kita harus menghabiskan gula sebanyak itu setiap hari?', opsi: ['Tidak, itu batas maksimal, bukan target yang wajib dipenuhi', 'Ya, tubuh butuh tepat 50 gram gula setiap hari', 'Ya, kalau kurang dari itu tubuh akan lemas'], benar: 0, penjelasan: 'Angka 50 gram itu adalah batas atas alias maksimal, bukan target yang harus dipenuhi. Tubuh sebenarnya bisa tetap sehat walau tanpa gula tambahan sama sekali.' },
+        { topik: 'Batas Konsumsi Gula dan Cara Membaca Label', pertanyaan: 'Dari mana tubuh sebenarnya masih bisa mendapatkan energi yang cukup tanpa tambahan gula?', opsi: ['Dari makanan pokok, buah, dan sayur', 'Hanya dari permen dan cokelat', 'Hanya dari minuman bersoda'], benar: 0, penjelasan: 'Tubuh sudah bisa mendapatkan energi yang cukup dari karbohidrat pada makanan pokok seperti nasi, roti, dan kentang, ditambah buah dan sayur, tanpa perlu tambahan gula.' },
+        { topik: 'Batas Konsumsi Gula dan Cara Membaca Label', pertanyaan: 'Label apa yang wajib ada di kemasan makanan/minuman untuk menunjukkan kandungan gizinya, termasuk gula?', opsi: ['Informasi Nilai Gizi', 'Kode produksi', 'Nomor izin edar'], benar: 0, penjelasan: 'Hampir semua makanan dan minuman kemasan di Indonesia wajib mencantumkan label Informasi Nilai Gizi yang berisi rincian kandungan gizi, termasuk gula.' },
+        { topik: 'Batas Konsumsi Gula dan Cara Membaca Label', pertanyaan: 'Saat membaca label kemasan, angka gula yang tertulis biasanya menunjukkan kandungan gula untuk apa?', opsi: ['Satu takaran saji, bukan satu kemasan penuh', 'Satu kemasan penuh, apapun ukurannya', 'Rata-rata gula sehari penuh'], benar: 0, penjelasan: 'Angka gula yang tertulis di label adalah kandungan gula per satu takaran saji, bukan untuk satu kemasan penuh.' },
+        { topik: 'Batas Konsumsi Gula dan Cara Membaca Label', pertanyaan: 'Kalau sebuah kemasan bertuliskan "Gula 8 gram" dan "3 sajian per kemasan", berapa total gula kalau kamu menghabiskan satu kemasan penuh?', opsi: ['24 gram', '8 gram', '3 gram'], benar: 0, penjelasan: 'Total gula dihitung dengan gula per sajian dikali jumlah sajian per kemasan, yaitu 8 gram dikali 3 sama dengan 24 gram.' },
+        { topik: 'Batas Konsumsi Gula dan Cara Membaca Label', pertanyaan: 'Selain kandungan gula, dua bagian lain apa yang penting diperhatikan saat membaca label kemasan?', opsi: ['Takaran saji dan jumlah sajian per kemasan', 'Warna kemasan dan bentuk botol', 'Nama produsen dan alamat pabrik'], benar: 0, penjelasan: 'Selain kandungan gula, kamu juga perlu memperhatikan takaran saji dan jumlah sajian per kemasan supaya tahu total gula yang sebenarnya kamu konsumsi.' },
+        { topik: 'Batas Konsumsi Gula dan Cara Membaca Label', pertanyaan: 'Saat membandingkan dua produk minuman untuk memilih yang lebih rendah gula, apa yang perlu diperhatikan supaya perbandingannya adil?', opsi: ['Membandingkan pada takaran saji yang kurang lebih sama', 'Cukup melihat harga yang lebih murah', 'Cukup melihat warna kemasan yang lebih menarik'], benar: 0, penjelasan: 'Supaya perbandingannya adil, pastikan kamu membandingkan angka gula pada takaran saji yang kurang lebih sama, lalu pilih produk dengan gula per sajian yang lebih rendah.' },
+        { topik: 'Batas Konsumsi Gula dan Cara Membaca Label', pertanyaan: 'Kenapa gula tambahan bisa cepat melebihi batas harian tanpa disadari?', opsi: ['Karena beberapa makanan dan minuman manis sehari-hari sudah mengandung gula dalam jumlah cukup besar', 'Karena tubuh menyimpan gula dari kemarin', 'Karena gula tambahan tidak pernah dihitung dalam makanan'], benar: 0, penjelasan: 'Contohnya segelas teh manis, segelas minuman kekinian, dan camilan manis saja totalnya sudah bisa melebihi 50 gram, padahal belum termasuk gula dari makanan lain di hari itu.' },
+        // ===== Materi 5: Aktivitas Fisik untuk Mencegah DMT2 =====
+        { topik: 'Aktivitas Fisik untuk Mencegah DMT2', pertanyaan: 'Apa itu aktivitas fisik?', opsi: ['Semua gerakan tubuh yang dihasilkan otot dan memerlukan energi', 'Hanya olahraga yang dilakukan di lapangan', 'Kegiatan yang dilakukan sambil duduk diam'], benar: 0, penjelasan: 'Aktivitas fisik adalah semua gerakan tubuh yang dihasilkan oleh otot dan memerlukan pengeluaran energi, seperti jalan kaki, menyapu, atau naik tangga.' },
+        { topik: 'Aktivitas Fisik untuk Mencegah DMT2', pertanyaan: 'Apa bedanya aktivitas fisik dengan olahraga?', opsi: ['Olahraga adalah aktivitas fisik yang lebih terencana dan terstruktur', 'Aktivitas fisik dan olahraga adalah dua hal yang sama sekali berbeda', 'Olahraga tidak termasuk aktivitas fisik'], benar: 0, penjelasan: 'Aktivitas fisik mencakup semua gerakan tubuh sehari-hari, sedangkan olahraga adalah salah satu bentuk aktivitas fisik yang lebih terencana dan terstruktur, misalnya latihan futsal terjadwal.' },
+        { topik: 'Aktivitas Fisik untuk Mencegah DMT2', pertanyaan: 'Benarkah semua aktivitas fisik harus berupa olahraga?', opsi: ['Tidak, banyak kegiatan sehari-hari yang sudah termasuk aktivitas fisik', 'Ya, kalau bukan olahraga berarti bukan aktivitas fisik', 'Ya, aktivitas fisik hanya berlaku di lapangan olahraga'], benar: 0, penjelasan: 'Semua olahraga termasuk aktivitas fisik, tapi tidak semua aktivitas fisik harus berupa olahraga. Jalan kaki dan menyapu rumah juga termasuk aktivitas fisik.' },
+        { topik: 'Aktivitas Fisik untuk Mencegah DMT2', pertanyaan: 'Bagaimana aktivitas fisik membantu mencegah DMT2?', opsi: ['Membantu sel tubuh lebih peka terhadap insulin dan menggunakan glukosa sebagai energi', 'Membuat tubuh memproduksi lebih banyak gula', 'Membuat sel tubuh berhenti membutuhkan insulin'], benar: 0, penjelasan: 'Aktivitas fisik membantu sel-sel tubuh lebih peka terhadap insulin dan membantu tubuh menggunakan glukosa dalam darah untuk energi, sehingga risiko DMT2 bisa berkurang.' },
+        { topik: 'Aktivitas Fisik untuk Mencegah DMT2', pertanyaan: 'Berapa lama WHO menganjurkan remaja usia 5 sampai 17 tahun melakukan aktivitas fisik sedang hingga berat setiap hari?', opsi: ['Minimal 60 menit', 'Minimal 5 menit', 'Minimal 5 jam'], benar: 0, penjelasan: 'WHO menganjurkan remaja usia 5 sampai 17 tahun melakukan aktivitas fisik intensitas sedang hingga berat setidaknya 60 menit setiap hari.' },
+        { topik: 'Aktivitas Fisik untuk Mencegah DMT2', pertanyaan: 'Mana yang lebih bermanfaat, aktivitas fisik ringan yang rutin setiap hari atau olahraga berat yang cuma sesekali?', opsi: ['Aktivitas fisik ringan yang dilakukan rutin setiap hari', 'Olahraga berat yang cuma dilakukan sesekali', 'Keduanya sama saja, tidak ada bedanya'], benar: 0, penjelasan: 'Kuncinya adalah konsisten. Aktivitas fisik ringan yang dilakukan rutin setiap hari jauh lebih bermanfaat dibanding olahraga berat yang cuma dilakukan sesekali.' },
+        { topik: 'Aktivitas Fisik untuk Mencegah DMT2', pertanyaan: 'Sebutkan salah satu contoh aktivitas fisik yang bisa dilakukan tanpa harus olahraga formal.', opsi: ['Naik tangga daripada naik lift atau eskalator', 'Duduk diam seharian di kamar', 'Tidur siang lebih lama dari biasanya'], benar: 0, penjelasan: 'Aktivitas fisik tidak harus olahraga formal. Memilih naik tangga daripada lift atau eskalator, atau membantu menyapu rumah, juga termasuk aktivitas fisik.' },
+        { topik: 'Aktivitas Fisik untuk Mencegah DMT2', pertanyaan: 'Apa yang dimaksud dengan perilaku sedentari?', opsi: ['Kebiasaan duduk atau berbaring lama dengan sedikit gerakan', 'Kebiasaan berolahraga setiap hari', 'Kebiasaan berjalan kaki ke sekolah'], benar: 0, penjelasan: 'Perilaku sedentari adalah kebiasaan duduk atau berbaring dalam waktu lama dengan sedikit gerakan, misalnya duduk berjam-jam sambil bermain gawai atau menonton.' },
+        { topik: 'Aktivitas Fisik untuk Mencegah DMT2', pertanyaan: 'Kenapa perilaku sedentari yang terus-menerus perlu dikurangi?', opsi: ['Karena berhubungan dengan meningkatnya risiko kelebihan berat badan dan DMT2', 'Karena bisa membuat tubuh terlalu banyak berkeringat', 'Karena bisa mempercepat pertumbuhan tinggi badan'], benar: 0, penjelasan: 'Perilaku sedentari yang berlangsung terus-menerus berhubungan dengan meningkatnya risiko kelebihan berat badan dan DMT2 di kemudian hari.' },
+        { topik: 'Aktivitas Fisik untuk Mencegah DMT2', pertanyaan: 'Apa yang sebaiknya kamu lakukan kalau sudah duduk terlalu lama selama 1 sampai 2 jam?', opsi: ['Berdiri, meregangkan badan, atau berjalan sebentar', 'Tetap duduk supaya tidak lelah', 'Menambah waktu duduk menjadi lebih lama lagi'], benar: 0, penjelasan: 'Coba selingi waktu duduk lama dengan berdiri, meregangkan badan, atau berjalan sebentar setiap 1 sampai 2 jam sekali.' },
+        // ===== Materi 6: Membangun Kebiasaan Hidup Sehat Sejak Remaja =====
+        { topik: 'Membangun Kebiasaan Hidup Sehat Sejak Remaja', pertanyaan: 'Kenapa pencegahan DMT2 lebih berkaitan dengan kebiasaan daripada usaha sekali coba?', opsi: ['Karena DMT2 berkembang perlahan dan dipengaruhi kebiasaan yang berulang setiap hari', 'Karena DMT2 langsung muncul dalam semalam', 'Karena kebiasaan sesekali sudah cukup untuk mencegah DMT2'], benar: 0, penjelasan: 'DMT2 berkembang perlahan dan sangat dipengaruhi oleh kebiasaan yang dilakukan berulang kali setiap hari, sehingga pencegahannya juga perlu dilakukan lewat kebiasaan yang konsisten.' },
+        { topik: 'Membangun Kebiasaan Hidup Sehat Sejak Remaja', pertanyaan: 'Apa langkah paling dasar untuk mulai membangun kebiasaan hidup sehat?', opsi: ['Lebih sadar terhadap apa yang dimakan dan diminum setiap hari', 'Langsung mengubah semua kebiasaan sekaligus', 'Menunggu sampai badan terasa tidak sehat'], benar: 0, penjelasan: 'Langkah paling dasar dari kebiasaan sehat adalah mulai lebih sadar terhadap makanan dan minuman sehari-hari, dimulai dari pilihan-pilihan kecil yang dilakukan secara konsisten.' },
+        { topik: 'Membangun Kebiasaan Hidup Sehat Sejak Remaja', pertanyaan: 'Kenapa membaca label dan membatasi gula disebut sebagai dua kebiasaan yang saling melengkapi?', opsi: ['Karena membaca label membantumu membatasi gula dengan lebih tepat', 'Karena kalau sudah baca label, tidak perlu lagi membatasi gula', 'Karena keduanya tidak ada hubungannya sama sekali'], benar: 0, penjelasan: 'Membaca label adalah alat bantu supaya kamu bisa membatasi gula dengan lebih tepat, bukan asal menebak. Kalau cuma salah satu yang dijalani, hasilnya tidak akan maksimal.' },
+        { topik: 'Membangun Kebiasaan Hidup Sehat Sejak Remaja', pertanyaan: 'Apa manfaat membiasakan minum air putih sebagai minuman utama?', opsi: ['Membantu mengurangi asupan gula harian dari minuman manis', 'Membuat tubuh menjadi lebih cepat lapar', 'Membuat rasa haus jadi lebih sering muncul'], benar: 0, penjelasan: 'Minuman manis termasuk salah satu penyumbang gula tersembunyi terbesar dalam keseharian remaja, jadi membiasakan minum air putih membantu mengurangi asupan gula harian.' },
+        { topik: 'Membangun Kebiasaan Hidup Sehat Sejak Remaja', pertanyaan: 'Sebutkan salah satu contoh camilan yang lebih sehat untuk remaja.', opsi: ['Buah potong, kacang-kacangan, atau yogurt tawar', 'Camilan kemasan tinggi gula setiap hari', 'Permen dan cokelat sebagai camilan utama'], benar: 0, penjelasan: 'Camilan yang lebih sehat contohnya buah potong, kacang-kacangan, atau yogurt tawar, dan sebaiknya kurangi camilan kemasan yang tinggi gula, garam, atau lemak berlebihan.' },
+        { topik: 'Membangun Kebiasaan Hidup Sehat Sejak Remaja', pertanyaan: 'Berapa lama aktivitas fisik yang sebaiknya dijadikan bagian rutinitas harian?', opsi: ['Minimal 60 menit per hari', 'Minimal 5 menit per minggu', 'Tidak perlu dijadwalkan sama sekali'], benar: 0, penjelasan: 'Aktivitas fisik membantu sel-sel tubuh lebih peka terhadap insulin, jadi sebaiknya dijadikan bagian rutinitas minimal 60 menit per hari, bukan sekadar kalau sempat.' },
+        { topik: 'Membangun Kebiasaan Hidup Sehat Sejak Remaja', pertanyaan: 'Kenapa penting mengurangi waktu duduk terlalu lama dan waktu layar?', opsi: ['Supaya tubuh tetap aktif bergerak dan tidak terus-menerus ngemil tanpa sadar', 'Supaya mata menjadi lebih cepat lelah', 'Supaya waktu belajar jadi lebih singkat'], benar: 0, penjelasan: 'Duduk terlalu lama dan waktu layar berlebihan, apalagi sambil ngemil terus-menerus tanpa disadari, sebaiknya dikurangi dengan menyelingi berdiri atau jalan sebentar tiap 1 sampai 2 jam.' },
+        { topik: 'Membangun Kebiasaan Hidup Sehat Sejak Remaja', pertanyaan: 'Kenapa kita perlu tetap kritis terhadap tren makanan/minuman manis yang viral di media sosial?', opsi: ['Karena konten di media sosial dirancang terlihat menarik, bukan berarti otomatis sehat', 'Karena semua makanan yang viral pasti sehat', 'Karena media sosial selalu memberi informasi gizi yang lengkap'], benar: 0, penjelasan: 'Konten di media sosial dirancang supaya terlihat menarik, bukan berarti otomatis sehat, jadi penting untuk cek dulu kandungan gizinya sebelum ikut tren yang viral.' },
+        { topik: 'Membangun Kebiasaan Hidup Sehat Sejak Remaja', pertanyaan: 'Kenapa kebiasaan hidup sehat pada materi ini digambarkan seperti jaring laba-laba?', opsi: ['Karena satu kebiasaan bisa memperkuat kebiasaan lainnya, dan sebaliknya', 'Karena kebiasaan-kebiasaan itu tidak saling berhubungan', 'Karena jaring laba-laba tidak ada hubungannya dengan kesehatan'], benar: 0, penjelasan: 'Kebiasaan-kebiasaan sehat ini saling berkaitan seperti jaring laba-laba. Makin banyak kebiasaan yang saling terhubung, makin kuat menahan risiko DMT2.' },
+        { topik: 'Membangun Kebiasaan Hidup Sehat Sejak Remaja', pertanyaan: 'Apa yang lebih penting dalam membangun kebiasaan hidup sehat, kesempurnaan atau konsistensi?', opsi: ['Konsistensi dalam jangka panjang', 'Kesempurnaan sejak hari pertama', 'Melakukannya secara ekstrem dalam waktu singkat'], benar: 0, penjelasan: 'Kebiasaan sehat itu bukan soal sempurna atau ekstrem, tapi soal konsisten dijalani dalam jangka panjang, dimulai dari perubahan kecil yang bisa bertahan lama.' },
+        // ===== Tips Sehat Materi 1: Pilih Minuman yang Lebih Sehat =====
+        { topik: 'Pilih Minuman yang Lebih Sehat', pertanyaan: 'Apa minuman yang paling aman diminum setiap hari?', opsi: ['Air putih', 'Minuman bersoda', 'Teh manis kemasan'], benar: 0, penjelasan: 'Air putih tidak mengandung gula maupun kalori tambahan, jadi paling aman diminum setiap hari.' },
+        { topik: 'Pilih Minuman yang Lebih Sehat', pertanyaan: 'Kenapa air putih lebih baik dibanding minuman manis?', opsi: ['Karena tidak mengandung gula tambahan', 'Karena rasanya lebih manis', 'Karena mengandung banyak kalori'], benar: 0, penjelasan: 'Air putih tidak mengandung gula tambahan, sehingga aman diminum kapan saja tanpa menambah asupan gula harian.' },
+        { topik: 'Pilih Minuman yang Lebih Sehat', pertanyaan: 'Kira kira berapa kebutuhan cairan remaja usia 10 sampai 18 tahun setiap hari?', opsi: ['Sekitar 1.850 sampai 2.150 ml', 'Sekitar 500 ml', 'Sekitar 5 liter'], benar: 0, penjelasan: 'Remaja usia 10 sampai 18 tahun membutuhkan sekitar 1.850 sampai 2.150 ml cairan setiap hari.' },
+        { topik: 'Pilih Minuman yang Lebih Sehat', pertanyaan: 'Berikut ini yang termasuk minuman manis yang perlu dikurangi adalah?', opsi: ['Teh manis, minuman bersoda, dan boba', 'Air putih dan air kelapa murni', 'Susu tawar dan air mineral'], benar: 0, penjelasan: 'Teh manis, minuman bersoda, dan boba atau minuman kekinian termasuk minuman manis yang perlu dikurangi.' },
+        { topik: 'Pilih Minuman yang Lebih Sehat', pertanyaan: 'Bolehkah minum minuman manis sesekali?', opsi: ['Boleh, asal tidak dijadikan kebiasaan setiap hari', 'Tidak boleh sama sekali', 'Boleh diminum setiap hari tanpa batas'], benar: 0, penjelasan: 'Minuman manis boleh dinikmati sesekali, asal tidak dijadikan kebiasaan yang diminum setiap hari.' },
+        { topik: 'Pilih Minuman yang Lebih Sehat', pertanyaan: 'Apa yang sebaiknya dilakukan sebelum membeli minuman kemasan?', opsi: ['Melihat label Informasi Nilai Gizi', 'Melihat warna kemasannya saja', 'Langsung membeli tanpa cek apapun'], benar: 0, penjelasan: 'Melihat label Informasi Nilai Gizi membantu kamu tahu jumlah gula yang ada dalam minuman kemasan.' },
+        { topik: 'Pilih Minuman yang Lebih Sehat', pertanyaan: 'Kenapa label kemasan minuman penting dibaca?', opsi: ['Supaya tahu jumlah gula per sajian', 'Supaya tahu tanggal produksi saja', 'Supaya tahu harga minuman'], benar: 0, penjelasan: 'Label kemasan mencantumkan jumlah gula per sajian, sehingga kamu bisa memperkirakan gula yang akan masuk ke tubuh.' },
+        { topik: 'Pilih Minuman yang Lebih Sehat', pertanyaan: 'Kalau ada minuman dengan varian gula lebih rendah, sebaiknya bagaimana?', opsi: ['Boleh dicoba sebagai alternatif', 'Harus dihindari sepenuhnya', 'Tidak ada bedanya dengan yang biasa'], benar: 0, penjelasan: 'Kalau tersedia varian dengan gula lebih rendah, kamu boleh mencobanya sebagai alternatif dari minuman manis biasa.' },
+        { topik: 'Pilih Minuman yang Lebih Sehat', pertanyaan: 'Apa yang bisa terjadi kalau minuman manis diminum setiap hari?', opsi: ['Gula akan semakin menumpuk di tubuh', 'Tubuh akan menjadi lebih sehat', 'Kebutuhan cairan tubuh akan berkurang'], benar: 0, penjelasan: 'Semakin sering minuman manis diminum, semakin banyak juga gula yang menumpuk di tubuh.' },
+        { topik: 'Pilih Minuman yang Lebih Sehat', pertanyaan: 'Apa langkah sederhana untuk mulai mengurangi minuman manis?', opsi: ['Membawa air putih dari rumah', 'Menambah porsi minuman manis', 'Berhenti minum air putih'], benar: 0, penjelasan: 'Membawa air putih dari rumah adalah langkah kecil dan sederhana untuk membantu mengurangi minuman manis.' },
+        // ===== Tips Sehat Materi 2: Cek Label Sebelum Membeli =====
+        { topik: 'Cek Label Sebelum Membeli', pertanyaan: 'Apa yang wajib dicantumkan pada kemasan makanan dan minuman?', opsi: ['Label Informasi Nilai Gizi', 'Nomor telepon pembeli', 'Warna kesukaan konsumen'], benar: 0, penjelasan: 'Setiap makanan dan minuman kemasan wajib mencantumkan label Informasi Nilai Gizi.' },
+        { topik: 'Cek Label Sebelum Membeli', pertanyaan: 'Kenapa penting membaca label sebelum membeli makanan atau minuman kemasan?', opsi: ['Supaya tahu kandungan gula di dalamnya', 'Supaya tahu siapa yang membuatnya', 'Supaya tahu warna kemasannya'], benar: 0, penjelasan: 'Label membantu kamu tahu apa saja yang ada di dalam kemasan, termasuk seberapa banyak gula yang akan kamu konsumsi.' },
+        { topik: 'Cek Label Sebelum Membeli', pertanyaan: 'Langkah pertama sebelum membeli makanan atau minuman kemasan adalah?', opsi: ['Mencari bagian informasi nilai gizi', 'Langsung membayar di kasir', 'Membuka kemasan dulu'], benar: 0, penjelasan: 'Langkah pertama adalah mencari bagian informasi nilai gizi pada kemasan.' },
+        { topik: 'Cek Label Sebelum Membeli', pertanyaan: 'Setelah menemukan informasi nilai gizi, apa yang perlu dilihat?', opsi: ['Gula per sajian', 'Warna kemasan', 'Nama produsen saja'], benar: 0, penjelasan: 'Setelah menemukan informasi nilai gizi, lihat berapa gram gula per sajian yang tertera.' },
+        { topik: 'Cek Label Sebelum Membeli', pertanyaan: 'Kenapa penting mengecek jumlah sajian dalam satu kemasan?', opsi: ['Karena gula yang dikonsumsi bisa lebih banyak dari angka di label', 'Karena jumlah sajian menentukan harga', 'Karena tidak ada hubungannya dengan gula'], benar: 0, penjelasan: 'Kalau satu kemasan berisi beberapa sajian, gula yang dikonsumsi bisa lebih banyak dari angka gula per sajian.' },
+        { topik: 'Cek Label Sebelum Membeli', pertanyaan: 'Kalau ada dua produk, langkah terakhir yang sebaiknya dilakukan adalah?', opsi: ['Membandingkan dan memilih yang gulanya lebih rendah', 'Membeli keduanya sekaligus', 'Memilih yang kemasannya lebih besar'], benar: 0, penjelasan: 'Langkah terakhir adalah membandingkan dua produk lalu memilih yang kandungan gulanya lebih rendah.' },
+        { topik: 'Cek Label Sebelum Membeli', pertanyaan: 'Kalau satu kemasan biskuit punya 4 sajian dan dihabiskan semua, apa artinya?', opsi: ['Gula yang dikonsumsi menjadi 4 kali lipat dari gula per sajian', 'Gula per sajian sudah termasuk gula seluruh kemasan', 'Gula hanya dihitung sekali dari kemasan tersebut'], benar: 0, penjelasan: 'Kalau kemasan berisi 4 sajian dan semuanya dihabiskan, gula yang dikonsumsi menjadi 4 kali lipat dari gula per sajian.' },
+        { topik: 'Cek Label Sebelum Membeli', pertanyaan: 'Kenapa jus buah kemasan belum tentu rendah gula meskipun mengandung vitamin?', opsi: ['Karena jus buah kemasan tetap bisa mengandung gula tambahan yang tinggi', 'Karena vitamin membuat gula hilang', 'Karena semua jus buah kemasan tidak memiliki gula'], benar: 0, penjelasan: 'Meski mengandung vitamin, jus buah kemasan tetap bisa memiliki kandungan gula tambahan yang cukup tinggi.' },
+        { topik: 'Cek Label Sebelum Membeli', pertanyaan: 'Kalau takaran saji dua produk berbeda, apa yang sebaiknya dilakukan sebelum membandingkan gulanya?', opsi: ['Menyamakan dulu ukuran takaran sajinya', 'Langsung membandingkan tanpa menyamakan apapun', 'Memilih produk yang kemasannya lebih menarik'], benar: 0, penjelasan: 'Kalau takaran sajinya berbeda, samakan dulu ukurannya supaya perbandingan gulanya tetap adil.' },
+        { topik: 'Cek Label Sebelum Membeli', pertanyaan: 'Apa manfaat kebiasaan membaca label kemasan?', opsi: ['Membantu membuat pilihan makanan dan minuman yang lebih sadar', 'Membuat belanja menjadi lebih mahal', 'Membuat kita tidak bisa memilih makanan'], benar: 0, penjelasan: 'Kebiasaan membaca label membantu kamu membuat pilihan makanan dan minuman yang lebih sadar.' },
+        // ===== Tips Sehat Materi 3: Batasi Makanan dan Minuman Tinggi Gula =====
+        { topik: 'Batasi Makanan dan Minuman Tinggi Gula', pertanyaan: 'Kenapa teh manis, soda, dan boba perlu dikurangi frekuensinya?', opsi: ['Karena termasuk penyumbang gula terbesar dalam keseharian remaja', 'Karena harganya mahal', 'Karena tidak enak diminum'], benar: 0, penjelasan: 'Teh manis, minuman bersoda, dan boba termasuk penyumbang gula terbesar dalam keseharian remaja.' },
+        { topik: 'Batasi Makanan dan Minuman Tinggi Gula', pertanyaan: 'Kira kira berapa kandungan gula dalam satu kaleng minuman bersoda?', opsi: ['Di atas 39 gram', 'Kurang dari 1 gram', 'Sekitar 100 gram'], benar: 0, penjelasan: 'Satu kaleng minuman bersoda bisa mengandung gula di atas 39 gram, hampir menyentuh batas anjuran gula harian.' },
+        { topik: 'Batasi Makanan dan Minuman Tinggi Gula', pertanyaan: 'Kue dan roti manis sering dianggap camilan yang aman, padahal?', opsi: ['Adonannya biasanya sudah mengandung gula tambahan yang cukup banyak', 'Kue dan roti manis tidak mengandung gula sama sekali', 'Kue dan roti manis lebih sehat dari buah'], benar: 0, penjelasan: 'Adonan kue dan roti manis biasanya sudah mengandung gula tambahan yang cukup banyak, apalagi kalau ada topping.' },
+        { topik: 'Batasi Makanan dan Minuman Tinggi Gula', pertanyaan: 'Kenapa permen dan cokelat perlu dibatasi meski ukurannya kecil?', opsi: ['Karena komponen utamanya hampir seluruhnya gula', 'Karena mengandung banyak vitamin', 'Karena mengandung banyak serat'], benar: 0, penjelasan: 'Permen dan cokelat berukuran kecil, tapi komponen utamanya hampir seluruhnya gula tanpa banyak zat gizi lain.' },
+        { topik: 'Batasi Makanan dan Minuman Tinggi Gula', pertanyaan: 'Kira kira berapa kandungan gula dalam satu buah es krim cone?', opsi: ['Sekitar 22 gram', 'Sekitar 1 gram', 'Sekitar 100 gram'], benar: 0, penjelasan: 'Satu buah es krim cone bisa mengandung sekitar 22 gram gula.' },
+        { topik: 'Batasi Makanan dan Minuman Tinggi Gula', pertanyaan: 'Apa yang sebaiknya kamu lakukan terhadap makanan dan minuman manis seperti teh, soda, kue, dan permen?', opsi: ['Boleh dinikmati sesekali, tapi jangan jadi kebiasaan setiap hari', 'Harus dihindari sepenuhnya seumur hidup', 'Boleh dikonsumsi sebanyak apapun setiap hari'], benar: 0, penjelasan: 'Makanan dan minuman manis boleh dinikmati sesekali, asal tidak dijadikan kebiasaan yang dikonsumsi setiap hari.' },
+        { topik: 'Batasi Makanan dan Minuman Tinggi Gula', pertanyaan: 'Selain gula dari makanan kemasan, gula apa lagi yang perlu diperhatikan?', opsi: ['Gula yang ditambahkan sendiri, misalnya ke teh atau kopi', 'Gula yang ada di dalam air putih', 'Gula yang ada di udara'], benar: 0, penjelasan: 'Gula yang kita tambahkan sendiri ke teh, kopi, atau susu buatan sendiri juga termasuk gula tambahan.' },
+        { topik: 'Batasi Makanan dan Minuman Tinggi Gula', pertanyaan: 'Kira kira berapa kandungan gula dalam satu sendok teh gula pasir?', opsi: ['Sekitar 4 gram', 'Sekitar 40 gram', 'Sekitar 1 gram saja'], benar: 0, penjelasan: 'Satu sendok teh gula pasir mengandung kira kira 4 gram gula.' },
+        { topik: 'Batasi Makanan dan Minuman Tinggi Gula', pertanyaan: 'Kenapa gula tambahan yang kita tambahkan sendiri sering tidak disadari?', opsi: ['Karena tidak tercantum di label kemasan mana pun', 'Karena rasanya sangat pahit', 'Karena jumlahnya selalu sangat sedikit'], benar: 0, penjelasan: 'Gula yang ditambahkan sendiri tidak tercantum di label kemasan mana pun, sehingga sering luput dari perhatian.' },
+        { topik: 'Batasi Makanan dan Minuman Tinggi Gula', pertanyaan: 'Apa inti dari materi membatasi makanan dan minuman tinggi gula?', opsi: ['Bukan soal melarang total, tapi soal menyeimbangkan frekuensi dan porsi', 'Harus berhenti makan semua makanan manis selamanya', 'Boleh makan makanan manis sebanyak mungkin asal enak'], benar: 0, penjelasan: 'Intinya bukan soal melarang total, tapi mengenali mana yang perlu dikurangi frekuensinya dan mana yang cukup dibatasi porsinya.' },
+        // ===== Tips Sehat Materi 4: Pilih Camilan dan Bekal yang Lebih Sehat =====
+        { topik: 'Pilih Camilan dan Bekal yang Lebih Sehat', pertanyaan: 'Camilan apa yang lebih baik dipilih saat jam istirahat di sekolah?', opsi: ['Buah segar', 'Kue manis', 'Permen'], benar: 0, penjelasan: 'Buah segar termasuk camilan yang lebih sehat dibanding kue manis atau permen karena kandungan gulanya lebih rendah.' },
+        { topik: 'Pilih Camilan dan Bekal yang Lebih Sehat', pertanyaan: 'Selain buah, camilan apa yang bisa jadi alternatif sehat?', opsi: ['Kacang tanpa tambahan gula atau garam berlebih', 'Kue basah dengan banyak topping', 'Minuman bersoda'], benar: 0, penjelasan: 'Kacang tanpa tambahan gula atau garam berlebih, misalnya kacang rebus atau kacang panggang biasa, bisa jadi camilan sehat.' },
+        { topik: 'Pilih Camilan dan Bekal yang Lebih Sehat', pertanyaan: 'Kenapa sebaiknya kita kurangi kebiasaan membeli kue atau camilan manis di kantin?', opsi: ['Karena bisa menyumbang banyak gula tersembunyi kalau dibeli setiap hari', 'Karena harganya selalu mahal', 'Karena rasanya tidak enak'], benar: 0, penjelasan: 'Kue, roti manis, dan donat bisa menyumbang cukup banyak gula tersembunyi kalau dibeli dan dimakan setiap hari.' },
+        { topik: 'Pilih Camilan dan Bekal yang Lebih Sehat', pertanyaan: 'Apa manfaat membawa bekal sendiri dari rumah?', opsi: ['Lebih mudah mengontrol porsi dan kandungan gula makanan', 'Membuat kita jadi lebih sering jajan', 'Tidak ada manfaatnya sama sekali'], benar: 0, penjelasan: 'Dengan membawa bekal sendiri, kamu yang menentukan isinya, jadi lebih mudah mengatur porsi dan kandungan gulanya.' },
+        { topik: 'Pilih Camilan dan Bekal yang Lebih Sehat', pertanyaan: 'Sebutkan salah satu contoh isi bekal sehat yang sederhana.', opsi: ['Nasi atau roti gandum dengan lauk sederhana', 'Sekantong permen dan cokelat', 'Minuman bersoda dan kue manis'], benar: 0, penjelasan: 'Nasi atau roti gandum dengan lauk sederhana seperti telur, ayam, atau tempe tahu adalah contoh bekal sehat yang mudah disiapkan.' },
+        { topik: 'Pilih Camilan dan Bekal yang Lebih Sehat', pertanyaan: 'Kalau bekalmu berbeda dari bekal teman temanmu, apa yang sebaiknya kamu lakukan?', opsi: ['Tetap percaya diri dengan pilihan bekalmu sendiri', 'Ikut membeli jajanan yang sama seperti teman', 'Malu dan berhenti membawa bekal'], benar: 0, penjelasan: 'Tidak masalah kalau pilihan bekalmu berbeda dari teman, karena kesehatanmu sendiri jauh lebih penting daripada sekadar ikut ikutan.' },
+        { topik: 'Pilih Camilan dan Bekal yang Lebih Sehat', pertanyaan: 'Saat lapar atau haus di sekolah, apa yang sebaiknya diutamakan terlebih dahulu?', opsi: ['Bekal yang sudah dibawa dari rumah', 'Jajanan manis di kantin', 'Minuman bersoda kemasan'], benar: 0, penjelasan: 'Utamakan dulu bekal yang sudah kamu bawa, atau pilih jajanan dengan kandungan gula yang lebih rendah.' },
+        { topik: 'Pilih Camilan dan Bekal yang Lebih Sehat', pertanyaan: 'Apakah camilan manis harus dihindari sepenuhnya?', opsi: ['Tidak, cukup kurangi frekuensinya', 'Ya, harus dihindari seumur hidup', 'Tidak masalah dimakan sebanyak apapun'], benar: 0, penjelasan: 'Bukan berarti harus berhenti total, cukup kurangi frekuensinya dan jangan jadikan camilan manis sebagai jajanan wajib setiap hari.' },
+        { topik: 'Pilih Camilan dan Bekal yang Lebih Sehat', pertanyaan: 'Apa salah satu alasan remaja jadi sering jajan sembarangan?', opsi: ['Pengaruh teman temannya yang jajan bersama sama', 'Karena bekal dari rumah selalu tidak enak', 'Karena kantin sekolah selalu tutup'], benar: 0, penjelasan: 'Salah satu alasan remaja lebih sering jajan sembarangan adalah pengaruh teman sebaya, misalnya saat teman temannya membeli jajanan yang sama.' },
+        { topik: 'Pilih Camilan dan Bekal yang Lebih Sehat', pertanyaan: 'Apa inti pesan dari materi memilih camilan dan bekal yang lebih sehat?', opsi: ['Mulai dari langkah kecil, misalnya sesekali bawa bekal dari rumah', 'Harus langsung mengganti semua camilan sekaligus', 'Camilan dan bekal tidak berpengaruh pada kesehatan'], benar: 0, penjelasan: 'Coba mulai dari langkah paling gampang, misalnya sesekali bawa bekal dari rumah atau ganti satu camilan manis dengan buah, sebelum menerapkan semuanya sekaligus.' },
+        // ===== Tips Sehat Materi 5: Biasakan Aktif Bergerak =====
+        { topik: 'Biasakan Aktif Bergerak', pertanyaan: 'Berapa lama aktivitas fisik yang dianjurkan WHO untuk anak dan remaja usia 5 sampai 17 tahun setiap hari?', opsi: ['Sekitar 60 menit', 'Sekitar 5 menit', 'Sekitar 5 jam'], benar: 0, penjelasan: 'WHO menganjurkan anak dan remaja usia 5 sampai 17 tahun melakukan aktivitas fisik sedang hingga berat rata rata 60 menit setiap hari.' },
+        { topik: 'Biasakan Aktif Bergerak', pertanyaan: 'Bagaimana cara memenuhi target 60 menit aktivitas fisik setiap hari?', opsi: ['Bisa dicicil dari beberapa kegiatan sepanjang hari', 'Harus dilakukan sekaligus tanpa jeda', 'Hanya bisa dipenuhi lewat satu jenis olahraga saja'], benar: 0, penjelasan: 'Target 60 menit bisa dicicil dari beberapa kegiatan sepanjang hari, misalnya jalan kaki ke sekolah, bermain saat istirahat, dan berolahraga sore hari.' },
+        { topik: 'Biasakan Aktif Bergerak', pertanyaan: 'Apa manfaat aktivitas fisik terhadap kerja insulin dalam tubuh?', opsi: ['Membantu sel tubuh lebih peka terhadap insulin', 'Membuat tubuh berhenti membutuhkan insulin', 'Membuat insulin berubah menjadi gula'], benar: 0, penjelasan: 'Tubuh yang aktif bergerak membantu sel lebih peka terhadap insulin, sehingga gula darah lebih mudah terkontrol.' },
+        { topik: 'Biasakan Aktif Bergerak', pertanyaan: 'Selain menyehatkan tubuh, apa manfaat aktivitas fisik untuk suasana hati?', opsi: ['Membantu mengurangi stres dan membuat mood lebih baik', 'Membuat mood menjadi lebih buruk', 'Tidak ada pengaruhnya sama sekali'], benar: 0, penjelasan: 'Bergerak aktif juga membantu mengurangi stres dan membuat suasana hati terasa lebih ringan.' },
+        { topik: 'Biasakan Aktif Bergerak', pertanyaan: 'Apa yang sebaiknya kamu lakukan saat pelajaran PJOK di sekolah?', opsi: ['Ikut aktif bergerak, bukan sekadar duduk menonton teman bermain', 'Duduk diam sambil menonton teman yang bermain', 'Meminta izin pulang lebih awal'], benar: 0, penjelasan: 'Ikut aktif bergerak saat pelajaran PJOK adalah langkah paling sederhana untuk memenuhi kebutuhan aktivitas fisik harianmu.' },
+        { topik: 'Biasakan Aktif Bergerak', pertanyaan: 'Apa manfaat mengikuti ekstrakurikuler olahraga di sekolah?', opsi: ['Membantu tetap aktif bergerak rutin di luar jam pelajaran', 'Membuat waktu belajar jadi berkurang tanpa manfaat lain', 'Tidak ada hubungannya dengan kebiasaan bergerak aktif'], benar: 0, penjelasan: 'Sebuah penelitian menemukan siswa yang mengikuti ekstrakurikuler olahraga cenderung lebih aktif bergerak sehari hari dan mengurangi waktu bermain gawai.' },
+        { topik: 'Biasakan Aktif Bergerak', pertanyaan: 'Kenapa bergerak aktif bersama teman biasanya lebih mudah bertahan lama?', opsi: ['Karena terasa menyenangkan dan kalian bisa saling mengingatkan', 'Karena wajib dilakukan sesuai jadwal sekolah', 'Karena tidak membutuhkan tenaga sama sekali'], benar: 0, penjelasan: 'Bergerak bersama teman membuat fokusmu ada pada kesenangan bermain, dan kalian bisa saling mengingatkan serta menagih janji satu sama lain.' },
+        { topik: 'Biasakan Aktif Bergerak', pertanyaan: 'Sebutkan salah satu contoh kesempatan bergerak kecil sehari hari selain olahraga terjadwal.', opsi: ['Naik tangga daripada naik lift atau eskalator', 'Duduk diam seharian di kamar', 'Menambah waktu tidur siang'], benar: 0, penjelasan: 'Naik turun tangga termasuk salah satu aktivitas rutin sederhana yang dianjurkan selain olahraga terjadwal.' },
+        { topik: 'Biasakan Aktif Bergerak', pertanyaan: 'Berapa target jalan kaki harian yang dianjurkan Kementerian Kesehatan RI?', opsi: ['Setidaknya 10.000 langkah per hari', 'Setidaknya 100 langkah per hari', 'Tidak ada target langkah harian'], benar: 0, penjelasan: 'Kementerian Kesehatan RI menganjurkan target jalan kaki setidaknya 10.000 langkah per hari sebagai salah satu ukuran aktivitas fisik harian.' },
+        { topik: 'Biasakan Aktif Bergerak', pertanyaan: 'Apa inti pesan dari materi membiasakan aktif bergerak?', opsi: ['Mulai dari kebiasaan bergerak paling mudah, lalu tambah sedikit demi sedikit', 'Harus langsung berolahraga berat setiap hari', 'Aktivitas fisik hanya penting kalau ikut lomba'], benar: 0, penjelasan: 'Kamu tidak perlu langsung berolahraga berat setiap hari. Mulai dari kebiasaan bergerak yang paling mudah, lalu perlahan tambah dengan olahraga favoritmu.' },
+        // ===== Tips Sehat Materi 6: Kurangi Duduk dan Screen Time =====
+        { topik: 'Kurangi Duduk dan Screen Time', pertanyaan: 'Apa itu perilaku sedentari?', opsi: ['Kebiasaan duduk atau berbaring lama dengan sedikit gerakan', 'Kebiasaan berolahraga setiap hari', 'Kebiasaan berjalan kaki ke sekolah'], benar: 0, penjelasan: 'Perilaku sedentari adalah istilah untuk kebiasaan menghabiskan banyak waktu dalam posisi duduk atau berbaring dengan sedikit gerakan.' },
+        { topik: 'Kurangi Duduk dan Screen Time', pertanyaan: 'Berapa batas waktu layar untuk hiburan yang dianjurkan WHO bagi anak dan remaja?', opsi: ['Tidak lebih dari 2 jam per hari', 'Tidak lebih dari 10 jam per hari', 'Tidak ada batasnya sama sekali'], benar: 0, penjelasan: 'WHO menganjurkan waktu layar untuk hiburan tidak lebih dari 2 jam per hari bagi anak dan remaja, di luar kebutuhan belajar.' },
+        { topik: 'Kurangi Duduk dan Screen Time', pertanyaan: 'Apa yang bisa terjadi kalau waktu duduk dan waktu layar harianmu semakin lama?', opsi: ['Sel sel tubuh berisiko lebih sulit merespons insulin', 'Tubuh jadi otomatis lebih sehat', 'Kebutuhan gula tubuh jadi berkurang'], benar: 0, penjelasan: 'Semakin lama waktu duduk dan waktu layar harianmu, semakin besar juga kemungkinan sel sel tubuh mengalami resistensi insulin.' },
+        { topik: 'Kurangi Duduk dan Screen Time', pertanyaan: 'Selain berkaitan dengan gula darah, apa dampak lain waktu layar berlebihan?', opsi: ['Bisa mengganggu pola tidur', 'Membuat penglihatan menjadi lebih tajam', 'Membuat waktu belajar jadi lebih panjang'], benar: 0, penjelasan: 'Paparan cahaya layar yang terlalu lama bisa mengganggu hormon pengatur tidur, sehingga kualitas tidur ikut menurun.' },
+        { topik: 'Kurangi Duduk dan Screen Time', pertanyaan: 'Apa yang sebaiknya dilakukan setiap sekitar 30 menit sekali kalau sedang duduk lama?', opsi: ['Berdiri atau bergerak sebentar', 'Menambah waktu duduk menjadi lebih lama', 'Menutup mata sambil tetap duduk'], benar: 0, penjelasan: 'Para ahli kesehatan menyarankan untuk berdiri atau bergerak sebentar setiap sekitar 30 menit sekali kalau sedang duduk lama.' },
+        { topik: 'Kurangi Duduk dan Screen Time', pertanyaan: 'Sebutkan salah satu cara sederhana mengurangi kebiasaan main HP berlebihan.', opsi: ['Matikan notifikasi aplikasi yang tidak penting', 'Menambah jumlah aplikasi yang terpasang', 'Menyalakan semua notifikasi supaya lebih ramai'], benar: 0, penjelasan: 'Mematikan notifikasi aplikasi yang tidak penting membantu supaya kamu tidak terus tergoda membuka HP setiap beberapa menit.' },
+        { topik: 'Kurangi Duduk dan Screen Time', pertanyaan: 'Selain main HP, kegiatan apa lagi yang termasuk kategori waktu layar?', opsi: ['Menonton TV', 'Membaca buku cetak', 'Berjalan kaki di taman'], benar: 0, penjelasan: 'WHO menyebut menonton televisi sebagai salah satu contoh utama perilaku sedentari yang perlu dibatasi.' },
+        { topik: 'Kurangi Duduk dan Screen Time', pertanyaan: 'Bagaimana cara mengisi waktu luang dengan lebih sehat selain duduk main HP?', opsi: ['Ganti dengan bersepeda santai, jalan jalan, atau olahraga ringan', 'Menambah durasi main HP di waktu luang', 'Tidur seharian penuh saat waktu luang'], benar: 0, penjelasan: 'Waktu luang sebenarnya kesempatan bagus untuk menambah aktivitas fisik harianmu, misalnya bersepeda santai atau olahraga ringan.' },
+        { topik: 'Kurangi Duduk dan Screen Time', pertanyaan: 'Kenapa mengajak teman bisa membantu mengurangi kebiasaan duduk dan screen time?', opsi: ['Karena kegiatan bergerak jadi lebih mudah dan menyenangkan dilakukan bersama', 'Karena teman akan menyuruh kita berhenti bermain HP selamanya', 'Karena mengajak teman tidak ada pengaruhnya sama sekali'], benar: 0, penjelasan: 'Ajakan sederhana seperti mengajak main di luar bisa jadi langkah kecil yang efektif untuk saling membantu mengurangi waktu duduk dan screen time bersama.' },
+        { topik: 'Kurangi Duduk dan Screen Time', pertanyaan: 'Apa inti pesan dari materi mengurangi duduk dan screen time?', opsi: ['Bukan berhenti total, tapi menyeimbangkan waktu layar dengan aktivitas fisik', 'Harus berhenti main HP dan nonton TV selamanya', 'Duduk lama tidak berpengaruh apapun pada kesehatan'], benar: 0, penjelasan: 'Mengurangi duduk dan screen time bukan berarti harus berhenti total, yang penting adalah menjaga keseimbangan dengan aktivitas fisik setiap hari.' }
     ];
     let kuisBagIndeks = [];
     // Mengacak urutan pilihan jawaban tiap soal ditampilkan, supaya posisi
@@ -2061,6 +1873,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         };
     }
     function ambilSoalAcak() {
+        if (QUESTION_BANK.length === 0) return null;
         if (kuisBagIndeks.length === 0) {
             kuisBagIndeks = QUESTION_BANK.map((_, i) => i);
             for (let i = kuisBagIndeks.length - 1; i > 0; i--) {
@@ -2073,82 +1886,85 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
     const PAPAN_DATA = [
         { tipe: 'mulai', ikon: '🏁', label: 'Mulai' },
         { tipe: 'kuis', ikon: '💉', label: 'Kuis' },
-        {
-            tipe: 'info', ikon: '📌', label: 'Fakta',
-            teks: 'WHO menyarankan konsumsi gula tambahan tidak lebih dari 10% total energi harian — dan makin sedikit makin baik untuk kesehatan.'
-        },
+        { tipe: 'info', ikon: '📌', label: 'Fakta' },
         { tipe: 'kuis', ikon: '🥤', label: 'Kuis' },
-        {
-            tipe: 'bonus', ikon: '💧', label: 'Bonus',
-            teks: 'Kamu memilih air putih dibanding minuman manis hari ini. Maju 2 langkah!',
-            langkah: 2
-        },
-        { tipe: 'checkpoint', ikon: '🩺', label: 'Cek Sehat', teks: 'Tekanan darahmu normal! +10 Poin Sehat.', poin: 10 },
+        { tipe: 'bonus', ikon: '💧', label: 'Bonus', langkah: 2 },
+        { tipe: 'checkpoint', ikon: '🩺', label: 'Hidup Sehat', poin: 10 },
         { tipe: 'kuis', ikon: '⚠️', label: 'Kuis' },
-        {
-            tipe: 'jebakan', ikon: '🍩', label: 'Jebakan',
-            teks: 'Kamu ngemil donat dan permen sepulang sekolah. Mundur 2 langkah.',
-            langkah: -2
-        },
-        {
-            tipe: 'info', ikon: '🥫', label: 'Fakta',
-            teks: 'Cek label: 1 kaleng Coca-Cola (250ml) mengandung ±27g gula, dan 1 botol Teh Botol Sosro (350ml) ±28g gula — masing-masing lebih dari separuh batas gula harian (50g)!'
-        },
+        { tipe: 'jebakan', ikon: '🍩', label: 'Jebakan', langkah: -2 },
+        { tipe: 'info', ikon: '🥫', label: 'Fakta' },
         { tipe: 'kuis', ikon: '🍇', label: 'Kuis' },
-        { tipe: 'checkpoint', ikon: '🦷', label: 'Cek Sehat', teks: 'Kamu rajin sikat gigi dan bebas gula tersembunyi. +10 Poin Sehat.', poin: 10 },
+        { tipe: 'checkpoint', ikon: '🦷', label: 'Hidup Sehat', poin: 10 },
         { tipe: 'kuis', ikon: '🏷️', label: 'Kuis' },
-        {
-            tipe: 'bonus', ikon: '🚶', label: 'Bonus',
-            teks: 'Kamu jalan kaki ke sekolah hari ini. Maju 1 langkah!',
-            langkah: 1
-        },
-        {
-            tipe: 'info', ikon: '🍞', label: 'Fakta',
-            teks: 'Gula tersembunyi juga ada di makanan yang terasa gurih, seperti saus tomat dan roti kemasan.'
-        },
+        { tipe: 'bonus', ikon: '🚶', label: 'Bonus', langkah: 1 },
+        { tipe: 'info', ikon: '🍞', label: 'Fakta' },
         { tipe: 'kuis', ikon: '🧬', label: 'Kuis' },
-        { tipe: 'checkpoint', ikon: '⚡', label: 'Cek Sehat', teks: 'Energimu stabil sepanjang hari berkat pola makan seimbang. +10 Poin Sehat.', poin: 10 },
+        { tipe: 'checkpoint', ikon: '⚡', label: 'Hidup Sehat', poin: 10 },
         { tipe: 'kuis', ikon: '🍭', label: 'Kuis' },
-        {
-            tipe: 'jebakan', ikon: '🌙', label: 'Jebakan',
-            teks: 'Kamu begadang sambil ngemil manis. Mundur 1 langkah.',
-            langkah: -1
-        },
+        { tipe: 'jebakan', ikon: '🌙', label: 'Jebakan', langkah: -1 },
         { tipe: 'kuis', ikon: '🩺', label: 'Kuis' },
-        {
-            tipe: 'jebakan', ikon: '🥯', label: 'Jebakan',
-            teks: 'Kamu lupa sarapan dan akhirnya jajan sembarangan. Mundur 1 langkah.',
-            langkah: -1
-        }
+        { tipe: 'jebakan', ikon: '🥯', label: 'Jebakan', langkah: -1 }
     ];
     // ===== Bank Fakta untuk kotak "Tahukah Kamu?" (tipe: 'info') di papan.
     // Dipilih acak (sistem "bag", tidak berulang sebelum semua tampil sekali)
     // tiap kali pemain berhenti di kotak fakta manapun — supaya walau
     // berhenti berkali-kali di kotak yang sama, faktanya tidak selalu sama. =====
+    // Diisi bertahap per materi. Tambahkan fakta baru di sini nanti, satu
+    // per satu, dengan format:
+    // { ikon: '📌', teks: 'Isi fakta singkat di sini.' }
     const FAKTA_KOTAK_INFO = [
-        { ikon: '📌', teks: 'WHO menyarankan konsumsi gula tambahan tidak lebih dari 10% total energi harian — dan makin sedikit makin baik untuk kesehatan.' },
-        { ikon: '🥫', teks: 'Cek label: 1 kaleng Coca-Cola (250ml) mengandung ±27g gula, dan 1 botol Teh Botol Sosro (350ml) ±28g gula — masing-masing lebih dari separuh batas gula harian (50g)!' },
-        { ikon: '🍞', teks: 'Gula tersembunyi juga ada di makanan yang terasa gurih, seperti saus tomat dan roti kemasan.' },
-        { ikon: '🍬', teks: 'Batas gula tambahan harian yang disarankan cuma 50 gram — sekitar 4 sendok makan. Satu botol teh manis kemasan saja bisa memakai lebih dari separuh jatah itu.' },
-        { ikon: '🏃', teks: 'WHO menyarankan remaja bergerak aktif minimal 60 menit tiap hari. Jalan kaki, main bola, atau naik-turun tangga juga terhitung, lho.' },
-        { ikon: '🩸', teks: 'Diabetes tipe 2 sering nggak bergejala di awal. Karena itu, skrining gula darah berkala penting dilakukan meski merasa sehat-sehat saja.' },
-        { ikon: '🦷', teks: 'Konsumsi gula berlebih nggak cuma berisiko ke gula darah, tapi juga mempercepat kerusakan gigi. Sikat gigi teratur bantu menjaga keduanya.' },
-        { ikon: '🍽️', teks: 'Coba terapkan panduan "Isi Piringku": separuh piring sayur dan buah, sisanya karbohidrat dan protein secara seimbang.' },
-        { ikon: '👪', teks: 'Riwayat diabetes di keluarga meningkatkan risiko, tapi bukan berarti pasti terkena. Pola hidup sehat sejak dini tetap jadi langkah pencegahan yang berarti.' },
-        { ikon: '🥤', teks: 'Kalau haus, jadikan air putih pilihan pertama. Minuman manis boleh sesekali, tapi jangan jadi kebiasaan harian.' },
-        { ikon: '🍩', teks: 'Lebih dari 90% kasus diabetes di dunia adalah tipe 2 — dan kabar baiknya, tipe ini bisa dicegah lewat pola makan dan aktivitas fisik yang terjaga sejak remaja.' },
-        { ikon: '🏷️', teks: 'Sebelum beli jajanan kemasan, coba lihat label informasi nilai gizinya dulu. Kebiasaan kecil ini membantu kamu lebih sadar berapa gula yang masuk ke tubuh.' },
-        { ikon: '🌙', teks: 'Begadang sambil ngemil manis adalah kombinasi yang perlu diwaspadai — kurang tidur bisa memengaruhi cara tubuh mengatur gula darah.' },
-        { ikon: '🚶', teks: 'Kalau jarak ke sekolah dekat, jalan kaki atau naik sepeda bisa jadi cara sederhana menambah aktivitas fisik harian.' },
-        { ikon: '🥣', teks: 'Melewatkan sarapan justru bisa membuat kamu lebih mudah tergoda jajan sembarangan saat istirahat. Sarapan bergizi membantu menjaga energi dan pilihan makanmu.' },
-        { ikon: '🍚', teks: 'Kebutuhan karbohidrat harian yang disarankan sekitar 45–65% dari total energi — porsi wajar, bukan berlebihan maupun terlalu sedikit.' },
-        { ikon: '💧', teks: 'Mengganti satu porsi minuman manis dengan air putih setiap hari adalah kebiasaan kecil yang, kalau konsisten, dampaknya cukup besar bagi kesehatan jangka panjang.' },
-        { ikon: '💉', teks: 'Diabetes tipe 1 berbeda dari tipe 2 — penderitanya membutuhkan suntikan insulin setiap hari seumur hidup karena tubuh sudah tidak bisa memproduksi insulin sendiri.' },
-        { ikon: '🤰', teks: 'Diabetes gestasional bisa muncul saat kehamilan dan umumnya menghilang setelah melahirkan, tapi ibu yang pernah mengalaminya tetap punya risiko lebih tinggi terkena diabetes tipe 2 di kemudian hari.' },
-        { ikon: '🩺', teks: 'Program Cek Kesehatan Gratis (CKG) di sekolah bisa jadi kesempatan buat kamu memantau kondisi kesehatan sejak dini, termasuk gula darah.' }
+        // ===== Materi 1: Kenali Diabetes Melitus Tipe 2 (DMT2) =====
+        { ikon: '🩺', teks: 'DMT2 dulu identik dengan usia dewasa, tapi kini kasusnya juga meningkat 2–3 kali lipat pada remaja dibanding sekitar 30 tahun lalu.' },
+        { ikon: '🔑', teks: 'Insulin diibaratkan seperti kunci yang membuka "pintu" sel supaya glukosa bisa masuk. Pada DMT2, gemboknya jadi seret alias sel jadi kurang peka pada insulin.' },
+        { ikon: '⏳', teks: 'DMT2 bersifat kronis alias jangka panjang, tapi kabar baiknya risikonya bisa dikendalikan dan dicegah lebih awal lewat pola makan dan aktivitas fisik.' },
+        // ===== Materi 2: Kenali Gejala dan Bahaya Diabetes =====
+        { ikon: '🔤', teks: 'Istilah 3P (Poliuria, Polidipsia, Polifagia) adalah gejala klasik DMT2: sering buang air kecil, sering haus, dan sering lapar berlebihan.' },
+        { ikon: '🔄', teks: 'Gejala 3P sebenarnya saling berhubungan seperti reaksi berantai. Semuanya dimulai dari glukosa yang menumpuk di darah karena sel sulit menyerapnya.' },
+        { ikon: '🦵', teks: 'Diabetes yang tidak terkontrol bisa merusak saraf dan pembuluh darah, menyebabkan kesemutan hingga gangguan sirkulasi di tangan dan kaki.' },
+        // ===== Materi 3: Gula, Makanan, dan Minuman yang Perlu Dibatasi =====
+        { ikon: '➕', teks: 'Gula tambahan (added sugar) adalah gula yang sengaja ditambahkan ke makanan/minuman, baik oleh pabrik, penjual, maupun diri sendiri.' },
+        { ikon: '🍯', teks: 'Gula bebas mencakup gula tambahan plus gula alami dalam madu, sirup, dan jus buah. Gula dalam buah utuh tidak termasuk di dalamnya.' },
+        { ikon: '🍎', teks: 'Gula dalam buah utuh ditemani serat yang memperlambat penyerapannya, beda dengan gula tambahan pada permen atau minuman manis yang diserap lebih cepat.' },
+        // ===== Materi 4: Batas Konsumsi Gula dan Cara Membaca Label =====
+        { ikon: '🥄', teks: 'Batas anjuran gula tambahan dari Kemenkes RI adalah 50 gram atau setara 4 sendok makan per hari.' },
+        { ikon: '🏷️', teks: 'Angka gula di label kemasan biasanya untuk satu takaran saji, bukan untuk satu kemasan penuh.' },
+        { ikon: '🧮', teks: 'Cara menghitung total gula dalam satu kemasan itu mudah. Tinggal kalikan gula per sajian dengan jumlah sajian per kemasan.' },
+        // ===== Materi 5: Aktivitas Fisik untuk Mencegah DMT2 =====
+        { ikon: '🏃', teks: 'Aktivitas fisik adalah semua gerakan tubuh yang memakai energi, bukan cuma olahraga di lapangan.' },
+        { ikon: '⏱️', teks: 'WHO menganjurkan remaja bergerak aktif minimal 60 menit setiap hari dengan intensitas sedang hingga berat.' },
+        { ikon: '🪑', teks: 'Duduk terlalu lama tanpa gerakan disebut perilaku sedentari. Sebaiknya diselingi berdiri atau jalan setiap 1 sampai 2 jam.' },
+        // ===== Materi 6: Membangun Kebiasaan Hidup Sehat Sejak Remaja =====
+        { ikon: '🧩', teks: 'Materi 1 sampai 5 itu seperti potongan puzzle. Materi 6 ini menyatukan semuanya jadi satu kebiasaan hidup sehat yang utuh.' },
+        { ikon: '🕸️', teks: 'Kebiasaan sehat itu saling berkaitan seperti jaring laba-laba. Makin banyak yang terhubung, makin kuat menahan risiko DMT2.' },
+        { ikon: '🔁', teks: 'Kebiasaan sehat bukan soal sempurna atau ekstrem, tapi soal konsisten dijalani dalam jangka panjang.' },
+        // ===== Tips Sehat Materi 1: Pilih Minuman yang Lebih Sehat =====
+        { ikon: '💧', teks: 'Air putih adalah minuman paling aman untuk diminum setiap hari karena tidak mengandung gula maupun kalori tambahan.' },
+        { ikon: '🚰', teks: 'Remaja usia 10 sampai 18 tahun membutuhkan sekitar 1.850 sampai 2.150 mililiter cairan setiap hari.' },
+        { ikon: '🏷️', teks: 'Melihat label gizi sebelum membeli minuman kemasan membantu kamu tahu jumlah gula yang akan kamu minum.' },
+        // ===== Tips Sehat Materi 2: Cek Label Sebelum Membeli =====
+        { ikon: '🏷️', teks: 'Setiap makanan dan minuman kemasan wajib mencantumkan label Informasi Nilai Gizi.' },
+        { ikon: '🔍', teks: 'Ada empat langkah membaca label sebelum membeli, yaitu cari, lihat, cek, dan bandingkan.' },
+        { ikon: '📦', teks: 'Gula per sajian bukan berarti gula dari seluruh kemasan, karena satu kemasan bisa berisi beberapa sajian.' },
+        // ===== Tips Sehat Materi 3: Batasi Makanan dan Minuman Tinggi Gula =====
+        { ikon: '🧋', teks: 'Satu porsi milk tea dengan topping boba bisa mengandung sekitar 38 gram gula.' },
+        { ikon: '🥤', teks: 'Satu kaleng minuman bersoda bisa mengandung gula di atas 39 gram, hampir mendekati batas anjuran gula harian.' },
+        { ikon: '🍨', teks: 'Satu buah es krim cone bisa mengandung sekitar 22 gram gula.' },
+        // ===== Tips Sehat Materi 4: Pilih Camilan dan Bekal yang Lebih Sehat =====
+        { ikon: '🍌', teks: 'Buah seperti pisang atau apel bisa langsung dimasukkan ke tas tanpa perlu diolah dulu, cocok jadi camilan praktis.' },
+        { ikon: '🍱', teks: 'Anak yang lebih sering membawa bekal dari rumah cenderung lebih jarang jajan sembarangan di sekolah.' },
+        { ikon: '🥜', teks: 'Kacang panggang tanpa tambahan gula atau garam berlebih bisa jadi camilan sehat pengganti jajanan manis.' },
+        // ===== Tips Sehat Materi 5: Biasakan Aktif Bergerak =====
+        { ikon: '❤️', teks: 'Aktivitas fisik rutin melatih jantung dan paru paru, sehingga stamina harianmu ikut meningkat.' },
+        { ikon: '🎽', teks: 'Siswa yang aktif ikut ekstrakurikuler olahraga cenderung lebih aktif bergerak sehari hari dan mengurangi waktu bermain gawai.' },
+        { ikon: '😊', teks: 'Bergerak aktif juga membantu mengurangi stres dan membuat suasana hati terasa lebih ringan.' },
+        // ===== Tips Sehat Materi 6: Kurangi Duduk dan Screen Time =====
+        { ikon: '💉', teks: 'Penelitian pada remaja di Surabaya dan Sidoarjo menemukan risiko resistensi insulin meningkat sekitar 4 kali lipat pada kelompok dengan waktu layar tinggi.' },
+        { ikon: '⏱️', teks: 'WHO menganjurkan waktu layar untuk hiburan tidak lebih dari 2 jam per hari bagi anak dan remaja.' },
+        { ikon: '📺', teks: 'Menonton TV termasuk salah satu contoh utama perilaku sedentari yang perlu dibatasi.' }
     ];
     let bagFaktaKotakIndeks = [];
     function ambilFaktaKotakAcak() {
+        if (FAKTA_KOTAK_INFO.length === 0) return null;
         if (bagFaktaKotakIndeks.length === 0) {
             bagFaktaKotakIndeks = FAKTA_KOTAK_INFO.map((_, i) => i);
             for (let i = bagFaktaKotakIndeks.length - 1; i > 0; i--) {
@@ -2164,20 +1980,62 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
     // nggak itu-itu aja walau berhenti berkali-kali di kotak yang sama.
     // Jumlah langkah maju/mundur tetap ikut data kotaknya (tile.langkah),
     // cuma kalimat & ikon ceritanya yang diacak. =====
+    // Diisi bertahap per materi. Tambahkan kejadian baru di sini nanti, satu
+    // per satu, dengan format:
+    // { ikon: '💧', teks: 'Kalimat cerita singkat di sini.' }
     const BONUS_KEJADIAN = [
-        { ikon: '💧', teks: 'Kamu memilih air putih dibanding minuman manis hari ini.' },
-        { ikon: '🚶', teks: 'Kamu jalan kaki ke sekolah hari ini.' },
-        { ikon: '🥗', teks: 'Kamu makan sayur dan buah waktu makan siang.' },
-        { ikon: '🏃', teks: 'Kamu olahraga ringan sepulang sekolah.' },
-        { ikon: '🍱', teks: 'Kamu sarapan bergizi sebelum berangkat sekolah.' },
-        { ikon: '😴', teks: 'Kamu tidur cukup semalam, jadi lebih fokus hari ini.' },
-        { ikon: '🦷', teks: 'Kamu rajin sikat gigi pagi dan malam.' },
-        { ikon: '🏷️', teks: 'Kamu cek label gizi dulu sebelum beli jajanan kemasan.' },
-        { ikon: '🍎', teks: 'Kamu bawa buah dari rumah sebagai camilan.' },
-        { ikon: '🚰', teks: 'Kamu isi ulang botol air putih beberapa kali hari ini.' }
+        // ===== Materi 1: Kenali Diabetes Melitus Tipe 2 (DMT2) =====
+        { ikon: '🚶', teks: 'Kamu menyempatkan diri jalan kaki atau bergerak aktif hari ini.' },
+        { ikon: '🥗', teks: 'Kamu memilih porsi makan seimbang, nggak berlebihan kalori.' },
+        { ikon: '🌱', teks: 'Kamu mulai membiasakan pola hidup sehat sejak sekarang, bukan menunggu nanti.' },
+        // ===== Materi 2: Kenali Gejala dan Bahaya Diabetes =====
+        { ikon: '🗣️', teks: 'Kamu cerita ke orang tua atau guru begitu merasakan gejala yang tidak biasa pada tubuhmu.' },
+        { ikon: '🩺', teks: 'Kamu memeriksakan diri ke tenaga kesehatan saat merasa ada yang tidak beres.' },
+        { ikon: '📖', teks: 'Kamu mencari tahu lebih dulu soal gejala 3P supaya lebih waspada sejak dini.' },
+        // ===== Materi 3: Gula, Makanan, dan Minuman yang Perlu Dibatasi =====
+        { ikon: '🍎', teks: 'Kamu memilih buah segar sebagai camilan, bukan permen atau cokelat.' },
+        { ikon: '🏷️', teks: 'Kamu mulai memperhatikan kandungan gula tambahan sebelum membeli makanan/minuman kemasan.' },
+        { ikon: '💧', teks: 'Kamu mengurangi minuman manis dan menggantinya dengan air putih hari ini.' },
+        // ===== Materi 4: Batas Konsumsi Gula dan Cara Membaca Label =====
+        { ikon: '🏷️', teks: 'Kamu membaca label Informasi Nilai Gizi sebelum membeli makanan atau minuman kemasan.' },
+        { ikon: '🧮', teks: 'Kamu menghitung dulu total gula dalam kemasan sebelum menghabiskannya.' },
+        { ikon: '⚖️', teks: 'Kamu membandingkan dua produk dan memilih yang kandungan gulanya lebih rendah.' },
+        // ===== Materi 5: Aktivitas Fisik untuk Mencegah DMT2 =====
+        { ikon: '🚶', teks: 'Kamu memilih jalan kaki ke sekolah atau ke tempat dekat lainnya.' },
+        { ikon: '🪜', teks: 'Kamu naik tangga daripada naik lift atau eskalator hari ini.' },
+        { ikon: '🧹', teks: 'Kamu membantu pekerjaan rumah seperti menyapu atau mengepel.' },
+        // ===== Materi 6: Membangun Kebiasaan Hidup Sehat Sejak Remaja =====
+        { ikon: '🎒', teks: 'Kamu membawa botol minum sendiri supaya lebih gampang minum air putih.' },
+        { ikon: '🍱', teks: 'Kamu membawa bekal dari rumah supaya isinya lebih terkontrol.' },
+        { ikon: '🤔', teks: 'Kamu cek dulu kandungan gizi sebelum ikut coba camilan atau minuman yang sedang viral.' },
+        // ===== Tips Sehat Materi 1: Pilih Minuman yang Lebih Sehat =====
+        { ikon: '💧', teks: 'Kamu memilih minum air putih daripada minuman manis hari ini.' },
+        { ikon: '🎒', teks: 'Kamu membawa botol air putih sendiri dari rumah.' },
+        { ikon: '🏷️', teks: 'Kamu membaca label gula sebelum membeli minuman kemasan.' },
+        // ===== Tips Sehat Materi 2: Cek Label Sebelum Membeli =====
+        { ikon: '🔍', teks: 'Kamu mencari bagian informasi nilai gizi sebelum membeli kemasan.' },
+        { ikon: '⚖️', teks: 'Kamu membandingkan dua produk lalu memilih yang gulanya lebih rendah.' },
+        { ikon: '📦', teks: 'Kamu mengecek jumlah sajian dalam satu kemasan sebelum menghabiskannya.' },
+        // ===== Tips Sehat Materi 3: Batasi Makanan dan Minuman Tinggi Gula =====
+        { ikon: '🍎', teks: 'Kamu memilih buah segar daripada kue manis sebagai camilan hari ini.' },
+        { ikon: '🧋', teks: 'Kamu mengurangi frekuensi minum boba atau minuman kekinian.' },
+        { ikon: '🥄', teks: 'Kamu mengurangi takaran gula pasir yang kamu tambahkan sendiri ke minuman.' },
+        // ===== Tips Sehat Materi 4: Pilih Camilan dan Bekal yang Lebih Sehat =====
+        { ikon: '🍱', teks: 'Kamu membawa bekal sehat dari rumah untuk bekal istirahat hari ini.' },
+        { ikon: '🍎', teks: 'Kamu memilih buah atau kacang sebagai camilan, bukan kue manis di kantin.' },
+        { ikon: '💪', teks: 'Kamu tetap percaya diri membawa bekal sendiri, walau teman temanmu memilih jajan.' },
+        // ===== Tips Sehat Materi 5: Biasakan Aktif Bergerak =====
+        { ikon: '🏃', teks: 'Kamu ikut aktif bergerak saat pelajaran PJOK, bukan cuma duduk menonton teman bermain.' },
+        { ikon: '👫', teks: 'Kamu mengajak teman untuk jalan kaki atau main bulu tangkis bersama.' },
+        { ikon: '🚴', teks: 'Kamu memilih naik sepeda atau jalan kaki dibanding naik kendaraan untuk jarak dekat.' },
+        // ===== Tips Sehat Materi 6: Kurangi Duduk dan Screen Time =====
+        { ikon: '🧍', teks: 'Kamu berdiri dan meregangkan tubuh sebentar setelah duduk lama mengerjakan tugas.' },
+        { ikon: '👫', teks: 'Kamu memilih main di luar rumah bersama teman, bukan cuma duduk main HP.' },
+        { ikon: '🔕', teks: 'Kamu mematikan notifikasi aplikasi yang tidak penting supaya tidak terus tergoda membuka HP.' }
     ];
     let bagBonusIndeks = [];
     function ambilBonusAcak() {
+        if (BONUS_KEJADIAN.length === 0) return null;
         if (bagBonusIndeks.length === 0) {
             bagBonusIndeks = BONUS_KEJADIAN.map((_, i) => i);
             for (let i = bagBonusIndeks.length - 1; i > 0; i--) {
@@ -2187,20 +2045,62 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
         }
         return BONUS_KEJADIAN[bagBonusIndeks.pop()];
     }
+    // Diisi bertahap per materi. Tambahkan kejadian baru di sini nanti, satu
+    // per satu, dengan format:
+    // { ikon: '🍩', teks: 'Kalimat cerita singkat di sini.' }
     const JEBAKAN_KEJADIAN = [
-        { ikon: '🍩', teks: 'Kamu ngemil donat dan permen sepulang sekolah.' },
-        { ikon: '🌙', teks: 'Kamu begadang sambil ngemil manis.' },
-        { ikon: '🥯', teks: 'Kamu lupa sarapan dan akhirnya jajan sembarangan.' },
-        { ikon: '🥤', teks: 'Kamu beli minuman manis kemasan lagi hari ini.' },
-        { ikon: '🍬', teks: 'Kamu makan permen terus-terusan waktu belajar.' },
-        { ikon: '📱', teks: 'Kamu main HP sampai larut dan lupa waktu tidur.' },
-        { ikon: '🍟', teks: 'Kamu jajan gorengan dan minuman manis waktu istirahat.' },
-        { ikon: '🛋️', teks: 'Kamu males gerak seharian dan cuma rebahan.' },
-        { ikon: '🧋', teks: 'Kamu beli minuman boba ekstra manis sepulang sekolah.' },
-        { ikon: '🍪', teks: 'Kamu ngemil biskuit manis berkali-kali tanpa sadar.' }
+        // ===== Materi 1: Kenali Diabetes Melitus Tipe 2 (DMT2) =====
+        { ikon: '🛋️', teks: 'Kamu rebahan seharian sambil main HP tanpa banyak bergerak.' },
+        { ikon: '🍩', teks: 'Kamu sering ngemil makanan tinggi kalori tanpa memperhatikan porsinya.' },
+        { ikon: '💺', teks: 'Kamu duduk berjam-jam tanpa jeda buat berdiri atau jalan sebentar.' },
+        // ===== Materi 2: Kenali Gejala dan Bahaya Diabetes =====
+        { ikon: '🙈', teks: 'Kamu menganggap remeh rasa haus dan lapar berlebihan yang sering muncul akhir-akhir ini.' },
+        { ikon: '🤐', teks: 'Kamu memilih diam saja walau sering bolak-balik ke kamar mandi di malam hari.' },
+        { ikon: '⏰', teks: 'Kamu menunda periksa ke tenaga kesehatan padahal gejala sudah muncul berulang kali.' },
+        // ===== Materi 3: Gula, Makanan, dan Minuman yang Perlu Dibatasi =====
+        { ikon: '🧋', teks: 'Kamu minum boba atau minuman manis kemasan berkali-kali dalam seminggu.' },
+        { ikon: '🍬', teks: 'Kamu memilih permen atau cokelat sebagai camilan hampir setiap hari.' },
+        { ikon: '🥤', teks: 'Kamu mengganti air putih dengan soda atau teh manis setiap kali haus.' },
+        // ===== Materi 4: Batas Konsumsi Gula dan Cara Membaca Label =====
+        { ikon: '📦', teks: 'Kamu menghabiskan satu kemasan minuman manis tanpa melihat berapa sajian di dalamnya.' },
+        { ikon: '🍪', teks: 'Kamu menganggap remeh camilan kecil, padahal kamu memakannya berkali-kali dalam sehari.' },
+        { ikon: '👀', teks: 'Kamu membeli makanan kemasan tanpa pernah membaca label Informasi Nilai Gizinya.' },
+        // ===== Materi 5: Aktivitas Fisik untuk Mencegah DMT2 =====
+        { ikon: '🛗', teks: 'Kamu selalu naik lift atau eskalator padahal ada tangga yang bisa dipakai.' },
+        { ikon: '🎮', teks: 'Kamu memilih main gim duduk berjam-jam daripada main aktif di luar.' },
+        { ikon: '🚌', teks: 'Kamu naik kendaraan untuk jarak dekat yang sebenarnya bisa ditempuh dengan jalan kaki.' },
+        // ===== Materi 6: Membangun Kebiasaan Hidup Sehat Sejak Remaja =====
+        { ikon: '📲', teks: 'Kamu ikut-ikutan tren minuman manis viral di media sosial tanpa cek dulu kandungan gulanya.' },
+        { ikon: '🍟', teks: 'Kamu ngemil terus-menerus sambil main gawai atau nonton tanpa sadar porsinya.' },
+        { ikon: '🥤', teks: 'Kamu memilih minuman manis kemasan daripada air putih walau sedang tidak terlalu haus.' },
+        // ===== Tips Sehat Materi 1: Pilih Minuman yang Lebih Sehat =====
+        { ikon: '🧋', teks: 'Kamu minum boba atau minuman kekinian yang manis setiap hari.' },
+        { ikon: '🥤', teks: 'Kamu memilih minuman bersoda daripada air putih saat haus.' },
+        { ikon: '🍵', teks: 'Kamu menambahkan banyak gula ke teh buatanmu tanpa disadari.' },
+        // ===== Tips Sehat Materi 2: Cek Label Sebelum Membeli =====
+        { ikon: '👀', teks: 'Kamu membeli makanan kemasan tanpa pernah melihat label informasi nilai gizinya.' },
+        { ikon: '📦', teks: 'Kamu menghabiskan satu kemasan penuh tanpa sadar kemasan itu berisi beberapa sajian.' },
+        { ikon: '🤷', teks: 'Kamu mengira jus buah kemasan pasti rendah gula hanya karena ada tulisan vitamin di kemasannya.' },
+        // ===== Tips Sehat Materi 3: Batasi Makanan dan Minuman Tinggi Gula =====
+        { ikon: '🍩', teks: 'Kamu makan donat cokelat dan kue manis hampir setiap hari.' },
+        { ikon: '🍬', teks: 'Kamu menghabiskan banyak butir permen atau cokelat tanpa menghitung jumlahnya.' },
+        { ikon: '🍨', teks: 'Kamu menjadikan es krim sebagai menu penutup setiap hari.' },
+        // ===== Tips Sehat Materi 4: Pilih Camilan dan Bekal yang Lebih Sehat =====
+        { ikon: '🧁', teks: 'Kamu membeli kue manis di kantin setiap hari tanpa membawa bekal sama sekali.' },
+        { ikon: '👀', teks: 'Kamu ikut membeli jajanan manis hanya karena teman temanmu membelinya juga.' },
+        { ikon: '🥤', teks: 'Kamu memilih minuman manis sebagai pilihan utama saat istirahat, padahal sudah bawa bekal dari rumah.' },
+        // ===== Tips Sehat Materi 5: Biasakan Aktif Bergerak =====
+        { ikon: '💺', teks: 'Kamu memilih diam duduk menonton saja saat pelajaran PJOK, bukan ikut bergerak aktif bersama teman.' },
+        { ikon: '🎮', teks: 'Kamu melewatkan latihan ekstrakurikuler olahraga demi main gawai berjam jam di rumah.' },
+        { ikon: '🚗', teks: 'Kamu memilih naik kendaraan untuk pergi ke tempat yang sebenarnya dekat dan bisa dijalani kaki.' },
+        // ===== Tips Sehat Materi 6: Kurangi Duduk dan Screen Time =====
+        { ikon: '📱', teks: 'Kamu main HP sambil rebahan selama berjam jam tanpa jeda.' },
+        { ikon: '📺', teks: 'Kamu menonton TV terus menerus sampai lupa waktu belajar atau istirahat.' },
+        { ikon: '🪑', teks: 'Kamu tetap duduk diam tanpa berdiri walau sudah lebih dari satu jam mengerjakan tugas.' }
     ];
     let bagJebakanIndeks = [];
     function ambilJebakanAcak() {
+        if (JEBAKAN_KEJADIAN.length === 0) return null;
         if (bagJebakanIndeks.length === 0) {
             bagJebakanIndeks = JEBAKAN_KEJADIAN.map((_, i) => i);
             for (let i = bagJebakanIndeks.length - 1; i > 0; i--) {
@@ -2209,6 +2109,75 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             }
         }
         return JEBAKAN_KEJADIAN[bagJebakanIndeks.pop()];
+    }
+    // ===== Bank variasi konten untuk kotak "Hidup Sehat" (checkpoint, 4 kotak
+    // sudut papan). Sama seperti bank fakta/bonus/jebakan, dipilih acak
+    // (sistem "bag") tiap kali pemain berhenti di kotak Hidup Sehat manapun.
+    // Poin +10 tetap didapat otomatis lewat tile.poin, cuma kalimat & ikon
+    // ceritanya yang diacak dari bank ini. Diisi bertahap per materi, dengan
+    // format:
+    // { ikon: '🩺', teks: 'Kalimat tips hidup sehat singkat di sini.' }
+    const HIDUP_SEHAT_KEJADIAN = [
+        // ===== Materi 1: Kenali Diabetes Melitus Tipe 2 (DMT2) =====
+        { ikon: '🩺', teks: 'Kenali dulu apa itu DMT2 sejak sekarang, supaya kamu makin sadar pentingnya mencegah sejak remaja.' },
+        { ikon: '🦷', teks: 'Menjaga kebiasaan sehat sejak remaja membantu mencegah berbagai gangguan kesehatan di masa depan, termasuk risiko DMT2.' },
+        { ikon: '⚡', teks: 'Sel tubuh yang peka terhadap insulin membantu energi dari glukosa tersalurkan dengan baik ke seluruh tubuh.' },
+        // ===== Materi 2: Kenali Gejala dan Bahaya Diabetes =====
+        { ikon: '🔍', teks: 'Kenali gejala 3P sejak dini, yaitu poliuria, polidipsia, dan polifagia, supaya bisa segera ditangani sebelum jadi lebih serius.' },
+        { ikon: '🩺', teks: 'Jangan anggap remeh sinyal dari tubuhmu. Periksa ke tenaga kesehatan kalau gejala muncul berlebihan atau menetap.' },
+        { ikon: '❤️', teks: 'Mengendalikan gula darah sejak dini membantu mencegah komplikasi serius seperti kerusakan ginjal, jantung, dan stroke.' },
+        // ===== Materi 3: Gula, Makanan, dan Minuman yang Perlu Dibatasi =====
+        { ikon: '🍬', teks: 'Manis boleh, tapi jangan berlebihan. Batasi jumlah dan frekuensi makanan atau minuman manis dalam keseharianmu.' },
+        { ikon: '⚖️', teks: 'Pola makan tinggi gula yang terus-menerus berhubungan dengan risiko kelebihan berat badan dan resistensi insulin.' },
+        { ikon: '🍎', teks: 'Ganti camilan manis dengan buah segar sesekali. Gulanya lebih lambat diserap berkat kandungan seratnya.' },
+        // ===== Materi 4: Batas Konsumsi Gula dan Cara Membaca Label =====
+        { ikon: '🥄', teks: 'Ingat batas gula tambahan harian, yaitu maksimal 50 gram atau 4 sendok makan, supaya kamu bisa lebih bijak memilih makanan dan minuman.' },
+        { ikon: '🏷️', teks: 'Biasakan membaca label kemasan sebelum membeli. Kebiasaan kecil ini bisa membantumu memilih produk yang lebih sehat.' },
+        { ikon: '📦', teks: 'Perhatikan jumlah sajian dalam satu kemasan, karena total gula yang kamu konsumsi bisa lebih banyak dari yang kamu kira.' },
+        // ===== Materi 5: Aktivitas Fisik untuk Mencegah DMT2 =====
+        { ikon: '🏃', teks: 'Bergerak aktif setiap hari membantu tubuhmu lebih peka terhadap insulin dan menjauhkan risiko DMT2.' },
+        { ikon: '🔁', teks: 'Konsisten itu kuncinya. Aktivitas fisik ringan yang rutin setiap hari lebih bermanfaat daripada olahraga berat sesekali.' },
+        { ikon: '🪑', teks: 'Kurangi waktu duduk terlalu lama. Selingi dengan berdiri atau jalan sebentar setiap 1 sampai 2 jam.' },
+        // ===== Materi 6: Membangun Kebiasaan Hidup Sehat Sejak Remaja =====
+        { ikon: '🧩', teks: 'Semua kebiasaan sehat yang sudah kamu pelajari saling terhubung. Jalankan semuanya bersama-sama, bukan cuma satu saja.' },
+        { ikon: '🐢', teks: 'Mulai dari perubahan kecil yang bisa bertahan lama, bukan langsung ekstrem.' },
+        { ikon: '📆', teks: 'Jadikan kebiasaan sehat sebagai rutinitas harian, bukan sekadar tantangan sesaat.' },
+        // ===== Tips Sehat Materi 1: Pilih Minuman yang Lebih Sehat =====
+        { ikon: '💧', teks: 'Jadikan air putih sebagai minuman utama setiap hari, bukan minuman manis.' },
+        { ikon: '😊', teks: 'Minuman manis boleh sesekali, asal tidak menjadi kebiasaan setiap hari.' },
+        { ikon: '🏷️', teks: 'Biasakan melihat label gula sebelum membeli minuman kemasan.' },
+        // ===== Tips Sehat Materi 2: Cek Label Sebelum Membeli =====
+        { ikon: '🏷️', teks: 'Biasakan mencari label informasi nilai gizi sebelum membeli makanan atau minuman kemasan.' },
+        { ikon: '⚖️', teks: 'Bandingkan gula per sajian dari beberapa produk sebelum memutuskan membeli.' },
+        { ikon: '📦', teks: 'Perhatikan jumlah sajian dalam kemasan supaya tahu total gula yang sebenarnya kamu konsumsi.' },
+        // ===== Tips Sehat Materi 3: Batasi Makanan dan Minuman Tinggi Gula =====
+        { ikon: '🚫', teks: 'Batasi frekuensi makan kue, permen, cokelat, dan es krim, bukan menghindarinya total.' },
+        { ikon: '🥄', teks: 'Kurangi sedikit demi sedikit takaran gula pasir yang kamu tambahkan sendiri ke minuman.' },
+        { ikon: '😊', teks: 'Camilan manis boleh sesekali, asal tidak menjadi kebiasaan setiap hari.' },
+        // ===== Tips Sehat Materi 4: Pilih Camilan dan Bekal yang Lebih Sehat =====
+        { ikon: '🍱', teks: 'Bawa bekal dari rumah membantu kamu lebih mudah mengatur porsi dan kandungan gula makananmu di sekolah.' },
+        { ikon: '🍎', teks: 'Camilan sederhana seperti buah, kacang, atau bekal dari rumah bisa mengurangi kebiasaan jajan sembarangan.' },
+        { ikon: '💪', teks: 'Tidak masalah kalau pilihan camilanmu berbeda dari teman, karena kesehatanmu sendiri yang paling penting untuk dijaga.' },
+        // ===== Tips Sehat Materi 5: Biasakan Aktif Bergerak =====
+        { ikon: '💉', teks: 'Aktivitas fisik seperti jalan kaki, bersepeda, atau olahraga rutin membantu insulin bekerja lebih baik dan gula darah tetap terkontrol.' },
+        { ikon: '🏸', teks: 'Kamu tidak perlu memilih satu olahraga saja. Coba dulu beberapa jenis sampai menemukan yang paling kamu senangi.' },
+        { ikon: '👫', teks: 'Bergerak aktif bersama teman atau keluarga membuat kebiasaan ini lebih mudah bertahan lama karena kalian bisa saling mengingatkan.' },
+        // ===== Tips Sehat Materi 6: Kurangi Duduk dan Screen Time =====
+        { ikon: '⚖️', teks: 'Kurangi duduk dan waktu layar bukan berarti berhenti total, cukup jaga keseimbangan dengan aktivitas fisik setiap hari.' },
+        { ikon: '🧍', teks: 'Berdiri atau bergerak sebentar setiap 30 menit sekali membantu tubuh tetap aktif walau sedang banyak duduk.' },
+        { ikon: '👫', teks: 'Ajak teman melakukan kegiatan yang membuat tubuh bergerak, supaya kebiasaan mengurangi screen time terasa lebih ringan.' }
+    ];
+    let bagHidupSehatIndeks = [];
+    function ambilHidupSehatAcak() {
+        if (HIDUP_SEHAT_KEJADIAN.length === 0) return null;
+        if (bagHidupSehatIndeks.length === 0) {
+            bagHidupSehatIndeks = HIDUP_SEHAT_KEJADIAN.map((_, i) => i);
+            for (let i = bagHidupSehatIndeks.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [bagHidupSehatIndeks[i], bagHidupSehatIndeks[j]] = [bagHidupSehatIndeks[j], bagHidupSehatIndeks[i]];
+            }
+        }
+        return HIDUP_SEHAT_KEJADIAN[bagHidupSehatIndeks.pop()];
     }
     let posisiPemain = 0;
     let poinSehat = 0;
@@ -2665,14 +2634,18 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             btnLanjutEvent.classList.remove('hidden');
             btnLanjutEvent.onclick = tutupEvent;
         } else if (tile.tipe === 'checkpoint') {
+            // Fallback placeholder selagi HIDUP_SEHAT_KEJADIAN masih kosong (belum diisi ulang).
+            const hidupSehatAcak = ambilHidupSehatAcak() || { ikon: tile.ikon, teks: 'Tips hidup sehat segera hadir!' };
             elEventJudul.textContent = tile.label;
-            elEventTeks.textContent = tile.teks;
+            elEventIkon.textContent = hidupSehatAcak.ikon;
+            elEventTeks.textContent = hidupSehatAcak.teks;
             poinSehat = Math.max(0, poinSehat + tile.poin);
             perbaruiTampilanSkor();
             tampilkanToastPoin(`${tile.ikon} ${tile.poin >= 0 ? '+' : ''}${tile.poin} Poin Sehat!`);
-            mulaiJedaLanjut(tile.teks, tutupEvent);
+            mulaiJedaLanjut(hidupSehatAcak.teks, tutupEvent);
         } else if (tile.tipe === 'info') {
-            const faktaAcak = ambilFaktaKotakAcak();
+            // Fallback placeholder selagi FAKTA_KOTAK_INFO masih kosong (belum diisi ulang).
+            const faktaAcak = ambilFaktaKotakAcak() || { ikon: '🔧', teks: 'Materi segera hadir, ya!' };
             elEventJudul.textContent = 'Tahukah Kamu?';
             elEventIkon.textContent = faktaAcak.ikon;
             elEventTeks.textContent = faktaAcak.teks;
@@ -2684,7 +2657,9 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             tampilkanToastPoin('📌 +5 Poin Sehat!');
             mulaiJedaLanjut(faktaAcak.teks, tutupEvent);
         } else if (tile.tipe === 'bonus' || tile.tipe === 'jebakan') {
-            const kejadianAcak = tile.tipe === 'bonus' ? ambilBonusAcak() : ambilJebakanAcak();
+            // Fallback placeholder selagi BONUS_KEJADIAN/JEBAKAN_KEJADIAN masih kosong.
+            const kejadianAcak = (tile.tipe === 'bonus' ? ambilBonusAcak() : ambilJebakanAcak())
+                || { ikon: '🔧', teks: 'Materi segera hadir, ya!' };
             const arahLangkah = tile.langkah > 0 ? 'Maju' : 'Mundur';
             elEventJudul.textContent = tile.tipe === 'bonus' ? 'Bonus!' : 'Jebakan Gula!';
             elEventIkon.textContent = kejadianAcak.ikon;
@@ -2696,16 +2671,25 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             };
         } else if (tile.tipe === 'kuis') {
             const soal = ambilSoalAcak();
-            elEventJudul.textContent = 'Kuis Waktunya!';
-            elEventTeks.textContent = soal.pertanyaan;
-            soal.opsi.forEach((teksOpsi, i) => {
-                const btnOpsi = document.createElement('button');
-                btnOpsi.type = 'button';
-                btnOpsi.className = 'game-opsi-btn';
-                btnOpsi.textContent = teksOpsi;
-                btnOpsi.addEventListener('click', () => jawabKuis(i, soal, btnOpsi));
-                elEventOpsiList.appendChild(btnOpsi);
-            });
+            if (!soal) {
+                // Bank soal masih kosong (belum diisi ulang) — jangan sampai error,
+                // cukup tampilkan info dan lanjutkan seperti kotak fakta biasa.
+                elEventJudul.textContent = 'Kuis Segera Hadir';
+                elEventTeks.textContent = 'Soal kuis untuk materi ini masih disiapkan. Nantikan update selanjutnya ya!';
+                btnLanjutEvent.classList.remove('hidden');
+                btnLanjutEvent.onclick = () => tutupEvent();
+            } else {
+                elEventJudul.textContent = 'Kuis Waktunya!';
+                elEventTeks.textContent = soal.pertanyaan;
+                soal.opsi.forEach((teksOpsi, i) => {
+                    const btnOpsi = document.createElement('button');
+                    btnOpsi.type = 'button';
+                    btnOpsi.className = 'game-opsi-btn';
+                    btnOpsi.textContent = teksOpsi;
+                    btnOpsi.addEventListener('click', () => jawabKuis(i, soal, btnOpsi));
+                    elEventOpsiList.appendChild(btnOpsi);
+                });
+            }
         }
         bukaPanelOverlay(overlayEvent);
     }
@@ -2955,12 +2939,12 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
     // kebenaran buat file gambarnya, nggak dobel ditulis di JS & CSS.
     const STREAK_TIERS = [
         { min: 0, kelas: 'streak-tier-0', label: 'Yuk mulai absen tiap hari!' },
-        { min: 3, kelas: 'streak-tier-1', label: 'Awal yang bagus, 3 hari beruntun — api merah tua!' },
-        { min: 7, kelas: 'streak-tier-2', label: 'Seminggu penuh tanpa putus — api merah menyala!' },
-        { min: 14, kelas: 'streak-tier-3', label: 'Dua minggu beruntun — api oranye!' },
-        { min: 30, kelas: 'streak-tier-4', label: 'Sebulan penuh — api emas, luar biasa!' },
-        { min: 60, kelas: 'streak-tier-5', label: 'Dua bulan beruntun — api hijau mistis!' },
-        { min: 90, kelas: 'streak-tier-6', label: 'Tiga bulan beruntun — api biru, langka!' },
+        { min: 3, kelas: 'streak-tier-1', label: 'Awal yang bagus, 3 hari beruntun dengan api merah tua!' },
+        { min: 7, kelas: 'streak-tier-2', label: 'Seminggu penuh tanpa putus dengan api merah menyala!' },
+        { min: 14, kelas: 'streak-tier-3', label: 'Dua minggu beruntun dengan api oranye!' },
+        { min: 30, kelas: 'streak-tier-4', label: 'Sebulan penuh dengan api emas, luar biasa!' },
+        { min: 60, kelas: 'streak-tier-5', label: 'Dua bulan beruntun dengan api hijau mistis!' },
+        { min: 90, kelas: 'streak-tier-6', label: 'Tiga bulan beruntun dengan api biru, langka!' },
         { min: 120, kelas: 'streak-tier-7', label: 'Legend! Api ungu menyala, konsistensimu top!' }
     ];
     function terapkanTierStreak(streak) {
@@ -3074,13 +3058,13 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             });
         }
         if (dapatBonusMingguan && rekorPecah) {
-            tampilkanToastPoin(`🏆🎁 ${streakBaru} hari penuh berturut-turut — Rekor baru + Bonus +${BONUS_ABSEN_POIN} Poin Sehat + kesempatan ganti nama pet!`);
+            tampilkanToastPoin(`🏆🎁 ${streakBaru} hari penuh berturut-turut: Rekor baru + Bonus +${BONUS_ABSEN_POIN} Poin Sehat + kesempatan ganti nama pet!`);
         } else if (dapatBonusMingguan) {
-            tampilkanToastPoin(`🎁 Absen penuh ${streakBaru} hari beruntun — Bonus +${BONUS_ABSEN_POIN} Poin Sehat + kesempatan ganti nama pet!`);
+            tampilkanToastPoin(`🎁 Absen penuh ${streakBaru} hari beruntun: Bonus +${BONUS_ABSEN_POIN} Poin Sehat + kesempatan ganti nama pet!`);
         } else if (rekorPecah && streakBaru > 1) {
-            tampilkanToastPoin(`🏆 Rekor baru! Streak ${streakBaru} hari — terpanjang yang pernah kamu capai`);
+            tampilkanToastPoin(`🏆 Rekor baru! Streak ${streakBaru} hari, terpanjang yang pernah kamu capai`);
         } else if (tierBaru.kelas !== tierSebelumnya.kelas) {
-            tampilkanToastPoin(`🔥 Streak naik ke ${streakBaru} hari — ${tierBaru.label}`);
+            tampilkanToastPoin(`🔥 Streak naik ke ${streakBaru} hari: ${tierBaru.label}`);
         } else {
             tampilkanToastPoin('🎉 Absen berhasil! +10 Poin Sehat');
         }
@@ -3088,26 +3072,150 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
     // ===== Bank Fakta Sehat Absen — fakta/arahan singkat seputar pencegahan
     // diabetes melitus (DM) pada remaja. Dipilih acak (sistem "bag", tidak
     // berulang sebelum semua tampil sekali) tiap kali tombol absen ditekan. =====
+    // Sengaja dikosongkan dulu (fakta-fakta lama dihapus) karena masih mengacu
+    // ke materi edukasi versi lama. Tambahkan fakta baru di sini nanti, satu
+    // per satu, dengan format:
+    // { ikon: '🍬', teks: 'Isi fakta singkat di sini.' }
     const FAKTA_ABSEN = [
-        { ikon: '🍬', teks: 'Batas gula tambahan harian yang disarankan cuma 50 gram — sekitar 4 sendok makan. Satu botol teh manis kemasan saja bisa memakai lebih dari separuh jatah itu.' },
-        { ikon: '🥤', teks: 'Kalau haus, jadikan air putih pilihan pertama. Minuman manis boleh sesekali, tapi jangan jadi kebiasaan harian.' },
-        { ikon: '🏃', teks: 'WHO menyarankan remaja bergerak aktif minimal 60 menit tiap hari. Jalan kaki, main bola, atau naik-turun tangga juga terhitung, lho.' },
-        { ikon: '🍩', teks: 'Lebih dari 90% kasus diabetes di dunia adalah tipe 2 — dan kabar baiknya, tipe ini bisa dicegah lewat pola makan dan aktivitas fisik yang terjaga sejak remaja.' },
-        { ikon: '🏷️', teks: 'Sebelum beli jajanan kemasan, coba lihat label informasi nilai gizinya dulu. Kebiasaan kecil ini membantu kamu lebih sadar berapa gula yang masuk ke tubuh.' },
-        { ikon: '🍞', teks: 'Gula tersembunyi nggak cuma ada di makanan manis — saus tomat, roti kemasan, sampai kecap juga bisa mengandung gula tambahan.' },
-        { ikon: '🩸', teks: 'Diabetes tipe 2 sering nggak bergejala di awal. Karena itu, skrining gula darah berkala penting dilakukan meski merasa sehat-sehat saja.' },
-        { ikon: '🦷', teks: 'Konsumsi gula berlebih nggak cuma berisiko ke gula darah, tapi juga mempercepat kerusakan gigi. Sikat gigi teratur bantu menjaga keduanya.' },
-        { ikon: '🌙', teks: 'Begadang sambil ngemil manis adalah kombinasi yang perlu diwaspadai — kurang tidur bisa memengaruhi cara tubuh mengatur gula darah.' },
-        { ikon: '🍽️', teks: 'Coba terapkan panduan "Isi Piringku": separuh piring sayur dan buah, sisanya karbohidrat dan protein secara seimbang.' },
-        { ikon: '🚶', teks: 'Kalau jarak ke sekolah dekat, jalan kaki atau naik sepeda bisa jadi cara sederhana menambah aktivitas fisik harian.' },
-        { ikon: '🥣', teks: 'Melewatkan sarapan justru bisa membuat kamu lebih mudah tergoda jajan sembarangan saat istirahat. Sarapan bergizi membantu menjaga energi dan pilihan makanmu.' },
-        { ikon: '🧃', teks: 'Satu kaleng minuman bersoda (250 ml) bisa mengandung sekitar 27 gram gula — hampir mendekati batas gula tambahan harianmu, dari satu minuman saja.' },
-        { ikon: '👪', teks: 'Riwayat diabetes di keluarga meningkatkan risiko, tapi bukan berarti pasti terkena. Pola hidup sehat sejak dini tetap jadi langkah pencegahan yang berarti.' },
-        { ikon: '🍚', teks: 'Kebutuhan karbohidrat harian yang disarankan sekitar 45–65% dari total energi — porsi wajar, bukan berlebihan maupun terlalu sedikit.' },
-        { ikon: '💧', teks: 'Mengganti satu porsi minuman manis dengan air putih setiap hari adalah kebiasaan kecil yang, kalau konsisten, dampaknya cukup besar bagi kesehatan jangka panjang.' }
+        // ===== Materi 1: Kenali Diabetes Melitus Tipe 2 (DMT2) =====
+        { ikon: '🩺', teks: 'DMT2 adalah kondisi ketika kadar gula darah tinggi terus-menerus, atau disebut hiperglikemia.' },
+        { ikon: '🍚', teks: 'Glukosa dalam darah berasal dari makanan dan minuman berkarbohidrat atau manis yang kamu konsumsi sehari-hari.' },
+        { ikon: '🔑', teks: 'Insulin bertugas mengantarkan glukosa dari darah masuk ke dalam sel supaya bisa diubah menjadi energi.' },
+        { ikon: '🔒', teks: 'Insulin diibaratkan seperti kunci, sedangkan sel tubuh diibaratkan sebagai gembok tempat glukosa masuk.' },
+        { ikon: '⚡', teks: 'Pada DMT2, sel tubuh menjadi kurang peka terhadap insulin. Kondisi ini disebut resistensi insulin.' },
+        { ikon: '⏳', teks: 'DMT2 termasuk penyakit kronis yang umumnya tidak sembuh total, tapi risikonya bisa dikendalikan dan dicegah.' },
+        { ikon: '👁️', teks: 'DMT2 yang dibiarkan bisa memicu gangguan pada mata, ginjal, jantung, dan saraf.' },
+        { ikon: '📈', teks: 'Kasus DMT2 pada remaja terus meningkat 2 sampai 3 kali lipat dibanding sekitar 30 tahun lalu.' },
+        { ikon: '🍟', teks: 'Pola makan tinggi gula, kurang aktivitas fisik, dan terlalu banyak duduk berhubungan dengan meningkatnya risiko DMT2.' },
+        { ikon: '🌱', teks: 'Masa remaja adalah masa pembentukan kebiasaan yang cenderung terbawa sampai dewasa, jadi penting mencegah DMT2 sejak sekarang.' },
+        // ===== Materi 2: Kenali Gejala dan Bahaya Diabetes =====
+        { ikon: '🚰', teks: 'Tiga gejala khas DMT2 adalah sering haus, sering buang air kecil, dan sering lapar berlebihan.' },
+        { ikon: '🚻', teks: 'Poliuria adalah istilah medis untuk gejala sering buang air kecil.' },
+        { ikon: '🥤', teks: 'Polidipsia adalah istilah medis untuk gejala sering merasa haus.' },
+        { ikon: '🍽️', teks: 'Polifagia adalah istilah medis untuk gejala sering merasa lapar atau banyak makan.' },
+        { ikon: '🔄', teks: 'Ginjal berusaha membuang kelebihan glukosa lewat urine. Itulah sebabnya penderita DMT2 sering buang air kecil.' },
+        { ikon: '⚡', teks: 'Sel tubuh tetap kekurangan energi walau glukosa di darah melimpah, sehingga muncul rasa lapar berlebihan.' },
+        { ikon: '🗣️', teks: 'Kalau gejala 3P muncul berlebihan atau terus-menerus, segera cerita ke orang tua, guru, atau tenaga kesehatan.' },
+        { ikon: '🦵', teks: 'Diabetes yang tidak terkontrol bisa merusak saraf dan pembuluh darah, menyebabkan kesemutan hingga gangguan sirkulasi.' },
+        { ikon: '🩹', teks: 'Luka di kaki penderita diabetes bisa sulit sembuh dan meningkatkan risiko amputasi kalau infeksinya memburuk.' },
+        { ikon: '❤️', teks: 'Stroke bisa terjadi kalau pembuluh darah menuju otak mengalami gangguan akibat diabetes yang tidak terkontrol.' },
+        // ===== Materi 3: Gula, Makanan, dan Minuman yang Perlu Dibatasi =====
+        { ikon: '➕', teks: 'Gula tambahan adalah gula yang sengaja ditambahkan ke makanan atau minuman saat diolah, dimasak, atau disajikan.' },
+        { ikon: '🍯', teks: 'Gula bebas mencakup gula tambahan plus gula alami dalam madu, sirup, dan jus buah.' },
+        { ikon: '🧃', teks: 'Jus buah termasuk gula bebas karena sebagian besar seratnya hilang saat diolah, sehingga gula lebih cepat diserap tubuh.' },
+        { ikon: '🍎', teks: 'Gula dalam buah utuh ditemani serat yang memperlambat penyerapannya, beda dengan gula tambahan.' },
+        { ikon: '🥤', teks: 'Soda, teh manis, dan boba adalah contoh minuman tinggi gula yang perlu dibatasi konsumsinya.' },
+        { ikon: '🍹', teks: 'Minuman manis mudah dihabiskan dan tidak terlalu membuat kenyang, sehingga gulanya sering tidak disadari.' },
+        { ikon: '⚖️', teks: 'Kalau gula atau kalori yang masuk lebih banyak dari yang dibutuhkan, kelebihannya akan disimpan tubuh sebagai lemak.' },
+        { ikon: '📊', teks: 'Pola makan tinggi gula yang terus-menerus berhubungan dengan meningkatnya risiko resistensi insulin.' },
+        { ikon: '🙂', teks: 'Makanan dan minuman manis tidak harus dihindari total, tapi sebaiknya dibatasi jumlah dan frekuensinya.' },
+        { ikon: '🥛', teks: 'Selain gula pasir, gula juga bisa ditemukan secara alami di dalam buah, sayur, dan susu.' },
+        // ===== Materi 4: Batas Konsumsi Gula dan Cara Membaca Label =====
+        { ikon: '🥄', teks: 'Kemenkes RI menganjurkan konsumsi gula tambahan tidak lebih dari 50 gram atau setara 4 sendok makan per hari.' },
+        { ikon: '🌐', teks: 'WHO menganjurkan membatasi gula bebas tidak lebih dari 10% dari total energi harian.' },
+        { ikon: '🌟', teks: 'Kalau konsumsi gula bebas bisa di bawah 5% dari energi harian, manfaatnya untuk kesehatan makin besar.' },
+        { ikon: '❗', teks: 'Batas 50 gram gula per hari itu batas maksimal, bukan target yang harus dipenuhi setiap hari.' },
+        { ikon: '🍚', teks: 'Tubuh sebenarnya sudah bisa mendapatkan energi yang cukup dari makanan pokok, buah, dan sayur tanpa tambahan gula.' },
+        { ikon: '🧮', teks: 'Segelas teh manis, minuman kekinian, dan camilan manis saja totalnya bisa melebihi 50 gram gula dalam sehari.' },
+        { ikon: '🏷️', teks: 'Hampir semua makanan dan minuman kemasan di Indonesia wajib mencantumkan label Informasi Nilai Gizi.' },
+        { ikon: '📏', teks: 'Angka gula yang tertulis di label kemasan biasanya untuk satu takaran saji, bukan untuk satu kemasan penuh.' },
+        { ikon: '📦', teks: 'Total gula dalam satu kemasan dihitung dengan cara mengalikan gula per sajian dengan jumlah sajian per kemasan.' },
+        { ikon: '⚖️', teks: 'Saat membandingkan dua produk, pastikan takaran sajinya kurang lebih sama, lalu pilih yang gula per sajiannya lebih rendah.' },
+        // ===== Materi 5: Aktivitas Fisik untuk Mencegah DMT2 =====
+        { ikon: '🏃', teks: 'Aktivitas fisik adalah semua gerakan tubuh yang dihasilkan otot dan memerlukan energi, seperti jalan kaki atau menyapu.' },
+        { ikon: '🏸', teks: 'Olahraga adalah salah satu bentuk aktivitas fisik yang lebih terencana dan terstruktur, misalnya latihan futsal terjadwal.' },
+        { ikon: '✅', teks: 'Semua olahraga termasuk aktivitas fisik, tapi tidak semua aktivitas fisik harus berupa olahraga.' },
+        { ikon: '💪', teks: 'Aktivitas fisik membantu sel-sel tubuh lebih peka terhadap insulin.' },
+        { ikon: '🔥', teks: 'Aktivitas fisik membantu tubuh menggunakan glukosa dalam darah sebagai energi.' },
+        { ikon: '⏱️', teks: 'WHO menganjurkan remaja usia 5 sampai 17 tahun melakukan aktivitas fisik sedang hingga berat minimal 60 menit setiap hari.' },
+        { ikon: '🔁', teks: 'Aktivitas fisik ringan yang dilakukan rutin setiap hari lebih bermanfaat daripada olahraga berat yang cuma sesekali.' },
+        { ikon: '🪜', teks: 'Naik tangga daripada naik lift atau eskalator juga termasuk aktivitas fisik sehari-hari.' },
+        { ikon: '🪑', teks: 'Perilaku sedentari adalah kebiasaan duduk atau berbaring lama dengan sedikit gerakan, misalnya main gawai berjam-jam.' },
+        { ikon: '⏰', teks: 'Selingi waktu duduk lama dengan berdiri, meregangkan badan, atau berjalan sebentar setiap 1 sampai 2 jam.' },
+        // ===== Materi 6: Membangun Kebiasaan Hidup Sehat Sejak Remaja =====
+        { ikon: '🔁', teks: 'DMT2 terbentuk dari kebiasaan yang berulang setiap hari, bukan dari kejadian sesaat.' },
+        { ikon: '🌱', teks: 'Kebiasaan yang dibentuk sejak remaja cenderung terbawa sampai dewasa.' },
+        { ikon: '🧩', teks: 'Materi 1 sampai 5 itu seperti potongan puzzle yang menyatu jadi satu kebiasaan hidup sehat.' },
+        { ikon: '🐢', teks: 'Ubah kebiasaan sedikit demi sedikit, tidak perlu langsung drastis.' },
+        { ikon: '🏷️', teks: 'Baca label dan batasi gula adalah dua kebiasaan yang saling melengkapi.' },
+        { ikon: '💧', teks: 'Membiasakan minum air putih membantu mengurangi asupan gula tersembunyi dari minuman manis.' },
+        { ikon: '🍎', teks: 'Camilan yang lebih sehat contohnya buah potong, kacang-kacangan, atau yogurt tawar.' },
+        { ikon: '📴', teks: 'Batasi waktu bermain gawai untuk hiburan, apalagi kalau sambil ngemil tanpa disadari porsinya.' },
+        { ikon: '📲', teks: 'Konten di media sosial dirancang supaya terlihat menarik, bukan berarti otomatis sehat.' },
+        { ikon: '🕸️', teks: 'Kebiasaan hidup sehat saling berkaitan seperti jaring laba-laba. Makin banyak yang terhubung, makin kuat menahan risiko DMT2.' },
+        // ===== Tips Sehat Materi 1: Pilih Minuman yang Lebih Sehat =====
+        { ikon: '💧', teks: 'Air putih adalah minuman paling aman untuk diminum setiap hari karena tidak mengandung gula maupun kalori tambahan.' },
+        { ikon: '🚰', teks: 'Remaja usia 10 sampai 18 tahun membutuhkan sekitar 1.850 sampai 2.150 ml cairan setiap hari.' },
+        { ikon: '🍵', teks: 'Teh manis, baik kemasan maupun buatan sendiri, tetap mengandung gula tambahan yang cukup banyak.' },
+        { ikon: '🥤', teks: 'Minuman bersoda umumnya tinggi gula dan kalori, tapi rendah zat gizi lain yang dibutuhkan tubuh.' },
+        { ikon: '🧋', teks: 'Minuman boba atau minuman kekinian sering ditambahkan gula dalam jumlah besar, baik dari sirup maupun toppingnya.' },
+        { ikon: '📦', teks: 'Jus kemasan dan minuman berperisa sering sudah ditambahkan gula meski rasanya tidak terlalu manis.' },
+        { ikon: '😊', teks: 'Minuman manis boleh dinikmati sesekali, asal air putih tetap jadi pilihan utama setiap hari.' },
+        { ikon: '🏷️', teks: 'Melihat label Informasi Nilai Gizi sebelum membeli membantu kamu tahu jumlah gula dalam minuman kemasan.' },
+        { ikon: '⚖️', teks: 'Kalau ada beberapa pilihan minuman, bandingkan dulu kandungan gulanya sebelum membeli.' },
+        { ikon: '✅', teks: 'Kalau tersedia varian minuman dengan gula lebih rendah, kamu bisa mencobanya sebagai alternatif dari minuman manis biasa.' },
+        // ===== Tips Sehat Materi 2: Cek Label Sebelum Membeli =====
+        { ikon: '🏷️', teks: 'Setiap makanan dan minuman kemasan wajib mencantumkan label Informasi Nilai Gizi.' },
+        { ikon: '🔍', teks: 'Label kemasan membantu kamu tahu kandungan gula, bukan cuma menebak dari rasanya saja.' },
+        { ikon: '📋', teks: 'Ada empat langkah membaca label sebelum membeli, yaitu cari, lihat, cek, dan bandingkan.' },
+        { ikon: '📦', teks: 'Gula per sajian bukan berarti gula dari seluruh kemasan, karena satu kemasan bisa berisi beberapa sajian.' },
+        { ikon: '🧮', teks: 'Kalau satu kemasan berisi 4 sajian dan dihabiskan semua, gula yang dikonsumsi menjadi 4 kali lipat dari gula per sajian.' },
+        { ikon: '⚖️', teks: 'Kalau takaran saji dua produk berbeda, samakan dulu ukurannya sebelum membandingkan gulanya.' },
+        { ikon: '🍵', teks: 'Satu botol teh manis kemasan bisa mengandung sekitar 20 sampai 29 gram gula, tergantung mereknya.' },
+        { ikon: '🧃', teks: 'Jus buah kemasan tetap bisa memiliki kandungan gula tambahan yang cukup tinggi, meski mengandung vitamin C.' },
+        { ikon: '🥛', teks: 'Susu kental manis yang ditambahkan ke minuman sachet mengandung sekitar 14 sampai 16 gram gula per takaran saji 30 gram.' },
+        { ikon: '📝', teks: 'Kebiasaan membaca label membantu kamu membuat pilihan makanan dan minuman yang lebih sadar.' },
+        // ===== Tips Sehat Materi 3: Batasi Makanan dan Minuman Tinggi Gula =====
+        { ikon: '🥤', teks: 'Satu kaleng minuman bersoda bisa mengandung gula di atas 39 gram, hampir menyentuh batas anjuran gula harian.' },
+        { ikon: '🧋', teks: 'Satu porsi milk tea dengan topping boba bisa mengandung sekitar 38 gram gula.' },
+        { ikon: '🥐', teks: 'Satu potong roti manis dengan topping bisa mengandung sekitar 12 sampai 13 gram gula.' },
+        { ikon: '🍩', teks: 'Dua buah donat cokelat bisa mengandung sekitar 24 gram gula, hampir separuh dari batas anjuran gula harian.' },
+        { ikon: '🍬', teks: 'Permen dan cokelat berukuran kecil, tapi komponen utamanya hampir seluruhnya gula tanpa banyak zat gizi lain.' },
+        { ikon: '🍨', teks: 'Satu buah es krim cone bisa mengandung sekitar 22 gram gula.' },
+        { ikon: '😊', teks: 'Teh manis, soda, boba, kue, permen, cokelat, dan es krim boleh dinikmati sesekali, asal tidak jadi kebiasaan setiap hari.' },
+        { ikon: '🥄', teks: 'Satu sendok teh gula pasir mengandung sekitar 4 gram gula.' },
+        { ikon: '❤️', teks: 'American Heart Association menganjurkan gula tambahan tidak lebih dari 36 gram per hari untuk laki laki dan 25 gram per hari untuk perempuan.' },
+        { ikon: '🍵', teks: 'Gula yang kamu tambahkan sendiri ke teh atau kopi juga termasuk gula tambahan yang dihitung dalam batas konsumsi gula harian.' },
+        // ===== Tips Sehat Materi 4: Pilih Camilan dan Bekal yang Lebih Sehat =====
+        { ikon: '🍏', teks: 'Buah utuh masih punya serat alami yang membantu memperlambat penyerapan gula ke dalam darah, beda dengan jus buah kemasan.' },
+        { ikon: '🍇', teks: 'Gula alami pada buah utuh tidak termasuk kategori gula bebas menurut WHO, berbeda dengan gula tambahan pada camilan kemasan.' },
+        { ikon: '🏷️', teks: 'Kalau memilih camilan kemasan, bandingkan beberapa produk dan pilih yang kandungan gulanya paling rendah per sajian.' },
+        { ikon: '🥗', teks: 'Mengganti camilan tinggi gula dengan sayur dan buah adalah salah satu cara paling mudah membatasi gula, garam, dan lemak berlebih.' },
+        { ikon: '🥜', teks: 'Kacang tanah, kacang hijau, dan edamame membuat gula darah naik lebih perlahan setelah dimakan dibanding kue atau camilan manis.' },
+        { ikon: '🍌', teks: 'Kacang tanah dan pisang termasuk pangan lokal yang bisa diolah menjadi camilan sehat yang mudah ditemukan di sekitar kita.' },
+        { ikon: '🧁', teks: 'Kue, donat, dan camilan manis lain di kantin boleh tetap dinikmati asal frekuensinya dikurangi, tidak perlu berhenti total.' },
+        { ikon: '🍱', teks: 'Membawa bekal dari rumah membantu kamu mengontrol sendiri porsi dan jenis makanan yang dikonsumsi selama di sekolah.' },
+        { ikon: '🎒', teks: 'Semakin sering seorang anak membawa bekal ke sekolah, semakin rendah kecenderungannya untuk jajan sembarangan.' },
+        { ikon: '👫', teks: 'Nggak masalah kalau pilihan camilan atau bekalmu berbeda dari teman, karena kesehatanmu sendiri yang paling penting.' },
+        // ===== Tips Sehat Materi 5: Biasakan Aktif Bergerak =====
+        { ikon: '⏱️', teks: 'WHO menganjurkan remaja usia 5 sampai 17 tahun melakukan aktivitas fisik sedang hingga berat sekitar 60 menit setiap hari, dan totalnya bisa dicicil dari beberapa kegiatan sepanjang hari.' },
+        { ikon: '🌟', teks: 'Semakin banyak aktivitas fisik yang kamu lakukan dalam sehari, semakin besar juga manfaat kesehatannya.' },
+        { ikon: '👫', teks: 'Bergerak aktif bersama teman biasanya lebih mudah bertahan lama dibanding dilakukan sendirian.' },
+        { ikon: '🎮', teks: 'Ajak teman main aktif bisa jadi alternatif seru saat waktu luang, dibanding hanya duduk lama sambil main gawai.' },
+        { ikon: '🏫', teks: 'Aktif bergerak saat pelajaran PJOK dan ikut ekstrakurikuler olahraga membantu memenuhi kebutuhan aktivitas fisik harianmu.' },
+        { ikon: '📵', teks: 'Siswa yang aktif mengikuti ekstrakurikuler olahraga cenderung memiliki waktu bermain gawai yang lebih sedikit.' },
+        { ikon: '🪑', teks: 'Duduk terlalu lama membuat tubuh lebih sedikit membakar energi, dan sel tubuh jadi kurang terlatih merespons insulin dengan baik.' },
+        { ikon: '⏰', teks: 'Coba berdiri atau bergerak sebentar setiap satu jam sekali kalau kamu sedang duduk lama, misalnya saat belajar atau main gawai.' },
+        { ikon: '🪜', teks: 'Naik tangga daripada lift atau eskalator, serta jalan kaki 10.000 langkah per hari, termasuk anjuran aktivitas fisik dari Kementerian Kesehatan RI.' },
+        { ikon: '🧹', teks: 'Kegiatan rumah tangga ringan seperti menyapu, mencuci piring, atau beres beres kamar juga ikut menghitung sebagai aktivitas fisik harian.' },
+        // ===== Tips Sehat Materi 6: Kurangi Duduk dan Screen Time =====
+        { ikon: '🪑', teks: 'Perilaku sedentari adalah kebiasaan duduk atau berbaring lama dengan sedikit gerakan, misalnya duduk lama sambil main HP atau nonton TV.' },
+        { ikon: '🔑', teks: 'Semakin lama waktu duduk dan waktu layar harianmu, semakin besar juga kemungkinan sel tubuh mengalami resistensi insulin.' },
+        { ikon: '📊', teks: 'Sebuah penelitian pada remaja di Surabaya dan Sidoarjo menemukan risiko resistensi insulin naik sekitar 4 kali lipat pada kelompok dengan waktu layar 3 sampai 6 jam per hari.' },
+        { ikon: '⚖️', teks: 'Semakin lama waktu layar harianmu, semakin tinggi juga risiko kelebihan berat badan dan obesitas.' },
+        { ikon: '😴', teks: 'Paparan cahaya layar yang terlalu lama bisa mengganggu hormon pengatur tidur, sehingga kualitas tidurmu ikut menurun.' },
+        { ikon: '⏳', teks: 'WHO menganjurkan waktu layar untuk hiburan tidak lebih dari 2 jam per hari bagi anak dan remaja, di luar kebutuhan belajar.' },
+        { ikon: '📺', teks: 'Menonton TV dalam waktu lama juga termasuk kategori waktu layar yang perlu dibatasi, sama seperti main HP.' },
+        { ikon: '🧍', teks: 'Ahli kesehatan menyarankan berdiri atau bergerak sebentar setiap sekitar 30 menit sekali kalau kamu sedang duduk lama.' },
+        { ikon: '👫', teks: 'Ajak teman melakukan aktivitas yang membuat tubuh bergerak, misalnya main di luar, dibanding hanya berkumpul sambil main HP.' },
+        { ikon: '🎯', teks: 'Mengurangi duduk dan screen time bukan berarti berhenti total pakai HP atau TV, yang penting waktu layarmu tetap seimbang dengan aktivitas fisik.' }
     ];
+    // Placeholder yang tampil selama FAKTA_ABSEN masih kosong, supaya popup
+    // absen harian tetap muncul normal (jeda baca 5-7 detik tetap berjalan).
+    const FAKTA_ABSEN_PLACEHOLDER = { ikon: '🔧', teks: 'Materi segera hadir, ya!' };
     let bagFaktaAbsenIndeks = [];
     function ambilFaktaAbsenAcak() {
+        if (FAKTA_ABSEN.length === 0) return FAKTA_ABSEN_PLACEHOLDER;
         if (bagFaktaAbsenIndeks.length === 0) {
             bagFaktaAbsenIndeks = FAKTA_ABSEN.map((_, i) => i);
             for (let i = bagFaktaAbsenIndeks.length - 1; i > 0; i--) {
@@ -3259,7 +3367,7 @@ window.addEventListener('pagehide', akhiriSesiPengunjung);
             _messagingInstance.onMessage((payload) => {
                 const judul = (payload.notification && payload.notification.title) || 'Sobat Sehat';
                 const isi = (payload.notification && payload.notification.body) || '';
-                tampilkanToast(`🔔 ${judul}${isi ? ' — ' + isi : ''}`);
+                tampilkanToast(`🔔 ${judul}${isi ? ': ' + isi : ''}`);
             });
         }
         return _messagingInstance;
