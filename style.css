@@ -1185,24 +1185,16 @@ button.sm-chip.sm-chip-active { background-color: #3498db; border-color: #3498db
 }
 @media (max-width: 900px) {
 .game-layout { flex-direction: column; align-items: center; }
-.game-absen-panel { width: 100%; max-width: 260px; position: static; margin-bottom: 0; flex-direction: row; }
-.pet-card, .game-absen-panel .absen-card { flex: 1; min-width: 0; }
-/* Di lebar ini (561–900px), .absen-card jadi cuma separuh dari 260px (~120px)
-   karena berdampingan sama .pet-card — dikecilin dikit biar label + badge
-   rekor tetap muat sebaris tanpa wrap di kartu sesempit itu. */
-.absen-streak-top-row { gap: 4px; }
-.absen-streak-label { font-size: 0.58rem; }
-.absen-streak-rekor { font-size: 0.56rem; padding: 2px 5px; }
-/* Kartu absen jadi cuma separuh lebar (sejajar pet-card), tabung diramping-
-   kan biar nggak makan tempat konten utamanya. */
-.absen-card { gap: 4px; padding: 14px 8px; }
-.absen-tabung { width: 22px; gap: 3px; }
-.absen-tabung-track { width: 10px; min-height: 54px; }
-.absen-tabung-hadiah { font-size: 0.62rem; }
-.absen-tabung-label { font-size: 0.5rem; }
-}
-@media (max-width: 560px) {
-.game-absen-panel { flex-direction: column; }
+/* Sebelumnya di rentang 561–900px, .pet-card & .absen-card dipaksa
+   berdampingan (flex-direction: row) di dalam kontainer max-width 260px —
+   artinya tiap kartu cuma kebagian ±120px, jauh lebih sempit dari avatar
+   pet (88px) dan konten kartu absen (judul, tombol, streak, tabung),
+   sehingga tampilannya numpuk/gepeng ("aneh") tiap layar dibelah dua atau
+   di tablet. Sekarang disamakan dengan tampilan mobile: kartu ditumpuk
+   vertikal (full width) supaya semua elemen dapat ruang yang wajar di
+   lebar layar berapa pun. */
+.game-absen-panel { width: 100%; max-width: 320px; position: static; margin-bottom: 0; flex-direction: column; }
+.pet-card, .game-absen-panel .absen-card { flex: none; width: 100%; }
 }
 .game-intro { text-align: center; margin-bottom: 18px; background: linear-gradient(135deg, #ffffff 0%, #ffffff 10%, #f7ebfc 35%, #fce7f2 62%, #eddaf9 85%, #e3cdf6 100%); border-radius: 18px; padding: 26px 24px; }
 .game-title { background: linear-gradient(135deg, var(--color-accent), #ff6f91, var(--color-info)); -webkit-background-clip: text; background-clip: text; color: transparent; margin: 0 0 6px; font-weight: 800; letter-spacing: 0.01em; }
