@@ -1,3 +1,40 @@
+// ===== Mode Gelap (Dark Mode) =====
+// Preferensi disimpan di localStorage (sama seperti pola musik latar),
+// diterapkan lewat atribut data-theme="dark" di <html>. Dijalankan paling
+// atas file (sebelum kode lain) supaya tema langsung terpasang sesaat
+// halaman dimuat, tanpa "kedipan" putih dulu sebelum berubah gelap.
+const KUNCI_TEMA_GELAP = 'sobatSehatTemaGelap';
+let temaGelapAktif = localStorage.getItem(KUNCI_TEMA_GELAP) === 'on'; // default: terang
+
+function terapkanTema() {
+    document.documentElement.setAttribute('data-theme', temaGelapAktif ? 'dark' : 'light');
+}
+terapkanTema();
+
+function terapkanTampilanIkonTema() {
+    const btnToggleTema = document.getElementById('btnToggleTema');
+    const iconTemaGelap = document.getElementById('iconTemaGelap');
+    const iconTemaTerang = document.getElementById('iconTemaTerang');
+    if (!btnToggleTema) return;
+    btnToggleTema.setAttribute('aria-pressed', temaGelapAktif ? 'true' : 'false');
+    btnToggleTema.setAttribute('aria-label', temaGelapAktif ? 'Aktifkan mode terang' : 'Aktifkan mode gelap');
+    if (iconTemaGelap) iconTemaGelap.classList.toggle('hidden', !temaGelapAktif);
+    if (iconTemaTerang) iconTemaTerang.classList.toggle('hidden', temaGelapAktif);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const btnToggleTema = document.getElementById('btnToggleTema');
+    terapkanTampilanIkonTema();
+    if (btnToggleTema) {
+        btnToggleTema.addEventListener('click', () => {
+            temaGelapAktif = !temaGelapAktif;
+            localStorage.setItem(KUNCI_TEMA_GELAP, temaGelapAktif ? 'on' : 'off');
+            terapkanTema();
+            terapkanTampilanIkonTema();
+        });
+    }
+});
+
 const landingPage = document.getElementById('landingPage');
 const loginPage = document.getElementById('loginPage');
 const dashboardPage = document.getElementById('dashboardPage');
