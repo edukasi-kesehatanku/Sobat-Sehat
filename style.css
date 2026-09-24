@@ -1767,8 +1767,9 @@ Untuk pengguna yang mengaktifkan pengaturan "kurangi animasi" di perangkatnya (b
    --color-border) didefinisikan ulang di sini; sebagian besar komponen
    (card, form, dashboard, topbar, sidebar-content) otomatis ikut berubah
    karena sudah memakai var(...) di atas. Ilustrasi SVG halaman
-   login/landing (warnanya inline lewat atribut fill di HTML, bukan lewat
-   file CSS ini) sengaja TIDAK ikut berubah — tetap cerah seperti aslinya.
+   login/landing (warnanya inline lewat atribut fill di HTML) ditimpa
+   jadi suasana malam di blok "Ilustrasi halaman Awal & Login" di bagian
+   paling bawah file ini.
    Kartu-kartu dekoratif berwarna pastel (tips, materi, hasil kalkulator,
    dsb.) tidak ditulis ulang satu-satu warnanya, melainkan digelapkan lewat
    filter agar tetap terlihat sebagai "aksen berwarna" tanpa kehilangan
@@ -2731,4 +2732,273 @@ Untuk pengguna yang mengaktifkan pengaturan "kurangi animasi" di perangkatnya (b
 [data-theme="dark"] .penjelasan-gula p {
     filter: none;
     color: var(--color-text-muted);
+}
+
+/* ===== Modal Konfirmasi "Keluar dari Akun?" (.panel-konfirmasi) =====
+   Sebelumnya modal ini memakai kelas .panel-aturan + .panel-nama-pet
+   (dipinjam dari panel Aturan & Ganti Nama Pet). Akibatnya di mode gelap:
+   (1) seluruh modal kena filter brightness(0.78) dari daftar "dim generik"
+       sehingga judul, teks, dan tombol jadi kelabu pudar,
+   (2) ikon 🚪 & paragraf rata kiri (text-align: left dari .panel-aturan)
+       padahal judul & tombol di tengah,
+   (3) tombol "Batal" bergaris nyaris tak terlihat, radiusnya kotak, dan
+       lebih tinggi dari tombol "Ya, Keluar".
+   Sekarang modal ini punya kelas sendiri, jadi tidak ikut aturan panel lain. */
+.panel-event.panel-konfirmasi { max-width: 440px; text-align: center; }
+.panel-konfirmasi .panel-event-teks { margin-bottom: 22px; }
+.panel-konfirmasi .reset-konfirmasi-aksi { gap: 12px; margin-top: 0; }
+.panel-konfirmasi .btn-danger-event,
+.panel-konfirmasi .btn-secondary-event {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 120px; padding: 10px 24px;
+    border: 2px solid transparent; border-radius: var(--radius-pill);
+    font-family: inherit; font-size: 0.95rem; font-weight: 700; line-height: 1.4;
+    cursor: pointer;
+}
+.panel-konfirmasi .btn-secondary-event { border-color: #dbe6ee; }
+
+/* --- Mode gelap --- */
+[data-theme="dark"] .panel-event.panel-konfirmasi {
+    background: linear-gradient(165deg, color-mix(in srgb, var(--color-danger-vivid) 10%, var(--color-surface)) 0%, var(--color-surface) 58%);
+    border: 1px solid color-mix(in srgb, var(--color-danger-vivid) 26%, var(--color-border));
+    box-shadow: 0 20px 55px rgba(0, 0, 0, 0.6), 0 0 40px color-mix(in srgb, var(--color-danger-vivid) 8%, transparent);
+}
+[data-theme="dark"] .panel-konfirmasi .panel-event-icon {
+    width: 76px; height: 76px; margin: 0 auto 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.3rem; border-radius: 50%;
+    background-color: color-mix(in srgb, var(--color-danger-vivid) 14%, var(--color-surface));
+    border: 2px solid color-mix(in srgb, var(--color-danger-vivid) 50%, transparent);
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--color-danger-vivid) 25%, transparent);
+}
+[data-theme="dark"] .panel-konfirmasi .panel-event-judul { color: var(--color-heading); }
+[data-theme="dark"] .panel-konfirmasi .panel-event-teks { color: color-mix(in srgb, var(--color-heading) 80%, var(--color-surface)); }
+[data-theme="dark"] .panel-konfirmasi .panel-event-teks strong { color: var(--color-success-vivid); }
+/* .reset-konfirmasi-aksi ikut daftar "dim generik" (brightness 0.78) —
+   di modal ini dimatikan supaya tombolnya tidak pudar. */
+[data-theme="dark"] .panel-konfirmasi .reset-konfirmasi-aksi { filter: none; }
+[data-theme="dark"] .panel-konfirmasi .btn-danger-event {
+    background: linear-gradient(160deg, #dc4634, #b02f21);
+    color: #ffffff;
+    box-shadow: 0 6px 18px color-mix(in srgb, var(--color-danger-vivid) 28%, transparent);
+}
+[data-theme="dark"] .panel-konfirmasi .btn-danger-event:hover { filter: brightness(1.08); }
+[data-theme="dark"] .panel-konfirmasi .btn-secondary-event {
+    background: transparent;
+    color: var(--color-heading);
+    border-color: color-mix(in srgb, var(--color-heading) 28%, var(--color-border));
+}
+[data-theme="dark"] .panel-konfirmasi .btn-secondary-event:hover {
+    background-color: var(--color-surface-2);
+    border-color: color-mix(in srgb, var(--color-heading) 45%, var(--color-border));
+}
+
+/* ===== Dark Mode — Ilustrasi halaman Awal & Login (suasana malam) =====
+   Sebelumnya ilustrasi sengaja dibiarkan cerah di mode gelap, akibatnya
+   ada "blok terang" di kiri yang menabrak panel gelap di kanan, dengan
+   pita kelabu di sambungannya (gradasi ke --color-bg melewati warna
+   langit yang terang). Sekarang warna gradasinya diganti versi malam:
+   langit biru tua, matahari jadi bulan, jendela rumah menyala hangat,
+   rumput & pohon lebih gelap. Elemen SVG-nya tidak diubah sama sekali —
+   cukup ditimpa lewat CSS (stop-color pada gradasi + selector atribut
+   untuk fill/stroke inline), jadi mode terang tetap persis seperti aslinya. */
+[data-theme="dark"] #skyGrad stop:nth-child(1) { stop-color: #0b1524; }
+[data-theme="dark"] #skyGrad stop:nth-child(2) { stop-color: #14233a; }
+[data-theme="dark"] #skyGrad stop:nth-child(3) { stop-color: #1d2c40; }
+[data-theme="dark"] #sunGlow stop:nth-child(1) { stop-color: #dbe6ff; stop-opacity: 0.3; }
+[data-theme="dark"] #sunGlow stop:nth-child(2) { stop-color: #dbe6ff; stop-opacity: 0; }
+[data-theme="dark"] #sunCore stop:nth-child(1) { stop-color: #ffffff; }
+[data-theme="dark"] #sunCore stop:nth-child(2) { stop-color: #e9effc; }
+[data-theme="dark"] #sunCore stop:nth-child(3) { stop-color: #b4c3e0; }
+[data-theme="dark"] #cloudGrad stop:nth-child(1) { stop-color: #35465f; }
+[data-theme="dark"] #cloudGrad stop:nth-child(2) { stop-color: #253449; }
+[data-theme="dark"] #grassGrad stop:nth-child(1) { stop-color: #183226; }
+[data-theme="dark"] #grassGrad stop:nth-child(2) { stop-color: #10241b; }
+[data-theme="dark"] #pathGrad stop:nth-child(1) { stop-color: #2b3a4c; }
+[data-theme="dark"] #pathGrad stop:nth-child(2) { stop-color: #223041; }
+[data-theme="dark"] #roofGrad stop:nth-child(1) { stop-color: #4290cc; }
+[data-theme="dark"] #roofGrad stop:nth-child(2) { stop-color: #2c6fa8; }
+[data-theme="dark"] #roofGrad stop:nth-child(3) { stop-color: #1f5687; }
+[data-theme="dark"] #wallGrad stop:nth-child(1),
+[data-theme="dark"] #wallGrad stop:nth-child(2) { stop-color: #cfd9e4; }
+[data-theme="dark"] #wallGrad stop:nth-child(3) { stop-color: #a9b7c7; }
+[data-theme="dark"] #glassGrad stop:nth-child(1) { stop-color: #ffeeb8; }
+[data-theme="dark"] #glassGrad stop:nth-child(2) { stop-color: #f9d47e; }
+[data-theme="dark"] #glassGrad stop:nth-child(3) { stop-color: #e8b04a; }
+[data-theme="dark"] #treeGradA stop:nth-child(1) { stop-color: #2f9163; }
+[data-theme="dark"] #treeGradA stop:nth-child(2) { stop-color: #1f7a4f; }
+[data-theme="dark"] #treeGradA stop:nth-child(3) { stop-color: #155a3a; }
+[data-theme="dark"] #treeGradB stop:nth-child(1) { stop-color: #3ea877; }
+[data-theme="dark"] #treeGradB stop:nth-child(2) { stop-color: #2b8c5c; }
+[data-theme="dark"] #treeGradB stop:nth-child(3) { stop-color: #1d6f45; }
+[data-theme="dark"] #trunkGrad stop:nth-child(1) { stop-color: #8a6244; }
+[data-theme="dark"] #trunkGrad stop:nth-child(2) { stop-color: #5e3f28; }
+[data-theme="dark"] #benchGrad stop:nth-child(1) { stop-color: #a87a4e; }
+[data-theme="dark"] #benchGrad stop:nth-child(2) { stop-color: #7f5630; }
+[data-theme="dark"] #sceneIllustration circle[fill="none"] { opacity: 0.16; }
+[data-theme="dark"] #sceneIllustration ellipse[fill="#fff8e6"] { fill: #ffffff; opacity: 0.5; }
+[data-theme="dark"] #sceneIllustration ellipse[fill="#c7dcec"] { fill: #1a2638; }
+[data-theme="dark"] #sceneIllustration ellipse[fill="#c9f3d8"] { opacity: 0.25; }
+[data-theme="dark"] #sceneIllustration rect[stroke="#dbe6ee"] { stroke: #8697ab; }
+[data-theme="dark"] #sceneIllustration rect[stroke="#8fb7cf"],
+[data-theme="dark"] #sceneIllustration line[stroke="#8fb7cf"] { stroke: #9a7532; }
+[data-theme="dark"] #sceneIllustration line[stroke="#2c3e50"] { stroke: #5d7690; }
+[data-theme="dark"] #sceneIllustration rect[fill="#2c3e50"] { fill: #3f566e; }
+
+/* Tombol "Mulai": font ikut Poppins seperti judul di atasnya (sebelumnya
+   memakai font bawaan browser). Di mode gelap warnanya diganti biru yang
+   senada dengan atap rumah & tombol tema, karena navy #2c3e50 hampir
+   menyatu dengan latar gelap. */
+.btn-mulai { font-family: inherit; font-weight: 600; }
+[data-theme="dark"] .btn-mulai {
+    background: linear-gradient(160deg, #2a78bd, #1f639a);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 6px 20px color-mix(in srgb, var(--color-info-vivid) 28%, transparent), 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+[data-theme="dark"] .btn-mulai:hover { background: linear-gradient(160deg, #2a78bd, #1f639a); filter: brightness(1.12); }
+
+/* Layout HP/tablet: kartu sapaan di halaman Awal & Login memakai latar putih
+   transparan (rgba 255,255,255,0.68) — di mode gelap jadi kotak kelabu
+   terang yang bikin judul putihnya susah dibaca. Diganti kaca gelap. */
+@media (max-width: 1024px) {
+    [data-theme="dark"] .auth-card {
+        background-color: rgba(16, 22, 31, 0.72);
+        border: 1px solid color-mix(in srgb, var(--color-border) 75%, transparent);
+        box-shadow: 0 10px 34px rgba(0, 0, 0, 0.5);
+    }
+}
+
+/* ===== Dark Mode — Form Login =====
+   Sebelumnya kartu form (.data-form) tetap putih di mode gelap, sementara
+   judul "Login" dan label Email/Sandi memakai --color-heading yang terang
+   → putih di atas putih, nyaris tak terbaca. Tombol Google & pemisah
+   "atau pakai email & sandi" juga ikut kena filter peredup generik, dan
+   kolom email yang diisi otomatis browser (autofill) berubah jadi
+   abu-abu kebiruan terang. Semuanya disesuaikan di bawah ini. */
+[data-theme="dark"] .data-form {
+    background: linear-gradient(165deg, color-mix(in srgb, var(--color-info-vivid) 6%, var(--color-surface)) 0%, var(--color-surface) 55%);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 16px 44px rgba(0, 0, 0, 0.5);
+}
+[data-theme="dark"] .data-form .form-group input[type="text"],
+[data-theme="dark"] .data-form .form-group input[type="email"],
+[data-theme="dark"] .data-form .form-group input[type="password"] {
+    background-color: var(--color-surface-2);
+    color: var(--color-heading);
+    border-color: var(--color-border);
+}
+[data-theme="dark"] .data-form .form-group input:focus { border-color: var(--color-info-vivid); }
+[data-theme="dark"] .data-form input:-webkit-autofill,
+[data-theme="dark"] .data-form input:-webkit-autofill:hover,
+[data-theme="dark"] .data-form input:-webkit-autofill:focus,
+[data-theme="dark"] .data-form input:-webkit-autofill:active {
+    -webkit-text-fill-color: var(--color-heading);
+    caret-color: var(--color-heading);
+    -webkit-box-shadow: 0 0 0 1000px var(--color-surface-2) inset;
+    box-shadow: 0 0 0 1000px var(--color-surface-2) inset;
+    transition: background-color 9999s ease-out 0s;
+}
+[data-theme="dark"] .data-form .btn-google-login {
+    filter: none;
+    background-color: var(--color-surface-2);
+    color: var(--color-heading);
+    border-color: var(--color-border);
+    box-shadow: none;
+}
+[data-theme="dark"] .data-form .btn-google-login:hover {
+    background-color: color-mix(in srgb, var(--color-surface-2) 88%, #ffffff);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+[data-theme="dark"] .data-form .auth-divider { filter: none; color: var(--color-text-muted); }
+[data-theme="dark"] .form-hint { color: var(--color-text-muted); }
+[data-theme="dark"] .form-error { color: var(--color-danger-vivid); }
+[data-theme="dark"] .link-inline { color: var(--color-info-vivid); }
+.data-form button[type="submit"] { font-family: inherit; }
+[data-theme="dark"] .data-form button[type="submit"] {
+    background: linear-gradient(160deg, #2a78bd, #1f639a);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 6px 20px color-mix(in srgb, var(--color-info-vivid) 28%, transparent), 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+[data-theme="dark"] .data-form button[type="submit"]:hover {
+    background: linear-gradient(160deg, #2a78bd, #1f639a);
+    filter: brightness(1.12);
+}
+/* HP/tablet: kartu luar (.auth-card) sudah jadi kaca gelap, jadi form di
+   dalamnya dibuat lebih tipis supaya tidak terlihat "kartu di dalam kartu". */
+@media (max-width: 1024px) {
+    [data-theme="dark"] .data-form {
+        background: color-mix(in srgb, var(--color-surface) 55%, transparent);
+        border-color: color-mix(in srgb, var(--color-border) 70%, transparent);
+        box-shadow: none;
+    }
+}
+
+/* ===== Dark Mode — teks isi yang warnanya tertanam (#4a5a6a) =====
+   Abu-abu gelap #4a5a6a dipakai langsung (bukan lewat variabel tema), jadi
+   di mode gelap teksnya nyaris tak terlihat di atas kotak gelap — contohnya
+   paragraf di kotak "Apa Artinya?". Kelas lain dengan pola yang sama
+   (Gula Gula: perbandingan frekuensi & pesan, Mitos Gula: penjelasan &
+   fakta) ikut dibetulkan. Warna dibuat terang tapi tetap sedikit di bawah
+   judul supaya hierarki judul → isi tetap terlihat. */
+[data-theme="dark"] .apa-artinya-text,
+[data-theme="dark"] .gg-freq-item,
+[data-theme="dark"] .gg-message-sub,
+[data-theme="dark"] .mg-split-text,
+[data-theme="dark"] .mg-myth-fact {
+    color: color-mix(in srgb, var(--color-heading) 80%, var(--color-surface));
+}
+[data-theme="dark"] .gg-freq-item { border-bottom-color: var(--color-border); }
+/* Umpan balik hijau tua #1e8449 di kotak "Coba Hari Ini!" juga tenggelam
+   di latar hijau-gelap. */
+[data-theme="dark"] .challenge-feedback { color: var(--color-success-vivid); }
+
+/* ===== Dark Mode — Halaman Hasil Kalkulator (warna) =====
+   Sebelumnya: kotak "Catatan" tetap krem terang (tulisan "Catatan:" jadi
+   putih di atas krem → tak terbaca), keempat kartu hasil memakai warna
+   datar yang dicampur berbeda-beda sehingga terlihat keruh (kartu gula
+   kecokelatan, IMT kelabu-biru), dan label kategori IMT tetap pastel
+   terang. Sekarang semuanya memakai satu resep yang sama dengan kotak
+   aksen lain di mode gelap: gradasi tipis warna aksen → permukaan gelap,
+   garis tepi senada, dan angka/label berwarna "vivid". */
+[data-theme="dark"] .kalkulator-disclaimer {
+    background: linear-gradient(160deg, color-mix(in srgb, var(--color-accent-vivid) 14%, var(--color-surface)) 0%, var(--color-surface) 80%);
+    border: 1px solid color-mix(in srgb, var(--color-accent-vivid) 28%, var(--color-border));
+    border-left: 4px solid var(--color-accent-vivid);
+    color: color-mix(in srgb, var(--color-heading) 80%, var(--color-surface));
+}
+[data-theme="dark"] .kalkulator-disclaimer strong { color: var(--color-accent-vivid); }
+
+[data-theme="dark"] .hasil-card-besar {
+    --hasil-warna: var(--color-border);
+    filter: none;
+    background: linear-gradient(160deg, color-mix(in srgb, var(--hasil-warna) 16%, var(--color-surface)) 0%, var(--color-surface) 75%);
+    border: 1px solid color-mix(in srgb, var(--hasil-warna) 40%, var(--color-border));
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+}
+[data-theme="dark"] .hasil-card-gula { --hasil-warna: var(--color-accent-vivid); }
+[data-theme="dark"] .hasil-card-imt { --hasil-warna: var(--color-info-vivid); }
+[data-theme="dark"] .hasil-card-karbo { --hasil-warna: var(--color-success-vivid); }
+
+[data-theme="dark"] .hasil-card-kategori,
+[data-theme="dark"] .hasil-card-kategori.kategori-kurus {
+    background-color: color-mix(in srgb, var(--color-info-vivid) 18%, var(--color-surface));
+    color: var(--color-info-vivid);
+    border: 1px solid color-mix(in srgb, var(--color-info-vivid) 45%, transparent);
+}
+[data-theme="dark"] .hasil-card-kategori.kategori-normal {
+    background-color: color-mix(in srgb, var(--color-success-vivid) 18%, var(--color-surface));
+    color: var(--color-success-vivid);
+    border-color: color-mix(in srgb, var(--color-success-vivid) 45%, transparent);
+}
+[data-theme="dark"] .hasil-card-kategori.kategori-berlebih {
+    background-color: color-mix(in srgb, var(--color-accent-vivid) 18%, var(--color-surface));
+    color: var(--color-accent-vivid);
+    border-color: color-mix(in srgb, var(--color-accent-vivid) 45%, transparent);
+}
+[data-theme="dark"] .hasil-card-kategori.kategori-obesitas {
+    background-color: color-mix(in srgb, var(--color-danger-vivid) 18%, var(--color-surface));
+    color: var(--color-danger-vivid);
+    border-color: color-mix(in srgb, var(--color-danger-vivid) 45%, transparent);
 }
